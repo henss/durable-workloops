@@ -27,7 +27,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 ## Source-Derived Surfaces
 
-- Config: 4
+- Config: 5
 - Docs: 7
 - Package Scripts: 16
 - Tests: 1

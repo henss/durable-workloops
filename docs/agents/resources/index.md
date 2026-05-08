@@ -10,3 +10,4 @@ Generated index of visible `resource` entities.
 - [workloop-schema.yaml config](config.agent-atlas-public-components-workloop-schema.md) - `resource:config.agent-atlas-public-components-workloop-schema`: Repository configuration file at .agent-atlas/public/components/workloop-schema.yaml.
 - [package.json config](config.package.md) - `resource:config.package`: Repository configuration file at package.json.
 - [tsconfig.json config](config.tsconfig.md) - `resource:config.tsconfig`: Repository configuration file at tsconfig.json.
+- [tsconfig.build.json config](config.tsconfig-build.md) - `resource:config.tsconfig-build`: Repository configuration file at tsconfig.build.json.

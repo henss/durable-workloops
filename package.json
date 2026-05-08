@@ -1,0 +1,39 @@
+{
+  "name": "durable-workloops",
+  "version": "0.1.0",
+  "description": "Portable durable work-loop schemas and state transitions for agent workflows.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./schema": {
+      "types": "./src/schema.ts",
+      "import": "./src/schema.ts"
+    },
+    "./selection": {
+      "types": "./src/selection.ts",
+      "import": "./src/selection.ts"
+    },
+    "./adjudication": {
+      "types": "./src/adjudication.ts",
+      "import": "./src/adjudication.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm test",
+    "lint:docs": "node scripts/docs-quality-lint.mjs"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}

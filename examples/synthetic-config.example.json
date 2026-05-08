@@ -1,0 +1,11 @@
+{
+  "schema": "durable-workloops.synthetic-example.v1",
+  "exampleProject": "example-public-toolkit",
+  "inputs": [
+    {
+      "id": "example-input-1",
+      "source": "synthetic",
+      "note": "Replace with a minimal public-safe behavior fixture."
+    }
+  ]
+}

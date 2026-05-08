@@ -36,6 +36,7 @@ describe("WorkLoop Codex launcher", () => {
     expect(prompt).toContain("Do not turn the whole WorkLoop into a chat-only checklist.");
     expect(prompt).toContain("- id: slice-1");
     expect(prompt).toContain("- last outcome: none");
+    expect(prompt).toContain("Use `blockers` only for terminal blockers");
     expect(prompt).toContain('"workLoopId": "demo-work-loop"');
     expect(prompt).toContain("Required Outcome Artifact");
   });

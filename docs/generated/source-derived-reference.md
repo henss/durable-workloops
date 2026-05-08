@@ -30,7 +30,7 @@ Generated entities: 26
 
 ## Tests
 
-- `test-scope:generated.src` - src tests: 5 discovered test files under src.
+- `test-scope:generated.src` - src tests: 6 discovered test files under src.
 
 ## Agent Skills
 

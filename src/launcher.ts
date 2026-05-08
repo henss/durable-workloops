@@ -174,6 +174,7 @@ ${extras}
 - Work only on the current slice unless a dependency or verification step requires a narrow supporting edit.
 - Do not mark the WorkLoop complete just because this session reaches a stopping point.
 - If the slice cannot be completed, classify the blocker clearly and keep the outcome bounded to this slice.
+- Use \`blockers\` only for terminal blockers that stop this slice; use \`followUp\` for caveats or work owned by later slices.
 - Run the narrowest meaningful verification available for the files or artifacts you touched.
 - Preserve unrelated local work.
 ${contextRule}

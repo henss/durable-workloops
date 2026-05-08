@@ -85,6 +85,29 @@ describe("adjudicateWorkLoopSlice", () => {
     expect(decision.action).toBe("repair");
   });
 
+  it("does not stop on non-terminal blocker caveats when continuation stays agent-owned", () => {
+    const decision = adjudicateWorkLoopSlice({
+      workLoop,
+      slice: workLoop.slices[0]!,
+      outcomePath: "outcome.json",
+      outcome: {
+        disposition: "completed",
+        blockers: ["Operational caveat for a later slice."],
+        continuationDecision: {
+          action: "continue",
+          summary: "Continue to the next slice.",
+          nextStepOwner: "agent",
+        },
+      },
+      peerReview: {
+        status: "passed",
+        reviewArtifactPath: "review.md",
+      },
+    });
+
+    expect(decision.action).toBe("continue");
+  });
+
   it("marks the loop done only when the final open slice is complete", () => {
     const almostDone: WorkLoop = {
       ...workLoop,

@@ -57,7 +57,8 @@ export function adjudicateWorkLoopSlice(input: WorkLoopAdjudicationInput): WorkL
 
   if (
     input.outcome.disposition === "stopped" ||
-    (input.outcome.blockers ?? []).length > 0 ||
+    input.outcome.continuationDecision.action === "blocked" ||
+    input.outcome.continuationDecision.nextStepOwner === "external" ||
     input.outcome.continuationDecision.stopConditionClass
   ) {
     return {

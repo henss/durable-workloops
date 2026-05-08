@@ -1,0 +1,12 @@
+id: document:operating-model
+kind: document
+title: Operating Model
+summary: Human-facing package map, integration shape, and non-goals for durable-workloops.
+visibility: public
+uris:
+  - docs/index.md
+relations:
+  - type: documents
+    target: repository:durable-workloops
+  - type: documents
+    target: domain:durable-agent-workflows

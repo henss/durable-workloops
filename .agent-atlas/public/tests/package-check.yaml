@@ -1,0 +1,12 @@
+id: test-scope:package-check
+kind: test-scope
+title: Package Check
+summary: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
+visibility: public
+commands:
+  - command: pnpm check
+    cwd: .
+    purpose: Verify TypeScript, tests, and Atlas drift.
+relations:
+  - type: verifies
+    target: repository:durable-workloops

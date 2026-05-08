@@ -1,0 +1,18 @@
+id: component:package-entrypoint
+kind: component
+title: Package Entrypoint
+summary: Aggregate public exports for the durable-workloops package.
+visibility: public
+code:
+  paths:
+    - src/index.ts
+    - package.json
+  entrypoints:
+    - src/index.ts
+relations:
+  - type: uses
+    target: component:workloop-schema
+  - type: uses
+    target: component:workloop-selection
+  - type: uses
+    target: component:workloop-adjudication

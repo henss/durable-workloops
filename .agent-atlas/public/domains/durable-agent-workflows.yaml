@@ -1,0 +1,12 @@
+id: domain:durable-agent-workflows
+kind: domain
+title: Durable Agent Workflows
+summary: State contracts and deterministic transitions for multi-step agent work that must not be marked done after one incomplete run.
+visibility: public
+relations:
+  - type: contains
+    target: workflow:resume-workloop
+  - type: contains
+    target: workflow:adjudicate-workloop-slice
+  - type: contains
+    target: component:workloop-schema

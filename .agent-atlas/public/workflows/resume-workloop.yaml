@@ -1,0 +1,18 @@
+id: workflow:resume-workloop
+kind: workflow
+title: Resume WorkLoop
+summary: Selects a ready or repair-queued slice whose dependencies are satisfied, then marks it running for the host system to execute.
+visibility: public
+relations:
+  - type: uses
+    target: component:workloop-selection
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:selection-tests
+agent:
+  load_when:
+    - Changing slice selection behavior
+    - Debugging dependency handling
+    - Integrating WorkLoop resume logic into a host controller
+  token_budget_hint: 1200

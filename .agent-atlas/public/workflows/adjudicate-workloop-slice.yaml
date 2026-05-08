@@ -1,0 +1,18 @@
+id: workflow:adjudicate-workloop-slice
+kind: workflow
+title: Adjudicate WorkLoop Slice
+summary: Converts outcome and peer-review evidence into continue, repair, blocked, needs-stefan, done, or canceled decisions.
+visibility: public
+relations:
+  - type: uses
+    target: component:workloop-adjudication
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:adjudication-tests
+agent:
+  load_when:
+    - Changing done authority
+    - Debugging review-failure routing
+    - Integrating external outcome or review artifacts
+  token_budget_hint: 1400

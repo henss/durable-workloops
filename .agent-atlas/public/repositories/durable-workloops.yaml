@@ -1,0 +1,44 @@
+id: repository:durable-workloops
+kind: repository
+title: durable-workloops
+summary: Portable durable work-loop schemas and deterministic state transitions for agent-run work.
+visibility: public
+uri: github://henss/durable-workloops
+metadata:
+  readme:
+    overview:
+      - Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
+      - Host systems keep their own launchers, tracker adapters, persistence layout, review engines, and notification routing.
+    sections:
+      - title: What This Repo Does
+        items:
+          - Defines public WorkLoop and WorkLoopSlice contracts.
+          - Selects the next safe slice from durable loop state.
+          - Adjudicates outcome plus peer-review evidence into controller decisions.
+          - Applies controller decisions without depending on a specific tracker or agent runtime.
+      - title: Non-Goals
+        items:
+          - No hosted runner.
+          - No Linear, Jira, GitHub, or Slack adapter.
+          - No bundled peer-review engine.
+          - No private orchestration policy.
+    key_docs:
+      - label: Agent Atlas
+        path: docs/agents/atlas.md
+      - label: Operating Model
+        path: docs/index.md
+      - label: Contributor Safety
+        path: CONTRIBUTING.md
+relations:
+  - type: contains
+    target: domain:durable-agent-workflows
+  - type: contains
+    target: component:workloop-schema
+  - type: contains
+    target: component:workloop-selection
+  - type: contains
+    target: component:workloop-adjudication
+  - type: documented-in
+    target: document:operating-model
+  - type: tested-by
+    target: test-scope:package-check

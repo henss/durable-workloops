@@ -23,9 +23,18 @@
     }
   },
   "scripts": {
+    "atlas": "pnpm dlx @agent-atlas/cli@0.18.1",
+    "atlas:doctor": "pnpm dlx @agent-atlas/cli@0.18.1 doctor --path . --profile public",
+    "atlas:validate": "pnpm dlx @agent-atlas/cli@0.18.1 validate . --profile public",
+    "atlas:boundary-check": "pnpm dlx @agent-atlas/cli@0.18.1 boundary-check . --profile public",
+    "atlas:refresh": "pnpm dlx @agent-atlas/cli@0.18.1 maintain fix --path . --profile public",
+    "atlas:check": "pnpm dlx @agent-atlas/cli@0.18.1 maintain check --path . --profile public",
+    "atlas:docs:check": "pnpm dlx @agent-atlas/cli@0.18.1 generate markdown . --output docs/agents --profile public --check",
+    "atlas:context-pack": "pnpm dlx @agent-atlas/cli@0.18.1 context-pack --path . --profile public",
+    "atlas:resolve-path": "pnpm dlx @agent-atlas/cli@0.18.1 resolve-path --path . --profile public",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check": "pnpm typecheck && pnpm test",
+    "check": "pnpm typecheck && pnpm test && pnpm atlas:check",
     "lint:docs": "node scripts/docs-quality-lint.mjs"
   },
   "dependencies": {

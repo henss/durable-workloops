@@ -7,6 +7,13 @@ agent-workflow state machines.
 
 ## Rules
 
+- Before broad search, use Agent Atlas:
+  - Root view: `docs/agents/atlas.md`
+  - Check setup: `pnpm atlas:doctor`
+  - Resolve a file: `pnpm atlas:resolve-path -- <path>`
+  - Generate task context: `pnpm atlas:context-pack -- "<task>"`
+  - Refresh generated Atlas docs and README: `pnpm atlas:refresh`
+  - Check Atlas drift: `pnpm atlas:check`
 - Keep examples synthetic and public-safe.
 - Keep the package independent from any private tracker, company, workspace,
   launcher, or review service.

@@ -1,0 +1,14 @@
+id: test-scope:adjudication-tests
+kind: test-scope
+title: Adjudication Tests
+summary: Unit tests for outcome and peer-review adjudication.
+visibility: public
+commands:
+  - command: pnpm test -- src/adjudication.test.ts
+    cwd: .
+    purpose: Verify WorkLoop decision routing and state application.
+relations:
+  - type: verifies
+    target: component:workloop-adjudication
+  - type: verifies
+    target: workflow:adjudicate-workloop-slice

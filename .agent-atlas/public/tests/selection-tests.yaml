@@ -1,0 +1,14 @@
+id: test-scope:selection-tests
+kind: test-scope
+title: Selection Tests
+summary: Unit tests for slice selection and running-state transitions.
+visibility: public
+commands:
+  - command: pnpm test -- src/selection.test.ts
+    cwd: .
+    purpose: Verify WorkLoop slice selection behavior.
+relations:
+  - type: verifies
+    target: component:workloop-selection
+  - type: verifies
+    target: workflow:resume-workloop

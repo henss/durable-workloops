@@ -1,0 +1,18 @@
+id: component:workloop-adjudication
+kind: component
+title: WorkLoop Adjudication
+summary: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
+visibility: public
+code:
+  paths:
+    - src/adjudication.ts
+    - src/outcome.ts
+  entrypoints:
+    - src/adjudication.ts
+relations:
+  - type: implements
+    target: workflow:adjudicate-workloop-slice
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:adjudication-tests

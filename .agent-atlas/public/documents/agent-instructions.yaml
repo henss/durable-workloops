@@ -1,0 +1,10 @@
+id: document:agent-instructions
+kind: document
+title: Agent Instructions
+summary: Repo-local instructions for agents working in durable-workloops.
+visibility: public
+uris:
+  - AGENTS.md
+relations:
+  - type: documents
+    target: repository:durable-workloops

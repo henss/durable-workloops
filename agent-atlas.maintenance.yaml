@@ -1,0 +1,15 @@
+version: 1
+mode: agent-maintained
+profile: public
+generated_docs:
+  output: docs/agents
+  auto_regenerate: true
+generated_readme:
+  path: README.md
+  auto_regenerate: true
+metadata:
+  auto_apply: false
+  allow_add: false
+  allow_update: false
+  allow_archive: false
+  allow_delete: false

@@ -1,0 +1,17 @@
+id: component:workloop-selection
+kind: component
+title: WorkLoop Selection
+summary: Pure helpers for choosing the next executable slice, finding active work, and incrementing slice attempts.
+visibility: public
+code:
+  paths:
+    - src/selection.ts
+  entrypoints:
+    - src/selection.ts
+relations:
+  - type: implements
+    target: workflow:resume-workloop
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:selection-tests

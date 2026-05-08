@@ -1,0 +1,17 @@
+id: component:workloop-schema
+kind: component
+title: WorkLoop Schema
+summary: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.
+visibility: public
+code:
+  paths:
+    - src/schema.ts
+  entrypoints:
+    - src/schema.ts
+relations:
+  - type: part-of
+    target: domain:durable-agent-workflows
+  - type: used-by
+    target: workflow:resume-workloop
+  - type: used-by
+    target: workflow:adjudicate-workloop-slice

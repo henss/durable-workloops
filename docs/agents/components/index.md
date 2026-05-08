@@ -6,6 +6,7 @@ Profile: `public`
 
 Generated index of visible `component` entities.
 
+- [AI Quality Loops Adapter](ai-quality-loops-adapter.md) - `component:ai-quality-loops-adapter`: Dependency-free adapter shape that maps WorkLoop slice outcome context into an ai-quality-loops review request and returns WorkLoop peer-review evidence.
 - [Package Entrypoint](package-entrypoint.md) - `component:package-entrypoint`: Aggregate public exports for the durable-workloops package.
 - [durable-workloops](package.durable-workloops.md) - `component:package.durable-workloops`: Portable durable work-loop schemas and state transitions for agent workflows.
 - [WorkLoop Adjudication](workloop-adjudication.md) - `component:workloop-adjudication`: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.

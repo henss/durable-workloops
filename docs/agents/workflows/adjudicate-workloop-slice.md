@@ -16,6 +16,7 @@ Converts outcome and peer-review evidence into continue, repair, blocked, needs-
 
 ### Components
 
+- `component:ai-quality-loops-adapter`
 - `component:workloop-adjudication`
 - `component:workloop-schema`
 
@@ -27,6 +28,7 @@ Converts outcome and peer-review evidence into continue, repair, blocked, needs-
 
 ### `implemented-by`
 
+- `component:ai-quality-loops-adapter` _(generated)_
 - `component:workloop-adjudication` _(generated)_
 
 ### `part-of`

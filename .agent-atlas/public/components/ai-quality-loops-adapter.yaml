@@ -1,0 +1,24 @@
+id: component:ai-quality-loops-adapter
+kind: component
+title: AI Quality Loops Adapter
+summary: Dependency-free adapter shape that maps WorkLoop slice outcome context into an ai-quality-loops review request and returns WorkLoop peer-review evidence.
+status: pilot
+visibility: public
+code:
+  paths:
+    - src/ai-quality-loops.ts
+  entrypoints:
+    - src/ai-quality-loops.ts
+relations:
+  - type: part-of
+    target: repository:durable-workloops
+  - type: implements
+    target: workflow:adjudicate-workloop-slice
+  - type: tested-by
+    target: test-scope:ai-quality-loops-adapter-tests
+agent:
+  load_when:
+    - Connecting durable WorkLoops to ai-quality-loops review providers.
+    - Mapping WorkLoop outcome and prompt artifacts into generic review requests.
+    - Keeping review-engine integration optional instead of a core dependency.
+  token_budget_hint: 800

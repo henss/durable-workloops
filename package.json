@@ -24,6 +24,10 @@
     "./launcher": {
       "types": "./src/launcher.ts",
       "import": "./src/launcher.ts"
+    },
+    "./ai-quality-loops": {
+      "types": "./src/ai-quality-loops.ts",
+      "import": "./src/ai-quality-loops.ts"
     }
   },
   "scripts": {

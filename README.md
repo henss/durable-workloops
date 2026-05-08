@@ -63,6 +63,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 ## Key Implementation Surfaces
 
+- `component:ai-quality-loops-adapter` - AI Quality Loops Adapter: Dependency-free adapter shape that maps WorkLoop slice outcome context into an ai-quality-loops review request and returns WorkLoop peer-review evidence.
 - `component:workloop-adjudication` - WorkLoop Adjudication: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
 - `component:workloop-codex-launcher` - WorkLoop Codex Launcher: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, fresh or same-session launch records, and required outcome paths.
 - `component:workloop-schema` - WorkLoop Schema: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.
@@ -81,7 +82,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 ## Verification
 
-- `test-scope:generated.src` - src tests: 4 discovered test files under src.
+- `test-scope:generated.src` - src tests: 3 discovered test files under src.
 - `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
 
 ## Commands

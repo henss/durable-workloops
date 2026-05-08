@@ -7,7 +7,8 @@ Profile: `public`
 ## Test Scopes
 
 - `test-scope:adjudication-tests` - Adjudication Tests: Unit tests for outcome and peer-review adjudication.
-- `test-scope:generated.src` - src tests: 4 discovered test files under src.
+- `test-scope:ai-quality-loops-adapter-tests` - AI Quality Loops Adapter Tests: Verifies WorkLoop slice review context maps to an injected ai-quality-loops-compatible runner.
+- `test-scope:generated.src` - src tests: 3 discovered test files under src.
 - `test-scope:launcher-tests` - Launcher Tests: Verifies Codex launch prompt rendering and launch-record generation for WorkLoop slices.
 - `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
 - `test-scope:selection-tests` - Selection Tests: Unit tests for slice selection and running-state transitions.
@@ -25,11 +26,20 @@ Verifies:
 - `component:workloop-adjudication`
 - `workflow:adjudicate-workloop-slice`
 
+## AI Quality Loops Adapter Tests
+
+ID: `test-scope:ai-quality-loops-adapter-tests`
+
+Verifies WorkLoop slice review context maps to an injected ai-quality-loops-compatible runner.
+
+Verifies:
+- `component:ai-quality-loops-adapter`
+
 ## src tests
 
 ID: `test-scope:generated.src`
 
-4 discovered test files under src.
+3 discovered test files under src.
 
 - command: `pnpm test`
   purpose: Run repository test suite.

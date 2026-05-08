@@ -1,0 +1,14 @@
+id: test-scope:ai-quality-loops-adapter-tests
+kind: test-scope
+title: AI Quality Loops Adapter Tests
+summary: Verifies WorkLoop slice review context maps to an injected ai-quality-loops-compatible runner.
+status: active
+visibility: public
+verification:
+  commands:
+    - pnpm test -- src/ai-quality-loops.test.ts
+  covers:
+    - src/ai-quality-loops.ts
+relations:
+  - type: verifies
+    target: component:ai-quality-loops-adapter

@@ -28,6 +28,10 @@ Launches support two modes:
 
 The launcher intentionally does not know about Linear, Jira, Confluence, Slack, or host-specific review engines. It only creates an execution envelope with a required outcome artifact path so host controllers can ingest and adjudicate the result. Host controllers should fall back to `fresh_session` after failed reviews, blockers, stale state, or context drift.
 
+## Review Adapter
+
+The package includes `durable-workloops/ai-quality-loops` as an optional adapter shape for review execution. It does not import or depend on `ai-quality-loops`; callers pass an AIQL-compatible `runQualityReview` function. The adapter maps WorkLoop objective, success criteria, prompt path, outcome path, and changed paths into a generic review request, then returns `WorkLoopPeerReviewLike` evidence for adjudication.
+
 ## Non-Goals
 
 - No hosted runner.

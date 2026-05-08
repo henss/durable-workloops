@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 26
+Generated entities: 29
 
 ## Commander
 
@@ -19,8 +19,11 @@ Generated entities: 26
 - `interface:package-script.durable-workloops.atlas-refresh` - durable-workloops atlas:refresh: Package script `atlas:refresh` from package.json.
 - `interface:package-script.durable-workloops.atlas-resolve-path` - durable-workloops atlas:resolve-path: Package script `atlas:resolve-path` from package.json.
 - `interface:package-script.durable-workloops.atlas-validate` - durable-workloops atlas:validate: Package script `atlas:validate` from package.json.
+- `interface:package-script.durable-workloops.build` - durable-workloops build: Package script `build` from package.json.
 - `interface:package-script.durable-workloops.check` - durable-workloops check: Package script `check` from package.json.
+- `interface:package-script.durable-workloops.clean` - durable-workloops clean: Package script `clean` from package.json.
 - `interface:package-script.durable-workloops.lint-docs` - durable-workloops lint:docs: Package script `lint:docs` from package.json.
+- `interface:package-script.durable-workloops.release-package` - durable-workloops release:package: Package script `release:package` from package.json.
 - `interface:package-script.durable-workloops.test` - durable-workloops test: Package script `test` from package.json.
 - `interface:package-script.durable-workloops.typecheck` - durable-workloops typecheck: Package script `typecheck` from package.json.
 
@@ -30,7 +33,7 @@ Generated entities: 26
 
 ## Tests
 
-- `test-scope:generated.src` - src tests: 6 discovered test files under src.
+- `test-scope:generated.src` - src tests: 4 discovered test files under src.
 
 ## Agent Skills
 

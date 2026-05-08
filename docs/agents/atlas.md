@@ -71,4 +71,4 @@ Profile: `public`
 - `interface:package-script.durable-workloops.atlas-refresh` (interface) - durable-workloops atlas:refresh: Package script `atlas:refresh` from package.json.
 - `interface:package-script.durable-workloops.atlas-resolve-path` (interface) - durable-workloops atlas:resolve-path: Package script `atlas:resolve-path` from package.json.
 - `interface:package-script.durable-workloops.atlas-validate` (interface) - durable-workloops atlas:validate: Package script `atlas:validate` from package.json.
-- `interface:package-script.durable-workloops.check` (interface) - durable-workloops check: Package script `check` from package.json.
+- `interface:package-script.durable-workloops.build` (interface) - durable-workloops build: Package script `build` from package.json.

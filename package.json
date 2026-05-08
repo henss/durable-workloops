@@ -4,30 +4,42 @@
   "description": "Portable durable work-loop schemas and state transitions for agent workflows.",
   "type": "module",
   "license": "MIT",
+  "homepage": "https://github.com/henss/durable-workloops#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henss/durable-workloops.git"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./schema": {
-      "types": "./src/schema.ts",
-      "import": "./src/schema.ts"
+      "types": "./dist/schema.d.ts",
+      "import": "./dist/schema.js"
     },
     "./selection": {
-      "types": "./src/selection.ts",
-      "import": "./src/selection.ts"
+      "types": "./dist/selection.d.ts",
+      "import": "./dist/selection.js"
     },
     "./adjudication": {
-      "types": "./src/adjudication.ts",
-      "import": "./src/adjudication.ts"
+      "types": "./dist/adjudication.d.ts",
+      "import": "./dist/adjudication.js"
     },
     "./launcher": {
-      "types": "./src/launcher.ts",
-      "import": "./src/launcher.ts"
+      "types": "./dist/launcher.d.ts",
+      "import": "./dist/launcher.js"
     },
     "./ai-quality-loops": {
-      "types": "./src/ai-quality-loops.ts",
-      "import": "./src/ai-quality-loops.ts"
+      "types": "./dist/ai-quality-loops.d.ts",
+      "import": "./dist/ai-quality-loops.js"
     }
   },
   "scripts": {
@@ -40,10 +52,13 @@
     "atlas:docs:check": "pnpm dlx @agent-atlas/cli@0.18.1 generate markdown . --output docs/agents --profile public --check",
     "atlas:context-pack": "pnpm dlx @agent-atlas/cli@0.18.1 context-pack --path . --profile public",
     "atlas:resolve-path": "pnpm dlx @agent-atlas/cli@0.18.1 resolve-path --path . --profile public",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "check": "pnpm typecheck && pnpm test && pnpm atlas:check",
-    "lint:docs": "node scripts/docs-quality-lint.mjs"
+    "lint:docs": "node scripts/docs-quality-lint.mjs",
+    "release:package": "node scripts/release-package.mjs"
   },
   "dependencies": {
     "zod": "^4.3.6"

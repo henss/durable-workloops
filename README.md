@@ -29,7 +29,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 - Config: 4
 - Docs: 7
-- Package Scripts: 13
+- Package Scripts: 16
 - Tests: 1
 - Workspace Packages: 1
 - Full generated reference: `docs/generated/source-derived-reference.md`.
@@ -82,7 +82,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 ## Verification
 
-- `test-scope:generated.src` - src tests: 6 discovered test files under src.
+- `test-scope:generated.src` - src tests: 4 discovered test files under src.
 - `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
 
 ## Commands

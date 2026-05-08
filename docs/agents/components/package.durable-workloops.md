@@ -32,10 +32,13 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 - `atlas:docs:check`
 - `atlas:context-pack`
 - `atlas:resolve-path`
+- `clean`
+- `build`
 - `typecheck`
 - `test`
 - `check`
 - `lint:docs`
+- `release:package`
 
 ### Interfaces
 
@@ -48,8 +51,11 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 - `interface:package-script.durable-workloops.atlas-refresh`
 - `interface:package-script.durable-workloops.atlas-resolve-path`
 - `interface:package-script.durable-workloops.atlas-validate`
+- `interface:package-script.durable-workloops.build`
 - `interface:package-script.durable-workloops.check`
+- `interface:package-script.durable-workloops.clean`
 - `interface:package-script.durable-workloops.lint-docs`
+- `interface:package-script.durable-workloops.release-package`
 - `interface:package-script.durable-workloops.test`
 - `interface:package-script.durable-workloops.typecheck`
 
@@ -80,8 +86,11 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 - `interface:package-script.durable-workloops.atlas-refresh` _(generated)_
 - `interface:package-script.durable-workloops.atlas-resolve-path` _(generated)_
 - `interface:package-script.durable-workloops.atlas-validate` _(generated)_
+- `interface:package-script.durable-workloops.build` _(generated)_
 - `interface:package-script.durable-workloops.check` _(generated)_
+- `interface:package-script.durable-workloops.clean` _(generated)_
 - `interface:package-script.durable-workloops.lint-docs` _(generated)_
+- `interface:package-script.durable-workloops.release-package` _(generated)_
 - `interface:package-script.durable-workloops.test` _(generated)_
 - `interface:package-script.durable-workloops.typecheck` _(generated)_
 - `resource:config.package` _(generated)_

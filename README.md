@@ -64,7 +64,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 ## Key Implementation Surfaces
 
 - `component:workloop-adjudication` - WorkLoop Adjudication: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
-- `component:workloop-codex-launcher` - WorkLoop Codex Launcher: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, launch records, and required outcome paths.
+- `component:workloop-codex-launcher` - WorkLoop Codex Launcher: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, fresh or same-session launch records, and required outcome paths.
 - `component:workloop-schema` - WorkLoop Schema: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.
 - `component:workloop-selection` - WorkLoop Selection: Pure helpers for choosing the next executable slice, finding active work, and incrementing slice attempts.
 
@@ -81,7 +81,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 ## Verification
 
-- `test-scope:generated.src` - src tests: 2 discovered test files under src.
+- `test-scope:generated.src` - src tests: 4 discovered test files under src.
 - `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
 
 ## Commands

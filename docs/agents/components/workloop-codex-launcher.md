@@ -6,7 +6,7 @@ ID: `component:workloop-codex-launcher`
 Kind: `component`
 Profile: `public`
 
-Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, launch records, and required outcome paths.
+Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, fresh or same-session launch records, and required outcome paths.
 
 ## Metadata
 
@@ -43,6 +43,7 @@ Generic Codex execution envelope for durable WorkLoop slices, including bounded 
 ## Agent Hints
 
 - load when: Adding Codex execution to a host WorkLoop controller.
+- load when: Choosing between fresh-session and same-session WorkLoop slice execution.
 - load when: Changing prompt or launch-record contracts for WorkLoop slices.
 - load when: Debugging why WorkLoop execution degraded into chat-only planning.
 - token budget hint: 900

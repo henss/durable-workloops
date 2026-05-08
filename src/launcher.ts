@@ -4,12 +4,17 @@ import path from "node:path";
 import type { WorkLoop, WorkLoopCurrentState, WorkLoopSlice } from "./schema.js";
 
 export type CodexSandboxMode = "read-only" | "workspace-write" | "danger-full-access";
+export type WorkLoopCodexContinuationMode = "fresh_session" | "same_session";
 
 export interface WorkLoopCodexLaunchOptions {
   workLoop: WorkLoop;
   slice: WorkLoopSlice;
   workspaceRoot: string;
   launchRoot?: string;
+  continuationMode?: WorkLoopCodexContinuationMode;
+  codexSessionId?: string;
+  resumeLastSession?: boolean;
+  previousSliceId?: string;
   codexCommand?: string;
   model?: string;
   sandbox?: CodexSandboxMode;
@@ -26,6 +31,10 @@ export interface PreparedWorkLoopCodexLaunch {
   launchRecordPath: string;
   command: string[];
   stdinPath: string;
+  workingDirectory: string;
+  continuationMode: WorkLoopCodexContinuationMode;
+  codexSessionId?: string;
+  previousSliceId?: string;
 }
 
 export interface RunWorkLoopCodexLaunchResult {
@@ -56,6 +65,10 @@ export function prepareWorkLoopCodexLaunch(
     launchRecordPath,
     command,
     stdinPath: promptPath,
+    workingDirectory: options.workspaceRoot,
+    continuationMode: options.continuationMode ?? "fresh_session",
+    codexSessionId: options.codexSessionId,
+    previousSliceId: options.previousSliceId,
   };
 
   fs.mkdirSync(launchRoot, { recursive: true });
@@ -88,6 +101,7 @@ export function runPreparedWorkLoopCodexLaunch(
     input: fs.readFileSync(launch.stdinPath, "utf8"),
     encoding: "utf8",
     shell: process.platform === "win32",
+    cwd: launch.workingDirectory,
   });
   return {
     status: result.status === 0 ? "completed" : "failed",
@@ -114,7 +128,16 @@ export function renderWorkLoopCodexPrompt(
       ? `\n## Host Instructions\n\n${options.extraInstructions.map((line) => `- ${line}`).join("\n")}\n`
       : "";
 
-  return `# WorkLoop Slice Execution
+  const heading =
+    options.continuationMode === "same_session"
+      ? "WorkLoop Slice Continuation"
+      : "WorkLoop Slice Execution";
+  const contextRule =
+    options.continuationMode === "same_session"
+      ? "- Carry forward useful context from the existing Codex session, but treat this prompt and the current state as authoritative when they conflict with prior assumptions."
+      : "- Start from the current repo state and the durable WorkLoop state, not from unstated chat history.";
+
+  return `# ${heading}
 
 You are executing one durable WorkLoop slice. Do not turn the whole WorkLoop into a chat-only checklist.
 
@@ -124,6 +147,8 @@ You are executing one durable WorkLoop slice. Do not turn the whole WorkLoop int
 - project: ${workLoop.projectId}
 - objective: ${workLoop.objective}
 - status: ${workLoop.status}
+- continuation mode: ${options.continuationMode ?? "fresh_session"}
+- previous slice: ${options.previousSliceId ?? "none"}
 
 ## Current Slice
 
@@ -149,6 +174,7 @@ ${extras}
 - If the slice cannot be completed, classify the blocker clearly and keep the outcome bounded to this slice.
 - Run the narrowest meaningful verification available for the files or artifacts you touched.
 - Preserve unrelated local work.
+${contextRule}
 
 ## Required Outcome Artifact
 
@@ -181,12 +207,20 @@ Use this shape:
 }
 
 function buildCodexCommand(options: WorkLoopCodexLaunchOptions): string[] {
-  const command = [
-    options.codexCommand ?? DEFAULT_CODEX_COMMAND,
-    "exec",
-    "--cd",
-    options.workspaceRoot,
-  ];
+  const command = [options.codexCommand ?? DEFAULT_CODEX_COMMAND, "exec"];
+  const continuationMode = options.continuationMode ?? "fresh_session";
+  if (continuationMode === "same_session") {
+    command.push("resume");
+    if (options.codexSessionId) {
+      command.push(options.codexSessionId);
+    } else if (options.resumeLastSession) {
+      command.push("--last");
+    } else {
+      throw new Error("same_session Codex launches require codexSessionId or resumeLastSession.");
+    }
+  } else {
+    command.push("--cd", options.workspaceRoot);
+  }
   if (options.model) {
     command.push("--model", options.model);
   }

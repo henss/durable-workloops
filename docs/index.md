@@ -21,7 +21,12 @@ The package includes `durable-workloops/launcher` for the common case where a Wo
 - `renderWorkLoopCodexPrompt(...)` exposes the prompt without writing files.
 - `runPreparedWorkLoopCodexLaunch(...)` executes the recorded `codex exec` command and pipes the prompt through stdin.
 
-The launcher intentionally does not know about Linear, Jira, Confluence, Slack, or host-specific review engines. It only creates an execution envelope with a required outcome artifact path so host controllers can ingest and adjudicate the result.
+Launches support two modes:
+
+- `fresh_session`: runs `codex exec --cd <workspace> -`.
+- `same_session`: runs `codex exec resume <session-id> -` or `codex exec resume --last -` for healthy adjacent slices that should preserve conversational context.
+
+The launcher intentionally does not know about Linear, Jira, Confluence, Slack, or host-specific review engines. It only creates an execution envelope with a required outcome artifact path so host controllers can ingest and adjudicate the result. Host controllers should fall back to `fresh_session` after failed reviews, blockers, stale state, or context drift.
 
 ## Non-Goals
 

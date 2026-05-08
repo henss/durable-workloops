@@ -66,7 +66,56 @@ describe("WorkLoop Codex launcher", () => {
       workLoopId: "demo-work-loop",
       sliceId: "slice-1",
       stdinPath: launch.promptPath,
+      continuationMode: "fresh_session",
+      workingDirectory: repo,
     });
+  });
+
+  it("writes continuation launch files for an existing Codex session", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "durable-workloops-continuation-"));
+    tempDirs.push(repo);
+    const workLoop = makeWorkLoop();
+
+    const launch = prepareWorkLoopCodexLaunch({
+      workLoop,
+      slice: workLoop.slices[1]!,
+      workspaceRoot: repo,
+      continuationMode: "same_session",
+      codexSessionId: "session-123",
+      previousSliceId: "slice-1",
+      fullAuto: true,
+    });
+
+    expect(launch.command).toEqual([
+      "codex",
+      "exec",
+      "resume",
+      "session-123",
+      "--full-auto",
+      "-",
+    ]);
+    const prompt = fs.readFileSync(launch.promptPath, "utf8");
+    expect(prompt).toContain("# WorkLoop Slice Continuation");
+    expect(prompt).toContain("- previous slice: slice-1");
+    expect(prompt).toContain("Carry forward useful context from the existing Codex session");
+    expect(JSON.parse(fs.readFileSync(launch.launchRecordPath, "utf8"))).toMatchObject({
+      continuationMode: "same_session",
+      codexSessionId: "session-123",
+      previousSliceId: "slice-1",
+    });
+  });
+
+  it("requires a session id or --last for same-session continuation", () => {
+    const workLoop = makeWorkLoop();
+
+    expect(() =>
+      prepareWorkLoopCodexLaunch({
+        workLoop,
+        slice: workLoop.slices[1]!,
+        workspaceRoot: "/repo",
+        continuationMode: "same_session",
+      }),
+    ).toThrow("same_session Codex launches require codexSessionId or resumeLastSession.");
   });
 });
 

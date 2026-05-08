@@ -158,6 +158,8 @@ You are executing one durable WorkLoop slice. Do not turn the whole WorkLoop int
 - attempt: ${slice.attemptCount}
 - dependencies: ${dependencies}
 - task packet: ${slice.taskPacketPath ?? "not provided"}
+- last outcome: ${slice.lastOutcomePath ?? "none"}
+- last peer review: ${slice.lastPeerReviewPath ?? "none"}
 
 ## Success Criteria
 
@@ -175,6 +177,7 @@ ${extras}
 - Run the narrowest meaningful verification available for the files or artifacts you touched.
 - Preserve unrelated local work.
 ${contextRule}
+${renderRepairRule(slice.status)}
 
 ## Required Outcome Artifact
 
@@ -204,6 +207,13 @@ Use this shape:
 }
 \`\`\`
 `;
+}
+
+function renderRepairRule(status: WorkLoopSlice["status"]): string {
+  if (status !== "repair_queued") {
+    return "";
+  }
+  return "- This is a repair run. Read the last outcome and last peer review paths above first, then repair only the review-required gaps before writing the new outcome artifact.";
 }
 
 function buildCodexCommand(options: WorkLoopCodexLaunchOptions): string[] {

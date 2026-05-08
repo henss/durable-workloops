@@ -35,8 +35,32 @@ describe("WorkLoop Codex launcher", () => {
 
     expect(prompt).toContain("Do not turn the whole WorkLoop into a chat-only checklist.");
     expect(prompt).toContain("- id: slice-1");
+    expect(prompt).toContain("- last outcome: none");
     expect(prompt).toContain('"workLoopId": "demo-work-loop"');
     expect(prompt).toContain("Required Outcome Artifact");
+  });
+
+  it("renders repair context when a slice is repair queued", () => {
+    const workLoop = makeWorkLoop();
+    const slice = {
+      ...workLoop.slices[0]!,
+      status: "repair_queued" as const,
+      lastOutcomePath: "outcome.json",
+      lastPeerReviewPath: "review.md",
+    };
+
+    const prompt = renderWorkLoopCodexPrompt(
+      {
+        workLoop,
+        slice,
+        workspaceRoot: "/repo",
+      },
+      "/repo/.runtime/current/work-loops/demo/slice-1-outcome.json",
+    );
+
+    expect(prompt).toContain("- last outcome: outcome.json");
+    expect(prompt).toContain("- last peer review: review.md");
+    expect(prompt).toContain("This is a repair run.");
   });
 
   it("writes launch files and a codex exec command", () => {

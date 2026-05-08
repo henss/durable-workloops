@@ -117,6 +117,23 @@ describe("WorkLoop Codex launcher", () => {
       }),
     ).toThrow("same_session Codex launches require codexSessionId or resumeLastSession.");
   });
+
+  it("does not pass fresh-session sandbox flags to codex resume", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "durable-workloops-resume-flags-"));
+    tempDirs.push(repo);
+    const workLoop = makeWorkLoop();
+
+    const launch = prepareWorkLoopCodexLaunch({
+      workLoop,
+      slice: workLoop.slices[1]!,
+      workspaceRoot: repo,
+      continuationMode: "same_session",
+      codexSessionId: "session-123",
+      sandbox: "danger-full-access",
+    });
+
+    expect(launch.command).toEqual(["codex", "exec", "resume", "session-123", "-"]);
+  });
 });
 
 function makeWorkLoop(): WorkLoop {

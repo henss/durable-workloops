@@ -228,7 +228,7 @@ function buildCodexCommand(options: WorkLoopCodexLaunchOptions): string[] {
     command.push("--dangerously-bypass-approvals-and-sandbox");
   } else if (options.fullAuto) {
     command.push("--full-auto");
-  } else if (options.sandbox) {
+  } else if (continuationMode === "fresh_session" && options.sandbox) {
     command.push("--sandbox", options.sandbox);
   }
   command.push("-");

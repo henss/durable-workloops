@@ -1,0 +1,24 @@
+id: component:workloop-codex-launcher
+kind: component
+title: WorkLoop Codex Launcher
+summary: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, launch records, and required outcome paths.
+status: pilot
+visibility: public
+code:
+  paths:
+    - src/launcher.ts
+  entrypoints:
+    - src/launcher.ts
+relations:
+  - type: part-of
+    target: repository:durable-workloops
+  - type: implements
+    target: workflow:resume-workloop
+  - type: tested-by
+    target: test-scope:launcher-tests
+agent:
+  load_when:
+    - Adding Codex execution to a host WorkLoop controller.
+    - Changing prompt or launch-record contracts for WorkLoop slices.
+    - Debugging why WorkLoop execution degraded into chat-only planning.
+  token_budget_hint: 900

@@ -6,5 +6,7 @@ Profile: `public`
 
 Generated index of visible `resource` entities.
 
+- [agent-atlas.maintenance.yaml config](config.agent-atlas-maintenance.md) - `resource:config.agent-atlas-maintenance`: Repository configuration file at agent-atlas.maintenance.yaml.
+- [workloop-schema.yaml config](config.agent-atlas-public-components-workloop-schema.md) - `resource:config.agent-atlas-public-components-workloop-schema`: Repository configuration file at .agent-atlas/public/components/workloop-schema.yaml.
 - [package.json config](config.package.md) - `resource:config.package`: Repository configuration file at package.json.
 - [tsconfig.json config](config.tsconfig.md) - `resource:config.tsconfig`: Repository configuration file at tsconfig.json.

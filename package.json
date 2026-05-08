@@ -20,6 +20,10 @@
     "./adjudication": {
       "types": "./src/adjudication.ts",
       "import": "./src/adjudication.ts"
+    },
+    "./launcher": {
+      "types": "./src/launcher.ts",
+      "import": "./src/launcher.ts"
     }
   },
   "scripts": {

@@ -1,0 +1,109 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import type { WorkLoop } from "./schema.js";
+import {
+  prepareWorkLoopCodexLaunch,
+  renderWorkLoopCodexPrompt,
+} from "./launcher.js";
+
+const tempDirs: string[] = [];
+
+afterEach(() => {
+  while (tempDirs.length > 0) {
+    const dir = tempDirs.pop();
+    if (dir) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+});
+
+describe("WorkLoop Codex launcher", () => {
+  it("renders a bounded slice prompt with an outcome contract", () => {
+    const workLoop = makeWorkLoop();
+    const slice = workLoop.slices[0]!;
+
+    const prompt = renderWorkLoopCodexPrompt(
+      {
+        workLoop,
+        slice,
+        workspaceRoot: "/repo",
+      },
+      "/repo/.runtime/current/work-loops/demo/slice-1-outcome.json",
+    );
+
+    expect(prompt).toContain("Do not turn the whole WorkLoop into a chat-only checklist.");
+    expect(prompt).toContain("- id: slice-1");
+    expect(prompt).toContain('"workLoopId": "demo-work-loop"');
+    expect(prompt).toContain("Required Outcome Artifact");
+  });
+
+  it("writes launch files and a codex exec command", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "durable-workloops-launch-"));
+    tempDirs.push(repo);
+    const workLoop = makeWorkLoop();
+
+    const launch = prepareWorkLoopCodexLaunch({
+      workLoop,
+      slice: workLoop.slices[0]!,
+      workspaceRoot: repo,
+      sandbox: "danger-full-access",
+    });
+
+    expect(fs.existsSync(launch.promptPath)).toBe(true);
+    expect(fs.existsSync(launch.launchRecordPath)).toBe(true);
+    expect(launch.command).toEqual([
+      "codex",
+      "exec",
+      "--cd",
+      repo,
+      "--sandbox",
+      "danger-full-access",
+      "-",
+    ]);
+    expect(JSON.parse(fs.readFileSync(launch.launchRecordPath, "utf8"))).toMatchObject({
+      workLoopId: "demo-work-loop",
+      sliceId: "slice-1",
+      stdinPath: launch.promptPath,
+    });
+  });
+});
+
+function makeWorkLoop(): WorkLoop {
+  return {
+    id: "demo-work-loop",
+    projectId: "demo",
+    source: "test",
+    status: "active",
+    objective: "Prove launch envelopes are reusable.",
+    successCriteria: ["a prompt exists", "an outcome contract exists"],
+    slices: [
+      {
+        id: "slice-1",
+        title: "Build launcher",
+        status: "running",
+        dependsOn: [],
+        attemptCount: 1,
+      },
+      {
+        id: "slice-2",
+        title: "Use launcher",
+        status: "ready",
+        dependsOn: ["slice-1"],
+        attemptCount: 0,
+      },
+    ],
+    completionPolicy: {
+      defaultAction: "continue",
+      stopOnlyFor: ["blocker"],
+    },
+    reviewPolicy: {
+      required: true,
+      repairOnReviewFailure: true,
+    },
+    runawayGuard: {
+      maxConsecutiveAgentRuns: 5,
+    },
+  };
+}

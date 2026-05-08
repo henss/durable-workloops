@@ -8,6 +8,7 @@ Profile: `public`
 
 - `test-scope:adjudication-tests` - Adjudication Tests: Unit tests for outcome and peer-review adjudication.
 - `test-scope:generated.src` - src tests: 2 discovered test files under src.
+- `test-scope:launcher-tests` - Launcher Tests: Verifies Codex launch prompt rendering and launch-record generation for WorkLoop slices.
 - `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
 - `test-scope:selection-tests` - Selection Tests: Unit tests for slice selection and running-state transitions.
 
@@ -32,6 +33,15 @@ ID: `test-scope:generated.src`
 
 - command: `pnpm test`
   purpose: Run repository test suite.
+
+## Launcher Tests
+
+ID: `test-scope:launcher-tests`
+
+Verifies Codex launch prompt rendering and launch-record generation for WorkLoop slices.
+
+Verifies:
+- `component:workloop-codex-launcher`
 
 ## Package Check
 

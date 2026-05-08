@@ -6,7 +6,7 @@ ID: `workflow:resume-workloop`
 Kind: `workflow`
 Profile: `public`
 
-Selects a ready or repair-queued slice whose dependencies are satisfied, then marks it running for the host system to execute.
+Selects a ready or repair-queued slice whose dependencies are satisfied, marks it running, and can prepare a Codex launch envelope for host execution.
 
 ## Metadata
 
@@ -16,6 +16,7 @@ Selects a ready or repair-queued slice whose dependencies are satisfied, then ma
 
 ### Components
 
+- `component:workloop-codex-launcher`
 - `component:workloop-schema`
 - `component:workloop-selection`
 
@@ -27,6 +28,7 @@ Selects a ready or repair-queued slice whose dependencies are satisfied, then ma
 
 ### `implemented-by`
 
+- `component:workloop-codex-launcher` _(generated)_
 - `component:workloop-selection` _(generated)_
 
 ### `part-of`
@@ -39,6 +41,7 @@ Selects a ready or repair-queued slice whose dependencies are satisfied, then ma
 
 ### `uses`
 
+- `component:workloop-codex-launcher`
 - `component:workloop-schema`
 - `component:workloop-selection`
 

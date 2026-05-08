@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 24
+Generated entities: 26
 
 ## Commander
 
@@ -48,6 +48,8 @@ Generated entities: 24
 
 ## Config
 
+- `resource:config.agent-atlas-maintenance` - agent-atlas.maintenance.yaml config: Repository configuration file at agent-atlas.maintenance.yaml.
+- `resource:config.agent-atlas-public-components-workloop-schema` - workloop-schema.yaml config: Repository configuration file at .agent-atlas/public/components/workloop-schema.yaml.
 - `resource:config.package` - package.json config: Repository configuration file at package.json.
 - `resource:config.tsconfig` - tsconfig.json config: Repository configuration file at tsconfig.json.
 

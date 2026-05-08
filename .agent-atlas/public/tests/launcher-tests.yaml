@@ -1,0 +1,14 @@
+id: test-scope:launcher-tests
+kind: test-scope
+title: Launcher Tests
+summary: Verifies Codex launch prompt rendering and launch-record generation for WorkLoop slices.
+status: active
+visibility: public
+verification:
+  commands:
+    - pnpm test -- src/launcher.test.ts
+  covers:
+    - src/launcher.ts
+relations:
+  - type: verifies
+    target: component:workloop-codex-launcher

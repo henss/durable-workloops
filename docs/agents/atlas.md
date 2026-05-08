@@ -21,8 +21,8 @@ Profile: `public`
 
 - `workflow:adjudicate-workloop-slice` - Adjudicate WorkLoop Slice: Converts outcome and peer-review evidence into continue, repair, blocked, needs-stefan, done, or canceled decisions.
   Components: `component:workloop-adjudication`, `component:workloop-schema`
-- `workflow:resume-workloop` - Resume WorkLoop: Selects a ready or repair-queued slice whose dependencies are satisfied, then marks it running for the host system to execute.
-  Components: `component:workloop-schema`, `component:workloop-selection`
+- `workflow:resume-workloop` - Resume WorkLoop: Selects a ready or repair-queued slice whose dependencies are satisfied, marks it running, and can prepare a Codex launch envelope for host execution.
+  Components: `component:workloop-codex-launcher`, `component:workloop-schema`, `component:workloop-selection`
 
 ## Agent capabilities
 
@@ -33,6 +33,7 @@ Profile: `public`
 ### Durable Agent Workflows
 
 - `component:workloop-adjudication` - WorkLoop Adjudication: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
+- `component:workloop-codex-launcher` - WorkLoop Codex Launcher: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, launch records, and required outcome paths.
 - `component:workloop-schema` - WorkLoop Schema: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.
 - `component:workloop-selection` - WorkLoop Selection: Pure helpers for choosing the next executable slice, finding active work, and incrementing slice attempts.
 

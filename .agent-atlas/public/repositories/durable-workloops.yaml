@@ -8,7 +8,8 @@ metadata:
   readme:
     overview:
       - Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
-      - Host systems keep their own launchers, tracker adapters, persistence layout, review engines, and notification routing.
+      - Host systems keep their own tracker adapters, persistence layout, review engines, and notification routing.
+      - The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
     sections:
       - title: What This Repo Does
         items:

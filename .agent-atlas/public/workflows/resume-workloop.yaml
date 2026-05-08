@@ -1,11 +1,13 @@
 id: workflow:resume-workloop
 kind: workflow
 title: Resume WorkLoop
-summary: Selects a ready or repair-queued slice whose dependencies are satisfied, then marks it running for the host system to execute.
+summary: Selects a ready or repair-queued slice whose dependencies are satisfied, marks it running, and can prepare a Codex launch envelope for host execution.
 visibility: public
 relations:
   - type: uses
     target: component:workloop-selection
+  - type: uses
+    target: component:workloop-codex-launcher
   - type: uses
     target: component:workloop-schema
   - type: tested-by

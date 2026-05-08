@@ -1,6 +1,6 @@
 # Durable WorkLoops
 
-Durable WorkLoops provide a reusable core for long-running agent work. The package keeps the portable pieces small: contracts, deterministic slice selection, and deterministic adjudication from outcome plus review evidence.
+Durable WorkLoops provide a reusable core for long-running agent work. The package keeps the portable pieces small: contracts, deterministic slice selection, deterministic adjudication from outcome plus review evidence, and a generic Codex launch envelope.
 
 ## Package Map
 
@@ -11,7 +11,17 @@ Durable WorkLoops provide a reusable core for long-running agent work. The packa
 
 ## Integration Shape
 
-Host systems should keep their own tracker adapters, launchers, reviewer integrations, persistence layout, and notification routing. They can use this package for the shared state contract and deterministic transitions, then wrap it with local authority rules.
+Host systems should keep their own tracker adapters, reviewer integrations, persistence layout, and notification routing. They can use this package for the shared state contract, deterministic transitions, and Codex prompt or launch-record generation, then wrap it with local authority rules.
+
+## Codex Launcher
+
+The package includes `durable-workloops/launcher` for the common case where a WorkLoop slice should be handed to Codex:
+
+- `prepareWorkLoopCodexLaunch(...)` writes a bounded slice prompt and launch record.
+- `renderWorkLoopCodexPrompt(...)` exposes the prompt without writing files.
+- `runPreparedWorkLoopCodexLaunch(...)` executes the recorded `codex exec` command and pipes the prompt through stdin.
+
+The launcher intentionally does not know about Linear, Jira, Confluence, Slack, or host-specific review engines. It only creates an execution envelope with a required outcome artifact path so host controllers can ingest and adjudicate the result.
 
 ## Non-Goals
 

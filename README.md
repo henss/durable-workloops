@@ -2,37 +2,17 @@
 
 # durable-workloops
 
-Portable durable work-loop schemas and deterministic state transitions for agent-run work.
+durable-workloops is a portable durable work-loop schemas and deterministic state transitions for agent-run work.
 
-## Start Here
+## Quick Orientation
 
-- Use Agent Atlas before broad repository search.
-- Read this README as a compact entrypoint, then load only the specific Atlas entities or docs needed for the task.
-- If Atlas output is missing or misleading, update the Atlas metadata instead of hand-editing this README.
-- Documentation entrypoint: [Durable WorkLoops](docs/index.md).
+- Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
+- Host systems keep their own tracker adapters, persistence layout, review engines, and notification routing.
+- The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
 
-## Agent Atlas
+## Normal Use
 
-- Root generated view: `docs/agents/atlas.md`.
-- Resolve a file: `atlas resolve-path <path> --path .`.
-- Build task context: `atlas context-pack "<task>" --path . --budget 4000`.
-- Refresh generated surfaces: `atlas maintain fix --path .`.
-- Check generated surfaces: `atlas maintain check --path .`.
-
-## Key Docs
-
-- [Agent Atlas](docs/agents/atlas.md)
-- [Operating Model](docs/index.md)
-- [Contributor Safety](CONTRIBUTING.md)
-
-## Source-Derived Surfaces
-
-- Config: 5
-- Docs: 7
-- Package Scripts: 16
-- Tests: 1
-- Workspace Packages: 1
-- Full generated reference: `docs/generated/source-derived-reference.md`.
+- Verify meaningful changes with `pnpm test` to run repository test suite.
 
 ## What This Repo Does
 
@@ -48,18 +28,21 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 - No bundled peer-review engine.
 - No private orchestration policy.
 
+## Where Things Live
+
+- `.agent-atlas/` - Canonical Atlas metadata and overlays.
+- `docs/` - Human-authored documentation.
+- `examples/` - Examples and sample fixtures.
+
+## Key Docs
+
+- [Agent Atlas](docs/agents/atlas.md)
+- [Operating Model](docs/index.md)
+- [Contributor Safety](CONTRIBUTING.md)
+
 ## Domains
 
 - `domain:durable-agent-workflows` - Durable Agent Workflows: State contracts and deterministic transitions for multi-step agent work that must not be marked done after one incomplete run.
-
-## Common Workflows
-
-- `workflow:adjudicate-workloop-slice` - Adjudicate WorkLoop Slice: Converts outcome and peer-review evidence into continue, repair, blocked, needs-stefan, done, or canceled decisions.
-- `workflow:resume-workloop` - Resume WorkLoop: Selects a ready or repair-queued slice whose dependencies are satisfied, marks it running, and can prepare a Codex launch envelope for host execution.
-
-## Packages
-
-- [durable-workloops](docs/agents/components/package.durable-workloops.md) - Portable durable work-loop schemas and state transitions for agent workflows. Root: `.`. Scripts: `atlas`, `atlas:doctor`, `atlas:validate`, `atlas:boundary-check`, `atlas:refresh`, `atlas:check`.
 
 ## Key Implementation Surfaces
 
@@ -69,27 +52,25 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 - `component:workloop-schema` - WorkLoop Schema: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.
 - `component:workloop-selection` - WorkLoop Selection: Pure helpers for choosing the next executable slice, finding active work, and incrementing slice attempts.
 
-## Documentation
+## Drill Down
 
-- `document:agent-instructions` - Agent Instructions: Repo-local instructions for agents working in durable-workloops.
-- `document:generated.agents` - AGENTS.md: Markdown document at AGENTS.md. ([source](AGENTS.md))
-- `document:generated.codex-portfolio-guidance` - Local Agent Guidance: Markdown document at .codex/portfolio-guidance.md. ([source](.codex/portfolio-guidance.md))
-- `document:generated.contributing` - Contributing To durable-workloops: Markdown document at CONTRIBUTING.md. ([source](CONTRIBUTING.md))
-- `document:generated.docs-index` - Durable WorkLoops: Markdown document at docs/index.md. ([source](docs/index.md))
-- `document:generated.examples-readme` - Synthetic Examples For durable-workloops: Markdown document at examples/README.md. ([source](examples/README.md))
-- `document:generated.github-copilot-instructions` - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md. ([source](.github/copilot-instructions.md))
-- `document:generated.security` - Security Policy For durable-workloops: Markdown document at SECURITY.md. ([source](SECURITY.md))
+- Atlas overview: `docs/agents/atlas.md`.
+- Task-scoped Atlas navigation: `atlas context-pack "<task>" --path . --budget 4000` or `atlas resolve-path <path> --path .`.
+- Entity indexes: `docs/agents/domains/`, `docs/agents/workflows/`, `docs/agents/components/`, and `docs/agents/capabilities/`.
+- Source-derived inventory: `docs/generated/source-derived-reference.md`.
+- Documentation map: [Durable WorkLoops](docs/index.md).
 
 ## Verification
 
-- `test-scope:generated.src` - src tests: 4 discovered test files under src.
-- `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
+- `pnpm test` - Run repository test suite.
+- `pnpm check` - Verify TypeScript, tests, and Atlas drift.
+- Scoped verification map: `docs/agents/verification.md`.
 
 ## Commands
 
 - `pnpm test` - Run repository test suite.
 - `pnpm check` - Verify TypeScript, tests, and Atlas drift.
 
-## Source Of Truth
+## Generated Source
 
 - This README is generated from Agent Atlas metadata. Update `.agent-atlas/**` or the referenced canonical docs, then regenerate it.

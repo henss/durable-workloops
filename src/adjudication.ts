@@ -28,6 +28,20 @@ export function adjudicateWorkLoopSlice(input: WorkLoopAdjudicationInput): WorkL
   }
 
   if (
+    input.peerReview?.status === "failed" ||
+    input.peerReview?.status === "process_failed"
+  ) {
+    return {
+      action: "repair",
+      reason: `Peer review ${input.peerReview.status}; queue a bounded repair before completion.`,
+      evidencePaths,
+      nextOwner: "agent",
+      workLoopId: input.workLoop.id,
+      sliceId: input.slice.id,
+    };
+  }
+
+  if (
     (input.outcome.needsStefan ?? []).length > 0 ||
     input.outcome.continuationDecision.nextStepOwner === "stefan"
   ) {
@@ -51,17 +65,6 @@ export function adjudicateWorkLoopSlice(input: WorkLoopAdjudicationInput): WorkL
       reason: input.outcome.continuationDecision.summary,
       evidencePaths,
       nextOwner: "external",
-      workLoopId: input.workLoop.id,
-      sliceId: input.slice.id,
-    };
-  }
-
-  if (input.peerReview?.status === "failed" || input.peerReview?.status === "process_failed") {
-    return {
-      action: "repair",
-      reason: `Peer review ${input.peerReview.status}; queue a bounded repair before completion.`,
-      evidencePaths,
-      nextOwner: "agent",
       workLoopId: input.workLoop.id,
       sliceId: input.slice.id,
     };

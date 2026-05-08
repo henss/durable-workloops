@@ -62,6 +62,29 @@ describe("adjudicateWorkLoopSlice", () => {
     expect(applyWorkLoopDecision(workLoop, decision).slices[0]?.status).toBe("repair_queued");
   });
 
+  it("queues repair before trusting blockers from a failed outcome review", () => {
+    const decision = adjudicateWorkLoopSlice({
+      workLoop,
+      slice: workLoop.slices[0]!,
+      outcomePath: "outcome.json",
+      outcome: {
+        disposition: "completed",
+        blockers: ["Outcome used blocker for a non-terminal caveat."],
+        continuationDecision: {
+          action: "continue",
+          summary: "Continue after investigation.",
+          nextStepOwner: "agent",
+        },
+      },
+      peerReview: {
+        status: "failed",
+        reviewArtifactPath: "review.md",
+      },
+    });
+
+    expect(decision.action).toBe("repair");
+  });
+
   it("marks the loop done only when the final open slice is complete", () => {
     const almostDone: WorkLoop = {
       ...workLoop,

@@ -82,7 +82,7 @@ Portable durable work-loop schemas and deterministic state transitions for agent
 
 ## Verification
 
-- `test-scope:generated.src` - src tests: 3 discovered test files under src.
+- `test-scope:generated.src` - src tests: 5 discovered test files under src.
 - `test-scope:package-check` - Package Check: Full package verification including typecheck, unit tests, and Atlas maintenance checks.
 
 ## Commands

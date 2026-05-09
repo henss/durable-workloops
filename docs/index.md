@@ -13,6 +13,10 @@ Durable WorkLoops provide a reusable core for long-running agent work. The packa
 
 Host systems should keep their own tracker adapters, reviewer integrations, persistence layout, and notification routing. They can use this package for the shared state contract, deterministic transitions, and Codex prompt or launch-record generation, then wrap it with local authority rules.
 
+## Portfolio Adoption
+
+Portfolio repos should use this package as the shared public core for long-running, multi-step, or commit-per-increment agent work when their local guidance or capability routing adopts it. Adoption friction is product evidence for this package: if a generic contract, receipt, recovery path, prompt envelope, or documentation surface is missing or confusing, fix it here when the improvement is public-safe. Keep repo-specific policy, tracker integration, private launch orchestration, and project state in downstream adapters.
+
 ## Codex Launcher
 
 The package includes `durable-workloops/launcher` for the common case where a WorkLoop slice should be handed to Codex:

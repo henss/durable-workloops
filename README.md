@@ -9,6 +9,7 @@ durable-workloops is a portable durable work-loop schemas and deterministic stat
 - Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
 - Host systems keep their own tracker adapters, persistence layout, review engines, and notification routing.
 - The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
+- Adopted portfolio repos should feed public-safe generic workflow friction back into this core instead of accumulating downstream prompt caveats.
 
 ## Normal Use
 

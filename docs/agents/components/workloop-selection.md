@@ -25,7 +25,7 @@ Pure helpers for choosing the next executable slice, finding active work, and in
 
 ### `part-of`
 
-- `repository:durable-workloops` _(generated)_
+- `repository:agent-workloops` _(generated)_
 
 ### `tested-by`
 

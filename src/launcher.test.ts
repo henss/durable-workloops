@@ -65,7 +65,7 @@ describe("WorkLoop Codex launcher", () => {
   });
 
   it("writes launch files and a codex exec command", () => {
-    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "durable-workloops-launch-"));
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "agent-workloops-launch-"));
     tempDirs.push(repo);
     const workLoop = makeWorkLoop();
 
@@ -97,7 +97,7 @@ describe("WorkLoop Codex launcher", () => {
   });
 
   it("writes continuation launch files for an existing Codex session", () => {
-    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "durable-workloops-continuation-"));
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "agent-workloops-continuation-"));
     tempDirs.push(repo);
     const workLoop = makeWorkLoop();
 
@@ -144,7 +144,7 @@ describe("WorkLoop Codex launcher", () => {
   });
 
   it("does not pass fresh-session sandbox flags to codex resume", () => {
-    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "durable-workloops-resume-flags-"));
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "agent-workloops-resume-flags-"));
     tempDirs.push(repo);
     const workLoop = makeWorkLoop();
 

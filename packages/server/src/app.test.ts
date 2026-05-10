@@ -15,7 +15,7 @@ const workLoop = {
   completionPolicy: { defaultAction: "continue", stopOnlyFor: ["done"] },
 };
 
-describe("Durable Workloops server", () => {
+describe("Agent Workloops server", () => {
   let dataDir: string;
 
   beforeEach(async () => {
@@ -41,7 +41,7 @@ describe("Durable Workloops server", () => {
     const tokenResponse = await app.inject({
       method: "POST",
       url: "/api/v1/tokens",
-      cookies: { dwl_session: cookie ?? "" },
+      cookies: { awl_session: cookie ?? "" },
       payload: {
         name: "executor",
         scopes: ["plans:submit", "plans:claim", "plans:complete"],
@@ -72,7 +72,7 @@ describe("Durable Workloops server", () => {
     const approved = await app.inject({
       method: "POST",
       url: `/api/v1/plans/${planId}/approve`,
-      cookies: { dwl_session: cookie ?? "" },
+      cookies: { awl_session: cookie ?? "" },
       payload: { reason: "Looks good" },
     });
     expect(approved.statusCode).toBe(200);
@@ -108,7 +108,7 @@ describe("Durable Workloops server", () => {
     const archive = await app.inject({
       method: "GET",
       url: "/api/v1/plans/archive",
-      cookies: { dwl_session: cookie ?? "" },
+      cookies: { awl_session: cookie ?? "" },
     });
     expect(archive.json<Array<{ id: string }>>()).toHaveLength(1);
   });
@@ -169,7 +169,7 @@ async function createToken(app: Awaited<ReturnType<typeof buildServer>>): Promis
   const tokenResponse = await app.inject({
     method: "POST",
     url: "/api/v1/tokens",
-    cookies: { dwl_session: cookie ?? "" },
+    cookies: { awl_session: cookie ?? "" },
     payload: {
       name: "executor",
       scopes: ["plans:submit", "plans:claim", "plans:complete"],

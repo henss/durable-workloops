@@ -6,7 +6,7 @@ ID: `component:package-entrypoint`
 Kind: `component`
 Profile: `public`
 
-Aggregate public exports for the durable-workloops package.
+Aggregate public exports for the agent-workloops package.
 
 ## Metadata
 

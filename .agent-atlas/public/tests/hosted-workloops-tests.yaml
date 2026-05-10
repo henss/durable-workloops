@@ -4,16 +4,16 @@ title: Hosted Workloops Tests
 summary: Package tests for hosted API contracts, server approval and lease behavior, CLI parsing, and web queue bucketing.
 visibility: public
 commands:
-  - command: pnpm --filter @durable-workloops/api test
+  - command: pnpm --filter @agent-workloops/api test
     cwd: .
     purpose: Verify hosted API contract schemas.
-  - command: pnpm --filter @durable-workloops/server test
+  - command: pnpm --filter @agent-workloops/server test
     cwd: .
     purpose: Verify server approval, token, lease, and archive behavior.
-  - command: pnpm --filter @durable-workloops/cli test
+  - command: pnpm --filter @agent-workloops/cli test
     cwd: .
     purpose: Verify CLI parsing and idle executor behavior.
-  - command: pnpm --filter @durable-workloops/web test
+  - command: pnpm --filter @agent-workloops/web test
     cwd: .
     purpose: Verify web queue bucketing behavior.
 relations:

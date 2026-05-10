@@ -1,0 +1,47 @@
+id: repository:agent-workloops
+kind: repository
+title: agent-workloops
+summary: Portable durable work-loop schemas plus optional hosted packages for plan approval, leasing, UI review, and Codex execution.
+visibility: public
+uri: github://henss/agent-workloops
+metadata:
+  readme:
+    overview:
+      - Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
+      - Optional hosted packages add plan submission, manual approval, client-token execution leases, completion archive, and a review UI.
+      - Host systems keep their own tracker adapters, review engines, notification routing, and private deployment policy.
+      - The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
+      - Adopted portfolio repos should feed public-safe generic workflow friction back into this core instead of accumulating downstream prompt caveats.
+    sections:
+      - title: What This Repo Does
+        items:
+          - Defines public WorkLoop and WorkLoopSlice contracts.
+          - Selects the next safe slice from durable loop state.
+          - Adjudicates outcome plus peer-review evidence into controller decisions.
+          - Applies controller decisions without depending on a specific tracker or agent runtime.
+          - Provides optional server, shared API, CLI, and web UI packages around the public core.
+      - title: Non-Goals
+        items:
+          - No Linear, Jira, GitHub, or Slack adapter.
+          - No bundled peer-review engine.
+          - No private orchestration policy.
+    key_docs:
+      - label: Agent Atlas
+        path: docs/agents/atlas.md
+      - label: Operating Model
+        path: docs/index.md
+      - label: Contributor Safety
+        path: CONTRIBUTING.md
+relations:
+  - type: contains
+    target: domain:durable-agent-workflows
+  - type: contains
+    target: component:workloop-schema
+  - type: contains
+    target: component:workloop-selection
+  - type: contains
+    target: component:workloop-adjudication
+  - type: documented-in
+    target: document:operating-model
+  - type: tested-by
+    target: test-scope:package-check

@@ -9,4 +9,4 @@ commands:
     purpose: Verify TypeScript, tests, and Atlas drift.
 relations:
   - type: verifies
-    target: repository:durable-workloops
+    target: repository:agent-workloops

@@ -22,7 +22,7 @@ Zod schemas and TypeScript types for durable loops, slices, policies, decisions,
 ### `part-of`
 
 - `domain:durable-agent-workflows`
-- `repository:durable-workloops` _(generated)_
+- `repository:agent-workloops` _(generated)_
 
 ### `used-by`
 

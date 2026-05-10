@@ -17,7 +17,7 @@ const workLoop = {
   completionPolicy: { defaultAction: "continue", stopOnlyFor: ["done"] },
 };
 
-describe("Durable Workloops API schemas", () => {
+describe("Agent Workloops API schemas", () => {
   it("parses plan submission requests", () => {
     expect(SubmitPlanRequestSchema.parse({ workLoop })).toMatchObject({
       approvalRequired: false,

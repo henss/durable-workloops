@@ -6,7 +6,7 @@ ID: `component:hosted-workloops-api`
 Kind: `component`
 Profile: `public`
 
-Shared Zod wire contracts and typed HTTP client for hosted Durable Workloops.
+Shared Zod wire contracts and typed HTTP client for hosted Agent Workloops.
 
 ## Metadata
 

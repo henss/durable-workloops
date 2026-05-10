@@ -25,4 +25,4 @@ Repository configuration file at tsconfig.build.json.
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

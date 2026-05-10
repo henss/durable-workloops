@@ -25,5 +25,5 @@ Repository configuration file at packages/server/package.json.
 
 ### `part-of`
 
-- `component:package.durable-workloops-server`
-- `repository:durable-workloops`
+- `component:package.agent-workloops-server`
+- `repository:agent-workloops`

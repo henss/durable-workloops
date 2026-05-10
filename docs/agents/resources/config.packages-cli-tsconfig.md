@@ -25,5 +25,5 @@ Repository configuration file at packages/cli/tsconfig.json.
 
 ### `part-of`
 
-- `component:package.durable-workloops-cli`
-- `repository:durable-workloops`
+- `component:package.agent-workloops-cli`
+- `repository:agent-workloops`

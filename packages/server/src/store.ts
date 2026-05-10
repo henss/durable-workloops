@@ -7,7 +7,7 @@ import type {
   User,
   UserRole,
   WorkLoop,
-} from "@durable-workloops/api";
+} from "@agent-workloops/api";
 
 export interface PlanActor {
   userId?: string;

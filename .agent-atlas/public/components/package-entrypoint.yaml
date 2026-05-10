@@ -1,7 +1,7 @@
 id: component:package-entrypoint
 kind: component
 title: Package Entrypoint
-summary: Aggregate public exports for the durable-workloops package.
+summary: Aggregate public exports for the agent-workloops package.
 visibility: public
 code:
   paths:

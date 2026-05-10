@@ -25,5 +25,5 @@ Repository configuration file at apps/web/vite.config.ts.
 
 ### `part-of`
 
-- `component:package.durable-workloops-web`
-- `repository:durable-workloops`
+- `component:package.agent-workloops-web`
+- `repository:agent-workloops`

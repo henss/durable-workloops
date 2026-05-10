@@ -1,19 +1,19 @@
 {
-  "name": "@durable-workloops/cli",
+  "name": "@agent-workloops/cli",
   "version": "0.1.0",
   "type": "module",
   "private": true,
   "bin": {
-    "durable-workloops": "./dist/index.js"
+    "agent-workloops": "./dist/index.js"
   },
   "scripts": {
-    "build": "pnpm --filter durable-workloops build && pnpm --filter @durable-workloops/api build && tsc -p tsconfig.build.json",
-    "typecheck": "pnpm --filter durable-workloops build && pnpm --filter @durable-workloops/api build && tsc --noEmit -p tsconfig.json",
+    "build": "pnpm --filter agent-workloops build && pnpm --filter @agent-workloops/api build && tsc -p tsconfig.build.json",
+    "typecheck": "pnpm --filter agent-workloops build && pnpm --filter @agent-workloops/api build && tsc --noEmit -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
-    "@durable-workloops/api": "workspace:*",
-    "durable-workloops": "workspace:*"
+    "@agent-workloops/api": "workspace:*",
+    "agent-workloops": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",

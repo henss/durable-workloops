@@ -6,12 +6,12 @@ Profile: `public`
 
 Generated index of visible `document` entities.
 
-- [Agent Instructions](agent-instructions.md) - `document:agent-instructions`: Repo-local instructions for agents working in durable-workloops.
+- [Agent Instructions](agent-instructions.md) - `document:agent-instructions`: Repo-local instructions for agents working in agent-workloops.
 - [AGENTS.md](generated.agents.md) - `document:generated.agents`: Markdown document at AGENTS.md.
 - [Local Agent Guidance](generated.codex-portfolio-guidance.md) - `document:generated.codex-portfolio-guidance`: Markdown document at .codex/portfolio-guidance.md.
-- [Contributing To durable-workloops](generated.contributing.md) - `document:generated.contributing`: Markdown document at CONTRIBUTING.md.
-- [Durable WorkLoops](generated.docs-index.md) - `document:generated.docs-index`: Markdown document at docs/index.md.
-- [Synthetic Examples For durable-workloops](generated.examples-readme.md) - `document:generated.examples-readme`: Markdown document at examples/README.md.
+- [Contributing To agent-workloops](generated.contributing.md) - `document:generated.contributing`: Markdown document at CONTRIBUTING.md.
+- [Agent Workloops](generated.docs-index.md) - `document:generated.docs-index`: Markdown document at docs/index.md.
+- [Synthetic Examples For agent-workloops](generated.examples-readme.md) - `document:generated.examples-readme`: Markdown document at examples/README.md.
 - [GitHub Copilot Instructions](generated.github-copilot-instructions.md) - `document:generated.github-copilot-instructions`: Markdown document at .github/copilot-instructions.md.
-- [Security Policy For durable-workloops](generated.security.md) - `document:generated.security`: Markdown document at SECURITY.md.
-- [Operating Model](operating-model.md) - `document:operating-model`: Human-facing package map, hosted server shape, integration shape, and non-goals for durable-workloops.
+- [Security Policy For agent-workloops](generated.security.md) - `document:generated.security`: Markdown document at SECURITY.md.
+- [Operating Model](operating-model.md) - `document:operating-model`: Human-facing package map, hosted server shape, integration shape, and non-goals for agent-workloops.

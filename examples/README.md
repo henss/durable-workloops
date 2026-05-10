@@ -1,4 +1,4 @@
-# Synthetic Examples For durable-workloops
+# Synthetic Examples For agent-workloops
 
 Examples in this directory are placeholders for public-safe fixtures.
 

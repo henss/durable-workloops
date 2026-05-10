@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { PlanRecord } from "@durable-workloops/api";
+import type { PlanRecord } from "@agent-workloops/api";
 import { bucketPlans } from "./plans.js";
 
 const basePlan: PlanRecord = {

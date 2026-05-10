@@ -42,4 +42,4 @@ State contracts and deterministic transitions for multi-step agent work that mus
 
 ### `part-of`
 
-- `repository:durable-workloops` _(generated)_
+- `repository:agent-workloops` _(generated)_

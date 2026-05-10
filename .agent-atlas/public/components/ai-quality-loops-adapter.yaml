@@ -11,7 +11,7 @@ code:
     - src/ai-quality-loops.ts
 relations:
   - type: part-of
-    target: repository:durable-workloops
+    target: repository:agent-workloops
   - type: implements
     target: workflow:adjudicate-workloop-slice
   - type: tested-by

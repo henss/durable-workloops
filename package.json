@@ -1,14 +1,14 @@
 {
-  "name": "durable-workloops",
+  "name": "agent-workloops",
   "version": "0.1.0",
   "description": "Portable durable work-loop schemas and state transitions for agent workflows.",
   "type": "module",
   "private": false,
   "license": "MIT",
-  "homepage": "https://github.com/henss/durable-workloops#readme",
+  "homepage": "https://github.com/henss/agent-workloops#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/henss/durable-workloops.git"
+    "url": "git+https://github.com/henss/agent-workloops.git"
   },
   "files": [
     "dist",
@@ -55,8 +55,8 @@
     "atlas:resolve-path": "pnpm dlx @agent-atlas/cli@0.18.2 resolve-path --path . --profile public",
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
     "dev:hosted": "node scripts/hosted-stack.mjs dev",
-    "dev:server": "pnpm --filter @durable-workloops/server dev",
-    "dev:web": "pnpm --filter @durable-workloops/web dev",
+    "dev:server": "pnpm --filter @agent-workloops/server dev",
+    "dev:web": "pnpm --filter @agent-workloops/web dev",
     "start:hosted": "node scripts/hosted-stack.mjs start",
     "build": "pnpm run clean && tsc -p tsconfig.build.json",
     "build:all": "pnpm -r --sort build",

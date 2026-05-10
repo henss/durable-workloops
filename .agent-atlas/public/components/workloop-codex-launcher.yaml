@@ -11,7 +11,7 @@ code:
     - src/launcher.ts
 relations:
   - type: part-of
-    target: repository:durable-workloops
+    target: repository:agent-workloops
   - type: implements
     target: workflow:resume-workloop
   - type: tested-by

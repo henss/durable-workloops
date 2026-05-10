@@ -25,4 +25,4 @@ Repository configuration file at pnpm-workspace.yaml.
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

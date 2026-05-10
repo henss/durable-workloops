@@ -26,7 +26,7 @@ Generic Codex execution envelope for durable WorkLoop slices, including bounded 
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`
 
 ### `tested-by`
 

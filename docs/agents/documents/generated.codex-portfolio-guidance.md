@@ -25,4 +25,4 @@ Markdown document at .codex/portfolio-guidance.md.
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

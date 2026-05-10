@@ -8,10 +8,10 @@ Profile: `public`
 
 - `test-scope:adjudication-tests` - Adjudication Tests: Unit tests for outcome and peer-review adjudication.
 - `test-scope:ai-quality-loops-adapter-tests` - AI Quality Loops Adapter Tests: Verifies WorkLoop slice review context maps to an injected ai-quality-loops-compatible runner.
-- `test-scope:generated.package.durable-workloops-api` - @durable-workloops/api tests: 1 discovered test file under packages/api.
-- `test-scope:generated.package.durable-workloops-cli` - @durable-workloops/cli tests: 1 discovered test file under packages/cli.
-- `test-scope:generated.package.durable-workloops-server` - @durable-workloops/server tests: 1 discovered test file under packages/server.
-- `test-scope:generated.package.durable-workloops-web` - @durable-workloops/web tests: 1 discovered test file under apps/web.
+- `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
+- `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
+- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 1 discovered test file under packages/server.
+- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 1 discovered test file under apps/web.
 - `test-scope:generated.src` - src tests: 4 discovered test files under src.
 - `test-scope:hosted-workloops-tests` - Hosted Workloops Tests: Package tests for hosted API contracts, server approval and lease behavior, CLI parsing, and web queue bucketing.
 - `test-scope:launcher-tests` - Launcher Tests: Verifies Codex launch prompt rendering and launch-record generation for WorkLoop slices.
@@ -40,36 +40,36 @@ Verifies WorkLoop slice review context maps to an injected ai-quality-loops-comp
 Verifies:
 - `component:ai-quality-loops-adapter`
 
-## @durable-workloops/api tests
+## @agent-workloops/api tests
 
-ID: `test-scope:generated.package.durable-workloops-api`
+ID: `test-scope:generated.package.agent-workloops-api`
 
 1 discovered test file under packages/api.
 
 - command: `pnpm test`
   purpose: Run repository test suite.
 
-## @durable-workloops/cli tests
+## @agent-workloops/cli tests
 
-ID: `test-scope:generated.package.durable-workloops-cli`
+ID: `test-scope:generated.package.agent-workloops-cli`
 
 1 discovered test file under packages/cli.
 
 - command: `pnpm test`
   purpose: Run repository test suite.
 
-## @durable-workloops/server tests
+## @agent-workloops/server tests
 
-ID: `test-scope:generated.package.durable-workloops-server`
+ID: `test-scope:generated.package.agent-workloops-server`
 
 1 discovered test file under packages/server.
 
 - command: `pnpm test`
   purpose: Run repository test suite.
 
-## @durable-workloops/web tests
+## @agent-workloops/web tests
 
-ID: `test-scope:generated.package.durable-workloops-web`
+ID: `test-scope:generated.package.agent-workloops-web`
 
 1 discovered test file under apps/web.
 
@@ -91,16 +91,16 @@ ID: `test-scope:hosted-workloops-tests`
 
 Package tests for hosted API contracts, server approval and lease behavior, CLI parsing, and web queue bucketing.
 
-- command: `pnpm --filter @durable-workloops/api test`
+- command: `pnpm --filter @agent-workloops/api test`
   purpose: Verify hosted API contract schemas.
 
-- command: `pnpm --filter @durable-workloops/server test`
+- command: `pnpm --filter @agent-workloops/server test`
   purpose: Verify server approval, token, lease, and archive behavior.
 
-- command: `pnpm --filter @durable-workloops/cli test`
+- command: `pnpm --filter @agent-workloops/cli test`
   purpose: Verify CLI parsing and idle executor behavior.
 
-- command: `pnpm --filter @durable-workloops/web test`
+- command: `pnpm --filter @agent-workloops/web test`
   purpose: Verify web queue bucketing behavior.
 
 Verifies:
@@ -128,7 +128,7 @@ Full package verification including typecheck, unit tests, and Atlas maintenance
   purpose: Verify TypeScript, tests, and Atlas drift.
 
 Verifies:
-- `repository:durable-workloops`
+- `repository:agent-workloops`
 
 ## Selection Tests
 

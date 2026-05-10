@@ -22,10 +22,10 @@ if (mode === "dev") {
 }
 
 function runDev() {
-  const server = spawnManaged(pnpm, ["--filter", "@durable-workloops/server", "dev"]);
-  const web = spawnManaged(pnpm, ["--filter", "@durable-workloops/web", "dev"]);
+  const server = spawnManaged(pnpm, ["--filter", "@agent-workloops/server", "dev"]);
+  const web = spawnManaged(pnpm, ["--filter", "@agent-workloops/web", "dev"]);
 
-  console.log("Durable Workloops dev stack:");
+  console.log("Agent Workloops dev stack:");
   console.log("  API: http://127.0.0.1:3210");
   console.log("  UI:  http://127.0.0.1:5173");
 
@@ -33,15 +33,15 @@ function runDev() {
 }
 
 async function runStart() {
-  runChecked(pnpm, ["--filter", "@durable-workloops/server", "build"]);
-  runChecked(pnpm, ["--filter", "@durable-workloops/web", "build"]);
+  runChecked(pnpm, ["--filter", "@agent-workloops/server", "build"]);
+  runChecked(pnpm, ["--filter", "@agent-workloops/web", "build"]);
 
   const webDistDir = path.join(root, "apps", "web", "dist");
   const serverEntry = path.join(root, "packages", "server", "dist", "index.js");
-  console.log("Durable Workloops hosted stack:");
+  console.log("Agent Workloops hosted stack:");
   console.log("  Server + UI: http://127.0.0.1:3210");
   spawnManaged(node, [serverEntry], {
-    DWL_WEB_DIST_DIR: webDistDir,
+    AWL_WEB_DIST_DIR: webDistDir,
   });
 }
 

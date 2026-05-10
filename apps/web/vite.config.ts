@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@durable-workloops/api": fileURLToPath(new URL("../../packages/api/src/index.ts", import.meta.url)),
+      "@agent-workloops/api": fileURLToPath(new URL("../../packages/api/src/index.ts", import.meta.url)),
     },
   },
   server: {

@@ -25,4 +25,4 @@ Markdown document at AGENTS.md.
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

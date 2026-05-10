@@ -15,7 +15,7 @@ import {
   type User,
   type UserRole,
   type WorkLoop,
-} from "@durable-workloops/api";
+} from "@agent-workloops/api";
 import type { AuthStore, PlanActor, PlanStore } from "./store.js";
 
 interface AuthFile {
@@ -411,7 +411,7 @@ export class FilesystemAuthStore implements AuthStore {
   async createSession(userId: string): Promise<string> {
     return this.withLock(async () => {
       const auth = await this.readAuth();
-      const secret = newSecret("dwl_session");
+      const secret = newSecret("awl_session");
       auth.sessions.push({
         id: crypto.randomUUID(),
         userId,
@@ -451,7 +451,7 @@ export class FilesystemAuthStore implements AuthStore {
       if (!auth.users.some((user) => user.id === input.userId && !user.disabledAt)) {
         throw new Error(`User not found: ${input.userId}`);
       }
-      const token = newSecret("dwl_client");
+      const token = newSecret("awl_client");
       const now = new Date().toISOString();
       const record = PublicClientTokenSchema.parse({
         id: crypto.randomUUID(),

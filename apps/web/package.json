@@ -1,5 +1,5 @@
 {
-  "name": "@durable-workloops/web",
+  "name": "@agent-workloops/web",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@durable-workloops/api": "workspace:*",
+    "@agent-workloops/api": "workspace:*",
     "@mantine/core": "^9.1.1",
     "@mantine/hooks": "^9.1.1",
     "@vitejs/plugin-react": "^5.1.1",

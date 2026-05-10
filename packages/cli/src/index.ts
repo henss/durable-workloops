@@ -2,13 +2,13 @@
 import fs from "node:fs/promises";
 import process from "node:process";
 import {
-  DurableWorkloopsApiClient,
+  AgentWorkloopsApiClient,
   SubmitPlanRequestSchema,
   type ClaimPlanResponse,
   type JsonValue,
-} from "@durable-workloops/api";
-import { prepareWorkLoopCodexLaunch, runPreparedWorkLoopCodexLaunch } from "durable-workloops/launcher";
-import { selectNextWorkLoopSlice } from "durable-workloops/selection";
+} from "@agent-workloops/api";
+import { prepareWorkLoopCodexLaunch, runPreparedWorkLoopCodexLaunch } from "agent-workloops/launcher";
+import { selectNextWorkLoopSlice } from "agent-workloops/selection";
 
 export interface CliIo {
   stdout: Pick<NodeJS.WriteStream, "write">;
@@ -89,7 +89,7 @@ export async function runCli(argv: string[], io: CliIo = defaultIo): Promise<voi
 }
 
 export async function runClaimedCodexPlan(input: {
-  client: DurableWorkloopsApiClient;
+  client: AgentWorkloopsApiClient;
   claimed: ClaimPlanResponse;
   workspace: string;
   model?: string;
@@ -135,8 +135,8 @@ export async function runClaimedCodexPlan(input: {
   }
 }
 
-function makeClient(flags: Record<string, string | undefined>): DurableWorkloopsApiClient {
-  return new DurableWorkloopsApiClient({
+function makeClient(flags: Record<string, string | undefined>): AgentWorkloopsApiClient {
+  return new AgentWorkloopsApiClient({
     serverUrl: requireFlag(flags, "server"),
     token: requireFlag(flags, "token"),
   });
@@ -166,7 +166,8 @@ export function parseFlags(args: string[]): Record<string, string | undefined> {
 }
 
 function requireFlag(flags: Record<string, string | undefined>, name: string): string {
-  const value = flags[name] ?? process.env[`DWL_${name.toUpperCase().replaceAll("-", "_")}`];
+  const envName = name.toUpperCase().replaceAll("-", "_");
+  const value = flags[name] ?? process.env[`AWL_${envName}`] ?? process.env[`DWL_${envName}`];
   if (!value) {
     throw new Error(`Missing required --${name}.`);
   }
@@ -188,7 +189,7 @@ function writeJson(stdout: Pick<NodeJS.WriteStream, "write">, value: unknown): v
 }
 
 function printHelp(stdout: Pick<NodeJS.WriteStream, "write">): void {
-  stdout.write(`durable-workloops <command> [options]
+  stdout.write(`agent-workloops <command> [options]
 
 Commands:
   submit --server <url> --token <token> --file <workloop.json> [--approval-required]

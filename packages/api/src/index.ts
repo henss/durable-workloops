@@ -247,7 +247,7 @@ export type User = z.infer<typeof UserSchema>;
 export type AuthSession = z.infer<typeof AuthSessionSchema>;
 export type WorkLoop = z.infer<typeof WorkLoopSchema>;
 
-export class DurableWorkloopsApiClient {
+export class AgentWorkloopsApiClient {
   constructor(
     private readonly options: {
       serverUrl: string;
@@ -320,8 +320,10 @@ export class DurableWorkloopsApiClient {
       },
     });
     if (!response.ok) {
-      throw new Error(`Durable Workloops API ${response.status}: ${await response.text()}`);
+      throw new Error(`Agent Workloops API ${response.status}: ${await response.text()}`);
     }
     return response;
   }
 }
+
+export const DurableWorkloopsApiClient = AgentWorkloopsApiClient;

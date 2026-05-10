@@ -25,4 +25,4 @@ Repository configuration file at agent-atlas.maintenance.yaml.
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

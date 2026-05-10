@@ -1,7 +1,7 @@
 import type { ServerConfig } from "./config.js";
 import type { PlanStore } from "./store.js";
-import type { AuditEvent, JsonValue, PlanRecord, WorkLoop } from "@durable-workloops/api";
-import { AuditEventSchema, PlanRecordSchema } from "@durable-workloops/api";
+import type { AuditEvent, JsonValue, PlanRecord, WorkLoop } from "@agent-workloops/api";
+import { AuditEventSchema, PlanRecordSchema } from "@agent-workloops/api";
 import crypto from "node:crypto";
 import postgres from "postgres";
 

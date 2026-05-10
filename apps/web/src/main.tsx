@@ -26,7 +26,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Check, KeyRound, LogIn, RefreshCw, ShieldCheck, UserPlus, X } from "lucide-react";
-import type { AuditEvent, CreatedClientToken, PlanRecord, PublicClientToken, User } from "@durable-workloops/api";
+import type { AuditEvent, CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
 import { bucketPlans } from "./plans.js";
 import "./styles.css";
 
@@ -118,7 +118,7 @@ function App() {
       <MantineProvider defaultColorScheme="light">
         <Container size="xs" className="login">
           <Stack gap="md">
-            <Title order={1}>Durable Workloops</Title>
+            <Title order={1}>Agent Workloops</Title>
             <TextInput label="Email" value={login.email} onChange={(event) => setLogin({ ...login, email: event.target.value })} />
             <PasswordInput label="Password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} />
             <Button leftSection={<LogIn size={16} />} onClick={doLogin}>Sign in</Button>
@@ -132,7 +132,7 @@ function App() {
     <MantineProvider defaultColorScheme="light">
       <AppShell navbar={{ width: 240, breakpoint: "sm" }} padding="md">
         <AppShell.Navbar p="sm">
-          <Title order={3}>Durable Workloops</Title>
+          <Title order={3}>Agent Workloops</Title>
           <Text size="sm" c="dimmed">{session.user.email}</Text>
           <Divider my="md" />
           <NavLink label="Queue" active />

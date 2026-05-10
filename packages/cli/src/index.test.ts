@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseFlags, runClaimedCodexPlan } from "./index.js";
 
-describe("durable-workloops CLI", () => {
+describe("agent-workloops CLI", () => {
   it("parses boolean and valued flags", () => {
     expect(parseFlags(["--server", "http://localhost:3210", "--approval-required"])).toEqual({
       server: "http://localhost:3210",

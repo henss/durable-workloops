@@ -25,5 +25,5 @@ Repository configuration file at apps/web/tsconfig.json.
 
 ### `part-of`
 
-- `component:package.durable-workloops-web`
-- `repository:durable-workloops`
+- `component:package.agent-workloops-web`
+- `repository:agent-workloops`

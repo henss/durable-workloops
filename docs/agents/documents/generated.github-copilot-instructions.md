@@ -25,4 +25,4 @@ Markdown document at .github/copilot-instructions.md.
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

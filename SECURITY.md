@@ -1,4 +1,4 @@
-# Security Policy For durable-workloops
+# Security Policy For agent-workloops
 
 Do not file public issues containing secrets, personal data, customer data, or production configuration.
 

@@ -1,4 +1,4 @@
-import type { PlanRecord } from "@durable-workloops/api";
+import type { PlanRecord } from "@agent-workloops/api";
 
 export interface PlanBuckets {
   pending: PlanRecord[];

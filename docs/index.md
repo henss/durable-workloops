@@ -1,17 +1,17 @@
-# Durable WorkLoops
+# Agent Workloops
 
-Durable WorkLoops provide a reusable core for long-running agent work. The root package keeps the portable pieces small: contracts, deterministic slice selection, deterministic adjudication from outcome plus review evidence, and a generic Codex launch envelope. This repository also includes optional hosted packages around that core for plan submission, approval, leasing, execution, and review.
+Agent Workloops provide a reusable core for long-running agent work. The root package keeps the portable pieces small: contracts, deterministic slice selection, deterministic adjudication from outcome plus review evidence, and a generic Codex launch envelope. This repository also includes optional hosted packages around that core for plan submission, approval, leasing, execution, and review.
 
 ## Package Map
 
-- `durable-workloops/schema`: Zod schemas and TypeScript types for loops, slices, policies, and controller decisions.
-- `durable-workloops/selection`: helpers for selecting ready slices, resuming running slices, and marking a slice as running.
-- `durable-workloops/adjudication`: pure adjudication and state-application helpers.
-- `durable-workloops`: aggregate export for the public core.
-- `@durable-workloops/api`: shared Zod wire contracts and a small typed HTTP client for hosted Durable Workloops.
-- `@durable-workloops/server`: Fastify server with local users, client tokens, approval queue, filesystem persistence, leases, completion archive, and SQL/Mongo adapter seams.
-- `@durable-workloops/cli`: executor CLI for submitting, claiming, polling, completing, and running approved plans through Codex.
-- `@durable-workloops/web`: Vite React and Mantine UI for login, manual approval, queue review, archive browsing, users, and client tokens.
+- `agent-workloops/schema`: Zod schemas and TypeScript types for loops, slices, policies, and controller decisions.
+- `agent-workloops/selection`: helpers for selecting ready slices, resuming running slices, and marking a slice as running.
+- `agent-workloops/adjudication`: pure adjudication and state-application helpers.
+- `agent-workloops`: aggregate export for the public core.
+- `@agent-workloops/api`: shared Zod wire contracts and a small typed HTTP client for hosted Agent Workloops.
+- `@agent-workloops/server`: Fastify server with local users, client tokens, approval queue, filesystem persistence, leases, completion archive, and SQL/Mongo adapter seams.
+- `@agent-workloops/cli`: executor CLI for submitting, claiming, polling, completing, and running approved plans through Codex.
+- `@agent-workloops/web`: Vite React and Mantine UI for login, manual approval, queue review, archive browsing, users, and client tokens.
 
 ## Integration Shape
 
@@ -25,7 +25,7 @@ Portfolio repos should use this package as the shared public core for long-runni
 
 ## Codex Launcher
 
-The package includes `durable-workloops/launcher` for the common case where a WorkLoop slice should be handed to Codex:
+The package includes `agent-workloops/launcher` for the common case where a WorkLoop slice should be handed to Codex:
 
 - `prepareWorkLoopCodexLaunch(...)` writes a bounded slice prompt and launch record.
 - `renderWorkLoopCodexPrompt(...)` exposes the prompt without writing files.
@@ -40,7 +40,7 @@ The launcher intentionally does not know about Linear, Jira, Confluence, Slack, 
 
 ## Review Adapter
 
-The package includes `durable-workloops/ai-quality-loops` as an optional adapter shape for review execution. It does not import or depend on `ai-quality-loops`; callers pass an AIQL-compatible `runQualityReview` function. The adapter maps WorkLoop objective, success criteria, prompt path, outcome path, and changed paths into a generic review request, then returns `WorkLoopPeerReviewLike` evidence for adjudication.
+The package includes `agent-workloops/ai-quality-loops` as an optional adapter shape for review execution. It does not import or depend on `ai-quality-loops`; callers pass an AIQL-compatible `runQualityReview` function. The adapter maps WorkLoop objective, success criteria, prompt path, outcome path, and changed paths into a generic review request, then returns `WorkLoopPeerReviewLike` evidence for adjudication.
 
 ## Hosted Server
 

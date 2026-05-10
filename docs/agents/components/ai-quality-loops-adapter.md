@@ -26,7 +26,7 @@ Dependency-free adapter shape that maps WorkLoop slice outcome context into an a
 
 ### `part-of`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`
 
 ### `tested-by`
 

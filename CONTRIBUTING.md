@@ -1,4 +1,4 @@
-# Contributing To durable-workloops
+# Contributing To agent-workloops
 
 Contributions should keep examples generic and safe to share.
 

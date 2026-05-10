@@ -149,7 +149,7 @@ async function assertPackageShape(tarballPath) {
 }
 
 async function runCleanInstallSmoke(packageName, tarballPath) {
-  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "durable-workloops-package-smoke-"));
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "agent-workloops-package-smoke-"));
   try {
     await writeFile(path.join(tempRoot, "package.json"), '{"private":true,"type":"module"}\n');
     await run("npm", ["install", tarballPath], tempRoot);
@@ -233,7 +233,7 @@ async function prepareNpmAuth() {
     };
   }
 
-  const authDir = await mkdtemp(path.join(os.tmpdir(), "durable-workloops-npm-auth-"));
+  const authDir = await mkdtemp(path.join(os.tmpdir(), "agent-workloops-npm-auth-"));
   const userConfigPath = path.join(authDir, ".npmrc");
   await writeFile(userConfigPath, "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}\n");
 

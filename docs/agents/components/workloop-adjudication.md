@@ -26,7 +26,7 @@ Pure helpers for converting outcome and peer-review evidence into controller dec
 
 ### `part-of`
 
-- `repository:durable-workloops` _(generated)_
+- `repository:agent-workloops` _(generated)_
 
 ### `tested-by`
 

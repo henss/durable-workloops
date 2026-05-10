@@ -13,7 +13,7 @@ import {
   type ClientTokenScope,
   type User,
   type UserRole,
-} from "@durable-workloops/api";
+} from "@agent-workloops/api";
 import Fastify, {
   type FastifyInstance,
   type FastifyReply,
@@ -76,7 +76,7 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
       return reply.code(401).send({ error: "Invalid credentials." });
     }
     const session = await authStore.createSession(user.id);
-    reply.setCookie("dwl_session", session, {
+    reply.setCookie("awl_session", session, {
       httpOnly: true,
       sameSite: "lax",
       secure: false,
@@ -86,7 +86,7 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/auth/logout", async (request) => {
-    const session = request.cookies.dwl_session;
+    const session = request.cookies.awl_session ?? request.cookies.dwl_session;
     if (session) {
       await authStore.revokeSession(session);
     }
@@ -312,7 +312,7 @@ async function authenticate(request: FastifyRequest, authStore: AuthStore): Prom
         }
       : undefined;
   }
-  const session = request.cookies.dwl_session;
+  const session = request.cookies.awl_session ?? request.cookies.dwl_session;
   if (!session) {
     return undefined;
   }

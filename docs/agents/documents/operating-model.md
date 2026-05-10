@@ -6,7 +6,7 @@ ID: `document:operating-model`
 Kind: `document`
 Profile: `public`
 
-Human-facing package map, hosted server shape, integration shape, and non-goals for durable-workloops.
+Human-facing package map, hosted server shape, integration shape, and non-goals for agent-workloops.
 
 ## Metadata
 
@@ -17,4 +17,4 @@ Human-facing package map, hosted server shape, integration shape, and non-goals 
 ### `documents`
 
 - `domain:durable-agent-workflows`
-- `repository:durable-workloops`
+- `repository:agent-workloops`

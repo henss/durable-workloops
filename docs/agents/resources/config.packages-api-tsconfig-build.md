@@ -25,5 +25,5 @@ Repository configuration file at packages/api/tsconfig.build.json.
 
 ### `part-of`
 
-- `component:package.durable-workloops-api`
-- `repository:durable-workloops`
+- `component:package.agent-workloops-api`
+- `repository:agent-workloops`

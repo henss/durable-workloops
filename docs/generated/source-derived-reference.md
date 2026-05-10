@@ -10,56 +10,56 @@ Generated entities: 95
 
 ## Package Scripts
 
-- `interface:package-script.durable-workloops-api.build` - @durable-workloops/api build: Package script `build` from packages/api/package.json.
-- `interface:package-script.durable-workloops-api.test` - @durable-workloops/api test: Package script `test` from packages/api/package.json.
-- `interface:package-script.durable-workloops-api.typecheck` - @durable-workloops/api typecheck: Package script `typecheck` from packages/api/package.json.
-- `interface:package-script.durable-workloops-cli.build` - @durable-workloops/cli build: Package script `build` from packages/cli/package.json.
-- `interface:package-script.durable-workloops-cli.test` - @durable-workloops/cli test: Package script `test` from packages/cli/package.json.
-- `interface:package-script.durable-workloops-cli.typecheck` - @durable-workloops/cli typecheck: Package script `typecheck` from packages/cli/package.json.
-- `interface:package-script.durable-workloops-server.build` - @durable-workloops/server build: Package script `build` from packages/server/package.json.
-- `interface:package-script.durable-workloops-server.dev` - @durable-workloops/server dev: Package script `dev` from packages/server/package.json.
-- `interface:package-script.durable-workloops-server.test` - @durable-workloops/server test: Package script `test` from packages/server/package.json.
-- `interface:package-script.durable-workloops-server.typecheck` - @durable-workloops/server typecheck: Package script `typecheck` from packages/server/package.json.
-- `interface:package-script.durable-workloops-web.build` - @durable-workloops/web build: Package script `build` from apps/web/package.json.
-- `interface:package-script.durable-workloops-web.dev` - @durable-workloops/web dev: Package script `dev` from apps/web/package.json.
-- `interface:package-script.durable-workloops-web.test` - @durable-workloops/web test: Package script `test` from apps/web/package.json.
-- `interface:package-script.durable-workloops-web.typecheck` - @durable-workloops/web typecheck: Package script `typecheck` from apps/web/package.json.
-- `interface:package-script.durable-workloops.atlas` - durable-workloops atlas: Package script `atlas` from package.json.
-- `interface:package-script.durable-workloops.atlas-boundary-check` - durable-workloops atlas:boundary-check: Package script `atlas:boundary-check` from package.json.
-- `interface:package-script.durable-workloops.atlas-check` - durable-workloops atlas:check: Package script `atlas:check` from package.json.
-- `interface:package-script.durable-workloops.atlas-context-pack` - durable-workloops atlas:context-pack: Package script `atlas:context-pack` from package.json.
-- `interface:package-script.durable-workloops.atlas-docs-check` - durable-workloops atlas:docs:check: Package script `atlas:docs:check` from package.json.
-- `interface:package-script.durable-workloops.atlas-doctor` - durable-workloops atlas:doctor: Package script `atlas:doctor` from package.json.
-- `interface:package-script.durable-workloops.atlas-refresh` - durable-workloops atlas:refresh: Package script `atlas:refresh` from package.json.
-- `interface:package-script.durable-workloops.atlas-resolve-path` - durable-workloops atlas:resolve-path: Package script `atlas:resolve-path` from package.json.
-- `interface:package-script.durable-workloops.atlas-validate` - durable-workloops atlas:validate: Package script `atlas:validate` from package.json.
-- `interface:package-script.durable-workloops.build` - durable-workloops build: Package script `build` from package.json.
-- `interface:package-script.durable-workloops.build-all` - durable-workloops build:all: Package script `build:all` from package.json.
-- `interface:package-script.durable-workloops.check` - durable-workloops check: Package script `check` from package.json.
-- `interface:package-script.durable-workloops.clean` - durable-workloops clean: Package script `clean` from package.json.
-- `interface:package-script.durable-workloops.dev-hosted` - durable-workloops dev:hosted: Package script `dev:hosted` from package.json.
-- `interface:package-script.durable-workloops.dev-server` - durable-workloops dev:server: Package script `dev:server` from package.json.
-- `interface:package-script.durable-workloops.dev-web` - durable-workloops dev:web: Package script `dev:web` from package.json.
-- `interface:package-script.durable-workloops.lint-docs` - durable-workloops lint:docs: Package script `lint:docs` from package.json.
-- `interface:package-script.durable-workloops.release-package` - durable-workloops release:package: Package script `release:package` from package.json.
-- `interface:package-script.durable-workloops.start-hosted` - durable-workloops start:hosted: Package script `start:hosted` from package.json.
-- `interface:package-script.durable-workloops.test` - durable-workloops test: Package script `test` from package.json.
-- `interface:package-script.durable-workloops.typecheck` - durable-workloops typecheck: Package script `typecheck` from package.json.
+- `interface:package-script.agent-workloops-api.build` - @agent-workloops/api build: Package script `build` from packages/api/package.json.
+- `interface:package-script.agent-workloops-api.test` - @agent-workloops/api test: Package script `test` from packages/api/package.json.
+- `interface:package-script.agent-workloops-api.typecheck` - @agent-workloops/api typecheck: Package script `typecheck` from packages/api/package.json.
+- `interface:package-script.agent-workloops-cli.build` - @agent-workloops/cli build: Package script `build` from packages/cli/package.json.
+- `interface:package-script.agent-workloops-cli.test` - @agent-workloops/cli test: Package script `test` from packages/cli/package.json.
+- `interface:package-script.agent-workloops-cli.typecheck` - @agent-workloops/cli typecheck: Package script `typecheck` from packages/cli/package.json.
+- `interface:package-script.agent-workloops-server.build` - @agent-workloops/server build: Package script `build` from packages/server/package.json.
+- `interface:package-script.agent-workloops-server.dev` - @agent-workloops/server dev: Package script `dev` from packages/server/package.json.
+- `interface:package-script.agent-workloops-server.test` - @agent-workloops/server test: Package script `test` from packages/server/package.json.
+- `interface:package-script.agent-workloops-server.typecheck` - @agent-workloops/server typecheck: Package script `typecheck` from packages/server/package.json.
+- `interface:package-script.agent-workloops-web.build` - @agent-workloops/web build: Package script `build` from apps/web/package.json.
+- `interface:package-script.agent-workloops-web.dev` - @agent-workloops/web dev: Package script `dev` from apps/web/package.json.
+- `interface:package-script.agent-workloops-web.test` - @agent-workloops/web test: Package script `test` from apps/web/package.json.
+- `interface:package-script.agent-workloops-web.typecheck` - @agent-workloops/web typecheck: Package script `typecheck` from apps/web/package.json.
+- `interface:package-script.agent-workloops.atlas` - agent-workloops atlas: Package script `atlas` from package.json.
+- `interface:package-script.agent-workloops.atlas-boundary-check` - agent-workloops atlas:boundary-check: Package script `atlas:boundary-check` from package.json.
+- `interface:package-script.agent-workloops.atlas-check` - agent-workloops atlas:check: Package script `atlas:check` from package.json.
+- `interface:package-script.agent-workloops.atlas-context-pack` - agent-workloops atlas:context-pack: Package script `atlas:context-pack` from package.json.
+- `interface:package-script.agent-workloops.atlas-docs-check` - agent-workloops atlas:docs:check: Package script `atlas:docs:check` from package.json.
+- `interface:package-script.agent-workloops.atlas-doctor` - agent-workloops atlas:doctor: Package script `atlas:doctor` from package.json.
+- `interface:package-script.agent-workloops.atlas-refresh` - agent-workloops atlas:refresh: Package script `atlas:refresh` from package.json.
+- `interface:package-script.agent-workloops.atlas-resolve-path` - agent-workloops atlas:resolve-path: Package script `atlas:resolve-path` from package.json.
+- `interface:package-script.agent-workloops.atlas-validate` - agent-workloops atlas:validate: Package script `atlas:validate` from package.json.
+- `interface:package-script.agent-workloops.build` - agent-workloops build: Package script `build` from package.json.
+- `interface:package-script.agent-workloops.build-all` - agent-workloops build:all: Package script `build:all` from package.json.
+- `interface:package-script.agent-workloops.check` - agent-workloops check: Package script `check` from package.json.
+- `interface:package-script.agent-workloops.clean` - agent-workloops clean: Package script `clean` from package.json.
+- `interface:package-script.agent-workloops.dev-hosted` - agent-workloops dev:hosted: Package script `dev:hosted` from package.json.
+- `interface:package-script.agent-workloops.dev-server` - agent-workloops dev:server: Package script `dev:server` from package.json.
+- `interface:package-script.agent-workloops.dev-web` - agent-workloops dev:web: Package script `dev:web` from package.json.
+- `interface:package-script.agent-workloops.lint-docs` - agent-workloops lint:docs: Package script `lint:docs` from package.json.
+- `interface:package-script.agent-workloops.release-package` - agent-workloops release:package: Package script `release:package` from package.json.
+- `interface:package-script.agent-workloops.start-hosted` - agent-workloops start:hosted: Package script `start:hosted` from package.json.
+- `interface:package-script.agent-workloops.test` - agent-workloops test: Package script `test` from package.json.
+- `interface:package-script.agent-workloops.typecheck` - agent-workloops typecheck: Package script `typecheck` from package.json.
 
 ## Workspace Packages
 
-- `component:package.durable-workloops` - durable-workloops: Portable durable work-loop schemas and state transitions for agent workflows.
-- `component:package.durable-workloops-api` - @durable-workloops/api: Package manifest at packages/api/package.json.
-- `component:package.durable-workloops-cli` - @durable-workloops/cli: Package manifest at packages/cli/package.json.
-- `component:package.durable-workloops-server` - @durable-workloops/server: Package manifest at packages/server/package.json.
-- `component:package.durable-workloops-web` - @durable-workloops/web: Package manifest at apps/web/package.json.
+- `component:package.agent-workloops` - agent-workloops: Portable durable work-loop schemas and state transitions for agent workflows.
+- `component:package.agent-workloops-api` - @agent-workloops/api: Package manifest at packages/api/package.json.
+- `component:package.agent-workloops-cli` - @agent-workloops/cli: Package manifest at packages/cli/package.json.
+- `component:package.agent-workloops-server` - @agent-workloops/server: Package manifest at packages/server/package.json.
+- `component:package.agent-workloops-web` - @agent-workloops/web: Package manifest at apps/web/package.json.
 
 ## Tests
 
-- `test-scope:generated.package.durable-workloops-api` - @durable-workloops/api tests: 1 discovered test file under packages/api.
-- `test-scope:generated.package.durable-workloops-cli` - @durable-workloops/cli tests: 1 discovered test file under packages/cli.
-- `test-scope:generated.package.durable-workloops-server` - @durable-workloops/server tests: 1 discovered test file under packages/server.
-- `test-scope:generated.package.durable-workloops-web` - @durable-workloops/web tests: 1 discovered test file under apps/web.
+- `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
+- `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
+- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 1 discovered test file under packages/server.
+- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 1 discovered test file under apps/web.
 - `test-scope:generated.src` - src tests: 4 discovered test files under src.
 
 ## Agent Skills
@@ -70,11 +70,11 @@ Generated entities: 95
 
 - `document:generated.agents` - AGENTS.md: Markdown document at AGENTS.md.
 - `document:generated.codex-portfolio-guidance` - Local Agent Guidance: Markdown document at .codex/portfolio-guidance.md.
-- `document:generated.contributing` - Contributing To durable-workloops: Markdown document at CONTRIBUTING.md.
-- `document:generated.docs-index` - Durable WorkLoops: Markdown document at docs/index.md.
-- `document:generated.examples-readme` - Synthetic Examples For durable-workloops: Markdown document at examples/README.md.
+- `document:generated.contributing` - Contributing To agent-workloops: Markdown document at CONTRIBUTING.md.
+- `document:generated.docs-index` - Agent Workloops: Markdown document at docs/index.md.
+- `document:generated.examples-readme` - Synthetic Examples For agent-workloops: Markdown document at examples/README.md.
 - `document:generated.github-copilot-instructions` - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md.
-- `document:generated.security` - Security Policy For durable-workloops: Markdown document at SECURITY.md.
+- `document:generated.security` - Security Policy For agent-workloops: Markdown document at SECURITY.md.
 
 ## Config
 
@@ -124,6 +124,6 @@ Generated entities: 95
 
 ## Dependencies
 
-- `component:package.durable-workloops-cli.dependencies` - @durable-workloops/cli dependency surface: Workspace dependency relations for @durable-workloops/cli.
-- `component:package.durable-workloops-server.dependencies` - @durable-workloops/server dependency surface: Workspace dependency relations for @durable-workloops/server.
-- `component:package.durable-workloops-web.dependencies` - @durable-workloops/web dependency surface: Workspace dependency relations for @durable-workloops/web.
+- `component:package.agent-workloops-cli.dependencies` - @agent-workloops/cli dependency surface: Workspace dependency relations for @agent-workloops/cli.
+- `component:package.agent-workloops-server.dependencies` - @agent-workloops/server dependency surface: Workspace dependency relations for @agent-workloops/server.
+- `component:package.agent-workloops-web.dependencies` - @agent-workloops/web dependency surface: Workspace dependency relations for @agent-workloops/web.

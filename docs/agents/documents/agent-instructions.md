@@ -6,7 +6,7 @@ ID: `document:agent-instructions`
 Kind: `document`
 Profile: `public`
 
-Repo-local instructions for agents working in durable-workloops.
+Repo-local instructions for agents working in agent-workloops.
 
 ## Metadata
 
@@ -16,4 +16,4 @@ Repo-local instructions for agents working in durable-workloops.
 
 ### `documents`
 
-- `repository:durable-workloops`
+- `repository:agent-workloops`

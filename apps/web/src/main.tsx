@@ -395,6 +395,23 @@ function TokensPanel(props: {
 }) {
   return (
     <Stack>
+      <Alert icon={<Info size={16} />} title="Using tokens with the CLI">
+        <Stack gap="xs">
+          <Text size="sm">
+            Mint a token, save the shown-once value, then put it in AWL_TOKEN or pass it with --token.
+          </Text>
+          <Code block>
+            AWL_SERVER=http://127.0.0.1:3210{"\n"}
+            AWL_TOKEN=awl_client_...{"\n\n"}
+            agent-workloops submit --file examples/workloop.json{"\n"}
+            agent-workloops run-codex --workspace /path/to/repo{"\n\n"}
+            agent-workloops submit --server http://127.0.0.1:3210 --token awl_client_... --file examples/workloop.json
+          </Code>
+          <Text size="sm" c="dimmed">
+            Use the plans:submit scope for submitting plans. Use plans:claim and plans:complete for executor clients that claim, heartbeat, and complete plans.
+          </Text>
+        </Stack>
+      </Alert>
       <Group align="end">
         <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
         <MultiSelect label="Scopes" data={["plans:submit", "plans:claim", "plans:complete"]} value={props.form.scopes} onChange={(scopes) => props.setForm({ ...props.form, scopes })} />

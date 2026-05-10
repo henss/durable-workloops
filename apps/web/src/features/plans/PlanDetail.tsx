@@ -1,6 +1,7 @@
-import { Code, Group, JsonInput, ScrollArea, Stack, Text, Title } from "@mantine/core";
+import { Code, Group, ScrollArea, Stack, Text, Title } from "@mantine/core";
 import { ApprovalBadge, StatusBadge } from "../../components/PlanBadges.js";
 import type { PlanDetailRecord } from "../../types.js";
+import { WorkLoopVisualization } from "./WorkLoopVisualization.js";
 
 export function PlanDetail({ detail }: { detail: PlanDetailRecord }) {
   return (
@@ -10,7 +11,7 @@ export function PlanDetail({ detail }: { detail: PlanDetailRecord }) {
         <ApprovalBadge plan={detail.plan} />
         <Code>{detail.plan.workLoop.projectId}</Code>
       </Group>
-      <JsonInput autosize minRows={12} value={JSON.stringify(detail.plan.workLoop, null, 2)} readOnly />
+      <WorkLoopVisualization workLoop={detail.plan.workLoop} />
       <Title order={4}>Audit trail</Title>
       <ScrollArea h={220}>
         <Stack gap="xs">

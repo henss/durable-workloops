@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "tsc -p tsconfig.build.json && vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run"

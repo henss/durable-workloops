@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 93
+Generated entities: 95
 
 ## Commander
 
@@ -37,10 +37,12 @@ Generated entities: 93
 - `interface:package-script.durable-workloops.build-all` - durable-workloops build:all: Package script `build:all` from package.json.
 - `interface:package-script.durable-workloops.check` - durable-workloops check: Package script `check` from package.json.
 - `interface:package-script.durable-workloops.clean` - durable-workloops clean: Package script `clean` from package.json.
+- `interface:package-script.durable-workloops.dev-hosted` - durable-workloops dev:hosted: Package script `dev:hosted` from package.json.
 - `interface:package-script.durable-workloops.dev-server` - durable-workloops dev:server: Package script `dev:server` from package.json.
 - `interface:package-script.durable-workloops.dev-web` - durable-workloops dev:web: Package script `dev:web` from package.json.
 - `interface:package-script.durable-workloops.lint-docs` - durable-workloops lint:docs: Package script `lint:docs` from package.json.
 - `interface:package-script.durable-workloops.release-package` - durable-workloops release:package: Package script `release:package` from package.json.
+- `interface:package-script.durable-workloops.start-hosted` - durable-workloops start:hosted: Package script `start:hosted` from package.json.
 - `interface:package-script.durable-workloops.test` - durable-workloops test: Package script `test` from package.json.
 - `interface:package-script.durable-workloops.typecheck` - durable-workloops typecheck: Package script `typecheck` from package.json.
 

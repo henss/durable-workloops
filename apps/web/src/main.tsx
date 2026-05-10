@@ -2,10 +2,12 @@ import "@mantine/core/styles.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  AppShell,
   Alert,
+  AppShell,
   Badge,
+  Box,
   Button,
+  Center,
   Code,
   Container,
   Divider,
@@ -15,18 +17,36 @@ import {
   Modal,
   MultiSelect,
   NavLink,
+  Paper,
   PasswordInput,
   ScrollArea,
   Select,
+  SimpleGrid,
   Stack,
   Table,
   Tabs,
   Text,
   TextInput,
+  ThemeIcon,
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Check, Info, KeyRound, LogIn, RefreshCw, ShieldCheck, UserPlus, X } from "lucide-react";
+import {
+  Archive,
+  Check,
+  CheckCircle2,
+  Clock3,
+  Info,
+  KeyRound,
+  ListChecks,
+  Lock,
+  LogIn,
+  RefreshCw,
+  ShieldCheck,
+  UserPlus,
+  UsersRound,
+  X,
+} from "lucide-react";
 import type {
   AuditEvent,
   AuthSetupStatus,
@@ -36,10 +56,10 @@ import type {
   User,
 } from "@agent-workloops/api";
 import { bucketPlans } from "./plans.js";
-import "./styles.css";
 
 type Session = { user: User };
 type Detail = { plan: PlanRecord; audit: AuditEvent[] };
+type DashboardTab = "pending" | "claimable" | "locked" | "archive" | "users" | "tokens";
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -50,6 +70,7 @@ function App() {
   const [tokens, setTokens] = useState<PublicClientToken[]>([]);
   const [createdToken, setCreatedToken] = useState<CreatedClientToken | null>(null);
   const [setupStatus, setSetupStatus] = useState<AuthSetupStatus | null>(null);
+  const [activeTab, setActiveTab] = useState<DashboardTab>("pending");
   const [login, setLogin] = useState({ email: "", password: "" });
   const [bootstrapForm, setBootstrapForm] = useState({ email: "", password: "", name: "" });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -160,9 +181,9 @@ function App() {
   if (!setupStatus) {
     return (
       <MantineProvider defaultColorScheme="light">
-        <Container size="xs" className="login">
+        <AuthShell>
           <Text c="dimmed">Checking server setup...</Text>
-        </Container>
+        </AuthShell>
       </MantineProvider>
     );
   }
@@ -170,7 +191,7 @@ function App() {
   if (!setupStatus.usersExist) {
     return (
       <MantineProvider defaultColorScheme="light">
-        <Container size="sm" className="login">
+        <AuthShell size="sm">
           <SetupRequired
             form={bootstrapForm}
             setForm={setBootstrapForm}
@@ -178,7 +199,7 @@ function App() {
             bootstrapConfigured={setupStatus.bootstrapConfigured}
             errorMessage={errorMessage}
           />
-        </Container>
+        </AuthShell>
       </MantineProvider>
     );
   }
@@ -186,57 +207,134 @@ function App() {
   if (!session) {
     return (
       <MantineProvider defaultColorScheme="light">
-        <Container size="xs" className="login">
+        <AuthShell>
           <Stack gap="md">
-            <Title order={1}>Agent Workloops</Title>
+            <Group gap="sm">
+              <ThemeIcon size="lg" radius="md" variant="light">
+                <ListChecks size={20} />
+              </ThemeIcon>
+              <Box>
+                <Title order={1} size="h2">Agent Workloops</Title>
+                <Text size="sm" c="dimmed">Sign in to review and manage plans.</Text>
+              </Box>
+            </Group>
             {errorMessage ? <Alert color="red">{errorMessage}</Alert> : null}
             <TextInput label="Email" value={login.email} onChange={(event) => setLogin({ ...login, email: event.target.value })} />
             <PasswordInput label="Password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} />
             <Button leftSection={<LogIn size={16} />} onClick={doLogin}>Sign in</Button>
           </Stack>
-        </Container>
+        </AuthShell>
       </MantineProvider>
     );
   }
 
+  const tabs = getDashboardTabs({
+    pending: buckets.pending.length,
+    claimable: buckets.claimable.length,
+    locked: buckets.locked.length,
+    archive: archive.length,
+    users: users.length,
+    tokens: tokens.length,
+  });
+
   return (
     <MantineProvider defaultColorScheme="light">
-      <AppShell navbar={{ width: 240, breakpoint: "sm" }} padding="md">
-        <AppShell.Navbar p="sm">
-          <Title order={3}>Agent Workloops</Title>
-          <Text size="sm" c="dimmed">{session.user.email}</Text>
-          <Divider my="md" />
-          <NavLink label="Queue" active />
-          <NavLink label="Archive" />
-          <NavLink label="Users" disabled={!isAdmin} />
-          <NavLink label="Client tokens" />
+      <AppShell
+        header={{ height: 64 }}
+        navbar={{ width: 280, breakpoint: "sm" }}
+        padding="lg"
+        bg="gray.0"
+      >
+        <AppShell.Header px="lg">
+          <Group h="100%" justify="space-between">
+            <Group gap="sm">
+              <ThemeIcon size="lg" radius="md" variant="light">
+                <ListChecks size={20} />
+              </ThemeIcon>
+              <Box>
+                <Title order={1} size="h3">Agent Workloops</Title>
+                <Text size="xs" c="dimmed">Hosted approval and execution queue</Text>
+              </Box>
+            </Group>
+            <Button variant="light" leftSection={<RefreshCw size={16} />} onClick={refresh}>Refresh</Button>
+          </Group>
+        </AppShell.Header>
+
+        <AppShell.Navbar p="md">
+          <Stack gap="md" h="100%">
+            <Box>
+              <Text size="xs" tt="uppercase" fw={700} c="dimmed">Signed in</Text>
+              <Text size="sm" fw={600} truncate>{session.user.email}</Text>
+              <Group gap={4} mt={6}>
+                {session.user.roles.map((role) => (
+                  <Badge key={role} size="xs" variant="light">{role}</Badge>
+                ))}
+              </Group>
+            </Box>
+            <Divider />
+            <Stack gap={4}>
+              {tabs.map((tab) => (
+                <NavLink
+                  key={tab.value}
+                  active={activeTab === tab.value}
+                  disabled={tab.value === "users" && !isAdmin}
+                  label={tab.label}
+                  leftSection={tab.icon}
+                  rightSection={<Badge size="xs" variant={activeTab === tab.value ? "filled" : "light"}>{tab.count}</Badge>}
+                  onClick={() => setActiveTab(tab.value)}
+                  variant="light"
+                />
+              ))}
+            </Stack>
+          </Stack>
         </AppShell.Navbar>
+
         <AppShell.Main>
           <Stack gap="lg">
-            <Group justify="space-between">
-              <Title order={2}>Workloop queue</Title>
-              <Button variant="light" leftSection={<RefreshCw size={16} />} onClick={refresh}>Refresh</Button>
+            <Group justify="space-between" align="flex-end">
+              <Box>
+                <Title order={2}>{tabs.find((tab) => tab.value === activeTab)?.heading}</Title>
+                <Text size="sm" c="dimmed">{tabs.find((tab) => tab.value === activeTab)?.description}</Text>
+              </Box>
             </Group>
-            <Tabs defaultValue="pending">
+
+            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+              <MetricCard label="Pending approval" value={buckets.pending.length} icon={<Clock3 size={18} />} color="yellow" />
+              <MetricCard label="Claimable" value={buckets.claimable.length} icon={<CheckCircle2 size={18} />} color="green" />
+              <MetricCard label="Locked" value={buckets.locked.length} icon={<Lock size={18} />} color="blue" />
+            </SimpleGrid>
+
+            <Tabs value={activeTab} onChange={(value) => setActiveTab((value ?? "pending") as DashboardTab)} keepMounted={false}>
               <Tabs.List>
-                <Tabs.Tab value="pending">Pending approval</Tabs.Tab>
-                <Tabs.Tab value="claimable">Claimable</Tabs.Tab>
-                <Tabs.Tab value="locked">Locked</Tabs.Tab>
-                <Tabs.Tab value="archive">Archive</Tabs.Tab>
-                <Tabs.Tab value="users">Users</Tabs.Tab>
-                <Tabs.Tab value="tokens">Tokens</Tabs.Tab>
+                {tabs.map((tab) => (
+                  <Tabs.Tab key={tab.value} value={tab.value} disabled={tab.value === "users" && !isAdmin}>
+                    <Group gap={8}>
+                      <Text size="sm">{tab.label}</Text>
+                      <Badge size="xs" variant="light">{tab.count}</Badge>
+                    </Group>
+                  </Tabs.Tab>
+                ))}
               </Tabs.List>
+
               <Tabs.Panel value="pending" pt="md">
-                <PlanTable plans={buckets.pending} onDetail={showDetail} onApprove={isReviewer ? approve : undefined} onReject={isReviewer ? reject : undefined} />
+                <PageSection>
+                  <PlanTable plans={buckets.pending} onDetail={showDetail} onApprove={isReviewer ? approve : undefined} onReject={isReviewer ? reject : undefined} emptyLabel="No plans are waiting for approval." />
+                </PageSection>
               </Tabs.Panel>
               <Tabs.Panel value="claimable" pt="md">
-                <PlanTable plans={buckets.claimable} onDetail={showDetail} />
+                <PageSection>
+                  <PlanTable plans={buckets.claimable} onDetail={showDetail} emptyLabel="No approved plans are ready to claim." />
+                </PageSection>
               </Tabs.Panel>
               <Tabs.Panel value="locked" pt="md">
-                <PlanTable plans={buckets.locked} onDetail={showDetail} />
+                <PageSection>
+                  <PlanTable plans={buckets.locked} onDetail={showDetail} emptyLabel="No plans are currently locked by executors." />
+                </PageSection>
               </Tabs.Panel>
               <Tabs.Panel value="archive" pt="md">
-                <PlanTable plans={archive} onDetail={showDetail} />
+                <PageSection>
+                  <PlanTable plans={archive} onDetail={showDetail} emptyLabel="No completed plans are archived yet." />
+                </PageSection>
               </Tabs.Panel>
               <Tabs.Panel value="users" pt="md">
                 <UsersPanel isAdmin={isAdmin} users={users} form={userForm} setForm={setUserForm} onCreate={createUser} />
@@ -255,6 +353,20 @@ function App() {
   );
 }
 
+function AuthShell(props: { children: React.ReactNode; size?: "xs" | "sm" }) {
+  return (
+    <Box bg="gray.0" mih="100vh">
+      <Center mih="100vh" p="lg">
+        <Container size={props.size ?? "xs"} w="100%">
+          <Paper withBorder radius="md" p="xl" shadow="sm">
+            {props.children}
+          </Paper>
+        </Container>
+      </Center>
+    </Box>
+  );
+}
+
 function SetupRequired(props: {
   form: { email: string; password: string; name: string };
   setForm: (form: { email: string; password: string; name: string }) => void;
@@ -264,7 +376,15 @@ function SetupRequired(props: {
 }) {
   return (
     <Stack gap="md">
-      <Title order={1}>Agent Workloops setup</Title>
+      <Group gap="sm">
+        <ThemeIcon size="lg" radius="md" variant="light" color="yellow">
+          <UserPlus size={20} />
+        </ThemeIcon>
+        <Box>
+          <Title order={1} size="h2">Agent Workloops setup</Title>
+          <Text size="sm" c="dimmed">Create the first local administrator.</Text>
+        </Box>
+      </Group>
       <Alert icon={<Info size={16} />} color="yellow" title="No admin user exists">
         Create the first admin account below, or restart the server with bootstrap credentials.
       </Alert>
@@ -290,46 +410,81 @@ function SetupRequired(props: {
   );
 }
 
+function MetricCard(props: { label: string; value: number; icon: React.ReactNode; color: string }) {
+  return (
+    <Paper withBorder radius="md" p="md">
+      <Group justify="space-between">
+        <Box>
+          <Text size="xs" tt="uppercase" fw={700} c="dimmed">{props.label}</Text>
+          <Text size="xl" fw={700}>{props.value}</Text>
+        </Box>
+        <ThemeIcon variant="light" color={props.color} radius="md" size="lg">
+          {props.icon}
+        </ThemeIcon>
+      </Group>
+    </Paper>
+  );
+}
+
+function PageSection(props: { children: React.ReactNode }) {
+  return (
+    <Paper withBorder radius="md" p={0} shadow="xs">
+      {props.children}
+    </Paper>
+  );
+}
+
 function PlanTable(props: {
   plans: PlanRecord[];
   onDetail: (planId: string) => void;
   onApprove?: (planId: string) => void;
   onReject?: (planId: string) => void;
+  emptyLabel: string;
 }) {
+  if (props.plans.length === 0) {
+    return <EmptyState label={props.emptyLabel} />;
+  }
+
   return (
-    <Table striped highlightOnHover>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th>Plan</Table.Th>
-          <Table.Th>Project</Table.Th>
-          <Table.Th>Approval</Table.Th>
-          <Table.Th>Status</Table.Th>
-          <Table.Th>Updated</Table.Th>
-          <Table.Th />
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>
-        {props.plans.map((plan) => (
-          <Table.Tr key={plan.id}>
-            <Table.Td>
-              <Text fw={600}>{plan.workLoop.objective}</Text>
-              <Text size="xs" c="dimmed">{plan.id}</Text>
-            </Table.Td>
-            <Table.Td>{plan.workLoop.projectId}</Table.Td>
-            <Table.Td><Badge variant="light">{plan.approvalStatus}</Badge></Table.Td>
-            <Table.Td><Badge>{plan.status}</Badge></Table.Td>
-            <Table.Td>{new Date(plan.updatedAt).toLocaleString()}</Table.Td>
-            <Table.Td>
-              <Group gap="xs" justify="flex-end">
-                {props.onApprove ? <Button size="xs" leftSection={<Check size={14} />} onClick={() => props.onApprove?.(plan.id)}>Approve</Button> : null}
-                {props.onReject ? <Button size="xs" variant="outline" color="red" leftSection={<X size={14} />} onClick={() => props.onReject?.(plan.id)}>Reject</Button> : null}
-                <Button size="xs" variant="light" onClick={() => props.onDetail(plan.id)}>Open</Button>
-              </Group>
-            </Table.Td>
+    <Table.ScrollContainer minWidth={980}>
+      <Table highlightOnHover verticalSpacing="sm">
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Plan</Table.Th>
+            <Table.Th>Project</Table.Th>
+            <Table.Th>Approval</Table.Th>
+            <Table.Th>Status</Table.Th>
+            <Table.Th>Updated</Table.Th>
+            <Table.Th />
           </Table.Tr>
-        ))}
-      </Table.Tbody>
-    </Table>
+        </Table.Thead>
+        <Table.Tbody>
+          {props.plans.map((plan) => (
+            <Table.Tr key={plan.id}>
+              <Table.Td maw={760}>
+                <Text fw={650} lineClamp={2}>{plan.workLoop.objective}</Text>
+                <Text size="xs" c="dimmed" ff="monospace">{plan.id}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Code>{plan.workLoop.projectId}</Code>
+              </Table.Td>
+              <Table.Td><ApprovalBadge plan={plan} /></Table.Td>
+              <Table.Td><StatusBadge plan={plan} /></Table.Td>
+              <Table.Td>
+                <Text size="sm">{new Date(plan.updatedAt).toLocaleString()}</Text>
+              </Table.Td>
+              <Table.Td>
+                <Group gap="xs" justify="flex-end" wrap="nowrap">
+                  {props.onApprove ? <Button size="xs" leftSection={<Check size={14} />} onClick={() => props.onApprove?.(plan.id)}>Approve</Button> : null}
+                  {props.onReject ? <Button size="xs" variant="light" color="red" leftSection={<X size={14} />} onClick={() => props.onReject?.(plan.id)}>Reject</Button> : null}
+                  <Button size="xs" variant="default" onClick={() => props.onDetail(plan.id)}>Open</Button>
+                </Group>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Table.ScrollContainer>
   );
 }
 
@@ -337,13 +492,15 @@ function PlanDetail({ detail }: { detail: Detail }) {
   return (
     <Stack>
       <Group>
-        <Badge>{detail.plan.status}</Badge>
-        <Badge variant="light">{detail.plan.approvalStatus}</Badge>
+        <StatusBadge plan={detail.plan} />
+        <ApprovalBadge plan={detail.plan} />
+        <Code>{detail.plan.workLoop.projectId}</Code>
       </Group>
       <JsonInput autosize minRows={12} value={JSON.stringify(detail.plan.workLoop, null, 2)} readOnly />
-      <Title order={4}>Audit</Title>
-      <ScrollArea h={180}>
+      <Title order={4}>Audit trail</Title>
+      <ScrollArea h={220}>
         <Stack gap="xs">
+          {detail.audit.length === 0 ? <Text size="sm" c="dimmed">No audit events recorded.</Text> : null}
           {detail.audit.map((event) => (
             <Code key={event.id} block>{JSON.stringify(event, null, 2)}</Code>
           ))}
@@ -363,25 +520,49 @@ function UsersPanel(props: {
   return (
     <Stack>
       {props.isAdmin ? (
-        <Group align="end">
-          <TextInput label="Email" value={props.form.email} onChange={(event) => props.setForm({ ...props.form, email: event.target.value })} />
-          <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
-          <PasswordInput label="Password" value={props.form.password} onChange={(event) => props.setForm({ ...props.form, password: event.target.value })} />
-          <Select label="Role" data={["admin", "user", "reviewer"]} value={props.form.role} onChange={(value) => props.setForm({ ...props.form, role: value ?? "user" })} />
-          <Button leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create</Button>
-        </Group>
+        <Paper withBorder radius="md" p="md">
+          <Group align="end" grow>
+            <TextInput label="Email" value={props.form.email} onChange={(event) => props.setForm({ ...props.form, email: event.target.value })} />
+            <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
+            <PasswordInput label="Password" value={props.form.password} onChange={(event) => props.setForm({ ...props.form, password: event.target.value })} />
+            <Select label="Role" data={["admin", "user", "reviewer"]} value={props.form.role} onChange={(value) => props.setForm({ ...props.form, role: value ?? "user" })} />
+            <Button leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create</Button>
+          </Group>
+        </Paper>
       ) : null}
-      <Table>
-        <Table.Tbody>
-          {props.users.map((user) => (
-            <Table.Tr key={user.id}>
-              <Table.Td>{user.email}</Table.Td>
-              <Table.Td>{user.roles.join(", ")}</Table.Td>
-              <Table.Td>{new Date(user.createdAt).toLocaleString()}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+      <PageSection>
+        {props.users.length === 0 ? (
+          <EmptyState label="No users are visible for this account." />
+        ) : (
+          <Table.ScrollContainer minWidth={720}>
+            <Table highlightOnHover verticalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>User</Table.Th>
+                  <Table.Th>Roles</Table.Th>
+                  <Table.Th>Created</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {props.users.map((user) => (
+                  <Table.Tr key={user.id}>
+                    <Table.Td>
+                      <Text fw={600}>{user.email}</Text>
+                      {user.name ? <Text size="xs" c="dimmed">{user.name}</Text> : null}
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        {user.roles.map((role) => <Badge key={role} size="sm" variant="light">{role}</Badge>)}
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>{new Date(user.createdAt).toLocaleString()}</Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        )}
+      </PageSection>
     </Stack>
   );
 }
@@ -395,7 +576,7 @@ function TokensPanel(props: {
 }) {
   return (
     <Stack>
-      <Alert icon={<Info size={16} />} title="Using tokens with the CLI">
+      <Alert icon={<Info size={16} />} title="Using tokens with the CLI" variant="light">
         <Stack gap="xs">
           <Text size="sm">
             Mint a token, save the shown-once value, then put it in a local .env file or pass it with --token.
@@ -409,29 +590,105 @@ function TokensPanel(props: {
             agent-workloops submit --server http://127.0.0.1:3210 --token awl_client_... --file examples/workloop.json
           </Code>
           <Text size="sm" c="dimmed">
-            Use the plans:submit scope for submitting plans. Use plans:claim and plans:complete for executor clients that claim, heartbeat, and complete plans.
+            Use plans:submit for submitting plans. Use plans:claim and plans:complete for executor clients that claim, heartbeat, and complete plans.
           </Text>
         </Stack>
       </Alert>
-      <Group align="end">
-        <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
-        <MultiSelect label="Scopes" data={["plans:submit", "plans:claim", "plans:complete"]} value={props.form.scopes} onChange={(scopes) => props.setForm({ ...props.form, scopes })} />
-        <Button leftSection={<KeyRound size={16} />} onClick={props.onCreate}>Mint token</Button>
-      </Group>
-      {props.createdToken ? <Code block>{props.createdToken.token}</Code> : null}
-      <Table>
-        <Table.Tbody>
-          {props.tokens.map((token) => (
-            <Table.Tr key={token.id}>
-              <Table.Td><ShieldCheck size={16} /> {token.name}</Table.Td>
-              <Table.Td>{token.scopes.join(", ")}</Table.Td>
-              <Table.Td>{token.revokedAt ? "revoked" : "active"}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+      <Paper withBorder radius="md" p="md">
+        <Group align="end" grow>
+          <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
+          <MultiSelect label="Scopes" data={["plans:submit", "plans:claim", "plans:complete"]} value={props.form.scopes} onChange={(scopes) => props.setForm({ ...props.form, scopes })} />
+          <Button leftSection={<KeyRound size={16} />} onClick={props.onCreate}>Mint token</Button>
+        </Group>
+      </Paper>
+      {props.createdToken ? (
+        <Alert color="green" title="Token created">
+          <Text size="sm" mb="xs">Save this value now. It will not be shown again.</Text>
+          <Code block>{props.createdToken.token}</Code>
+        </Alert>
+      ) : null}
+      <PageSection>
+        {props.tokens.length === 0 ? (
+          <EmptyState label="No client tokens have been minted yet." />
+        ) : (
+          <Table.ScrollContainer minWidth={760}>
+            <Table highlightOnHover verticalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Token</Table.Th>
+                  <Table.Th>Scopes</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {props.tokens.map((token) => (
+                  <Table.Tr key={token.id}>
+                    <Table.Td>
+                      <Group gap="xs">
+                        <ThemeIcon variant="light" size="sm"><ShieldCheck size={14} /></ThemeIcon>
+                        <Text fw={600}>{token.name}</Text>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        {token.scopes.map((scope) => <Badge key={scope} size="sm" variant="light">{scope}</Badge>)}
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={token.revokedAt ? "red" : "green"} variant="light">
+                        {token.revokedAt ? "revoked" : "active"}
+                      </Badge>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        )}
+      </PageSection>
     </Stack>
   );
+}
+
+function EmptyState({ label }: { label: string }) {
+  return (
+    <Center p="xl">
+      <Stack gap={4} align="center">
+        <ThemeIcon variant="light" color="gray" radius="xl" size="lg">
+          <Info size={18} />
+        </ThemeIcon>
+        <Text size="sm" c="dimmed">{label}</Text>
+      </Stack>
+    </Center>
+  );
+}
+
+function StatusBadge({ plan }: { plan: PlanRecord }) {
+  const color = plan.status === "completed" ? "green" : plan.status === "locked" ? "blue" : plan.status === "canceled" ? "red" : "gray";
+  return <Badge color={color} variant="light">{plan.status}</Badge>;
+}
+
+function ApprovalBadge({ plan }: { plan: PlanRecord }) {
+  const color =
+    plan.approvalStatus === "approved"
+      ? "green"
+      : plan.approvalStatus === "pending"
+        ? "yellow"
+        : plan.approvalStatus === "rejected"
+          ? "red"
+          : "gray";
+  return <Badge color={color} variant="light">{plan.approvalStatus.replace("_", " ")}</Badge>;
+}
+
+function getDashboardTabs(counts: Record<DashboardTab, number>) {
+  return [
+    { value: "pending", label: "Pending", heading: "Pending approval", description: "Plans waiting for a reviewer decision.", count: counts.pending, icon: <Clock3 size={16} /> },
+    { value: "claimable", label: "Claimable", heading: "Claimable plans", description: "Approved or ungated plans available to executor clients.", count: counts.claimable, icon: <CheckCircle2 size={16} /> },
+    { value: "locked", label: "Locked", heading: "Locked plans", description: "Plans currently leased by a client executor.", count: counts.locked, icon: <Lock size={16} /> },
+    { value: "archive", label: "Archive", heading: "Completed archive", description: "Plans completed by executor clients.", count: counts.archive, icon: <Archive size={16} /> },
+    { value: "users", label: "Users", heading: "Users", description: "Local accounts and roles.", count: counts.users, icon: <UsersRound size={16} /> },
+    { value: "tokens", label: "Tokens", heading: "Client tokens", description: "Bearer tokens for CLI and executor clients.", count: counts.tokens, icon: <KeyRound size={16} /> },
+  ] as const;
 }
 
 async function api<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {

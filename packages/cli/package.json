@@ -1,0 +1,23 @@
+{
+  "name": "@durable-workloops/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "durable-workloops": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "pnpm --filter durable-workloops build && pnpm --filter @durable-workloops/api build && tsc -p tsconfig.build.json",
+    "typecheck": "pnpm --filter durable-workloops build && pnpm --filter @durable-workloops/api build && tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@durable-workloops/api": "workspace:*",
+    "durable-workloops": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}

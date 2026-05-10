@@ -26,6 +26,32 @@ describe("Agent Workloops server", () => {
     await fs.rm(dataDir, { recursive: true, force: true });
   });
 
+  it("reports whether first-run auth setup is complete", async () => {
+    const app = await buildServer({
+      config: { ...config(), bootstrapAdmin: undefined },
+    });
+
+    const before = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/setup",
+    });
+    expect(before.statusCode).toBe(200);
+    expect(before.json()).toEqual({ usersExist: false, bootstrapConfigured: false });
+
+    const bootstrap = await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/bootstrap",
+      payload: { email: "admin@example.com", password: "password123", roles: ["admin"] },
+    });
+    expect(bootstrap.statusCode).toBe(200);
+
+    const after = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/setup",
+    });
+    expect(after.json()).toEqual({ usersExist: true, bootstrapConfigured: false });
+  });
+
   it("forces approval, supports manual approval, claim, heartbeat, and completion", async () => {
     const app = await buildServer({ config: config({ forceApprovalRequired: true }) });
 

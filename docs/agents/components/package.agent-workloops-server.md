@@ -36,6 +36,7 @@ Package manifest at packages/server/package.json.
 - `interface:package-script.agent-workloops-server.typecheck`
 - `interface:route.delete.api-v1-tokens-tokenid`
 - `interface:route.get.api-v1-auth-me`
+- `interface:route.get.api-v1-auth-setup`
 - `interface:route.get.api-v1-health`
 - `interface:route.get.api-v1-plans`
 - `interface:route.get.api-v1-plans-archive`
@@ -90,6 +91,7 @@ Package manifest at packages/server/package.json.
 - `interface:package-script.agent-workloops-server.typecheck` _(generated)_
 - `interface:route.delete.api-v1-tokens-tokenid` _(generated)_
 - `interface:route.get.api-v1-auth-me` _(generated)_
+- `interface:route.get.api-v1-auth-setup` _(generated)_
 - `interface:route.get.api-v1-health` _(generated)_
 - `interface:route.get.api-v1-plans` _(generated)_
 - `interface:route.get.api-v1-plans-archive` _(generated)_

@@ -43,6 +43,7 @@ Generated index of visible `interface` entities.
 - [agent-workloops typecheck](package-script.agent-workloops.typecheck.md) - `interface:package-script.agent-workloops.typecheck`: Package script `typecheck` from package.json.
 - [DELETE /api/v1/tokens/:tokenId](route.delete.api-v1-tokens-tokenid.md) - `interface:route.delete.api-v1-tokens-tokenid`: Discovered DELETE route in packages/server/src/app.ts.
 - [GET /api/v1/auth/me](route.get.api-v1-auth-me.md) - `interface:route.get.api-v1-auth-me`: Discovered GET route in packages/server/src/app.ts.
+- [GET /api/v1/auth/setup](route.get.api-v1-auth-setup.md) - `interface:route.get.api-v1-auth-setup`: Discovered GET route in packages/server/src/app.ts.
 - [GET /api/v1/health](route.get.api-v1-health.md) - `interface:route.get.api-v1-health`: Discovered GET route in packages/server/src/app.ts.
 - [GET /api/v1/plans](route.get.api-v1-plans.md) - `interface:route.get.api-v1-plans`: Discovered GET route in packages/server/src/app.ts.
 - [GET /api/v1/plans/archive](route.get.api-v1-plans-archive.md) - `interface:route.get.api-v1-plans-archive`: Discovered GET route in packages/server/src/app.ts.

@@ -60,6 +60,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
 
   app.get("/api/v1/health", async () => ({ ok: true }));
 
+  app.get("/api/v1/auth/setup", async () => ({
+    usersExist: await authStore.usersExist(),
+    bootstrapConfigured: Boolean(options.config.bootstrapAdmin),
+  }));
+
   app.post("/api/v1/auth/bootstrap", async (request, reply) => {
     if (await authStore.usersExist()) {
       return reply.code(409).send({ error: "Users already exist." });

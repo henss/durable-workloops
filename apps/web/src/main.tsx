@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   AppShell,
+  Alert,
   Badge,
   Button,
   Code,
@@ -25,8 +26,15 @@ import {
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Check, KeyRound, LogIn, RefreshCw, ShieldCheck, UserPlus, X } from "lucide-react";
-import type { AuditEvent, CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
+import { Check, Info, KeyRound, LogIn, RefreshCw, ShieldCheck, UserPlus, X } from "lucide-react";
+import type {
+  AuditEvent,
+  AuthSetupStatus,
+  CreatedClientToken,
+  PlanRecord,
+  PublicClientToken,
+  User,
+} from "@agent-workloops/api";
 import { bucketPlans } from "./plans.js";
 import "./styles.css";
 
@@ -41,7 +49,10 @@ function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [tokens, setTokens] = useState<PublicClientToken[]>([]);
   const [createdToken, setCreatedToken] = useState<CreatedClientToken | null>(null);
+  const [setupStatus, setSetupStatus] = useState<AuthSetupStatus | null>(null);
   const [login, setLogin] = useState({ email: "", password: "" });
+  const [bootstrapForm, setBootstrapForm] = useState({ email: "", password: "", name: "" });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [userForm, setUserForm] = useState({ email: "", password: "", name: "", role: "user" });
   const [tokenForm, setTokenForm] = useState({ name: "", scopes: ["plans:claim", "plans:complete"] });
   const [opened, modal] = useDisclosure(false);
@@ -50,6 +61,12 @@ function App() {
   const isReviewer = isAdmin || (session?.user.roles.includes("reviewer") ?? false);
 
   async function refresh() {
+    const setup = await api<AuthSetupStatus>("/api/v1/auth/setup").catch(() => null);
+    setSetupStatus(setup);
+    if (setup && !setup.usersExist) {
+      setSession(null);
+      return;
+    }
     const me = await api<Session>("/api/v1/auth/me").catch(() => null);
     setSession(me);
     if (!me) {
@@ -70,8 +87,35 @@ function App() {
   }, []);
 
   async function doLogin() {
-    await api("/api/v1/auth/login", { method: "POST", body: login });
-    await refresh();
+    try {
+      setErrorMessage(null);
+      await api("/api/v1/auth/login", { method: "POST", body: login });
+      await refresh();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async function bootstrapAdmin() {
+    try {
+      setErrorMessage(null);
+      await api("/api/v1/auth/bootstrap", {
+        method: "POST",
+        body: {
+          email: bootstrapForm.email,
+          password: bootstrapForm.password,
+          name: bootstrapForm.name || undefined,
+          roles: ["admin"],
+        },
+      });
+      await api("/api/v1/auth/login", {
+        method: "POST",
+        body: { email: bootstrapForm.email, password: bootstrapForm.password },
+      });
+      await refresh();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    }
   }
 
   async function showDetail(planId: string) {
@@ -113,12 +157,39 @@ function App() {
     await refresh();
   }
 
+  if (!setupStatus) {
+    return (
+      <MantineProvider defaultColorScheme="light">
+        <Container size="xs" className="login">
+          <Text c="dimmed">Checking server setup...</Text>
+        </Container>
+      </MantineProvider>
+    );
+  }
+
+  if (!setupStatus.usersExist) {
+    return (
+      <MantineProvider defaultColorScheme="light">
+        <Container size="sm" className="login">
+          <SetupRequired
+            form={bootstrapForm}
+            setForm={setBootstrapForm}
+            onCreate={bootstrapAdmin}
+            bootstrapConfigured={setupStatus.bootstrapConfigured}
+            errorMessage={errorMessage}
+          />
+        </Container>
+      </MantineProvider>
+    );
+  }
+
   if (!session) {
     return (
       <MantineProvider defaultColorScheme="light">
         <Container size="xs" className="login">
           <Stack gap="md">
             <Title order={1}>Agent Workloops</Title>
+            {errorMessage ? <Alert color="red">{errorMessage}</Alert> : null}
             <TextInput label="Email" value={login.email} onChange={(event) => setLogin({ ...login, email: event.target.value })} />
             <PasswordInput label="Password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} />
             <Button leftSection={<LogIn size={16} />} onClick={doLogin}>Sign in</Button>
@@ -181,6 +252,41 @@ function App() {
         {detail ? <PlanDetail detail={detail} /> : null}
       </Modal>
     </MantineProvider>
+  );
+}
+
+function SetupRequired(props: {
+  form: { email: string; password: string; name: string };
+  setForm: (form: { email: string; password: string; name: string }) => void;
+  onCreate: () => void;
+  bootstrapConfigured: boolean;
+  errorMessage: string | null;
+}) {
+  return (
+    <Stack gap="md">
+      <Title order={1}>Agent Workloops setup</Title>
+      <Alert icon={<Info size={16} />} color="yellow" title="No admin user exists">
+        Create the first admin account below, or restart the server with bootstrap credentials.
+      </Alert>
+      {props.bootstrapConfigured ? (
+        <Text size="sm" c="dimmed">
+          Bootstrap admin environment variables are configured, but no user exists yet. Restart the server to let it create the admin account automatically.
+        </Text>
+      ) : (
+        <Stack gap="xs">
+          <Text size="sm">To configure the server through environment variables, restart it with:</Text>
+          <Code block>
+            AWL_BOOTSTRAP_ADMIN_EMAIL=admin@example.com{"\n"}
+            AWL_BOOTSTRAP_ADMIN_PASSWORD=change-this-password
+          </Code>
+        </Stack>
+      )}
+      {props.errorMessage ? <Alert color="red">{props.errorMessage}</Alert> : null}
+      <TextInput label="Admin email" value={props.form.email} onChange={(event) => props.setForm({ ...props.form, email: event.target.value })} />
+      <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
+      <PasswordInput label="Password" value={props.form.password} onChange={(event) => props.setForm({ ...props.form, password: event.target.value })} />
+      <Button leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create first admin</Button>
+    </Stack>
   );
 }
 

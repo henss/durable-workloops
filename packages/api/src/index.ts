@@ -229,6 +229,11 @@ export const AuthSessionSchema = z.object({
   user: UserSchema,
 });
 
+export const AuthSetupStatusSchema = z.object({
+  usersExist: z.boolean(),
+  bootstrapConfigured: z.boolean(),
+});
+
 export type PlanApprovalStatus = z.infer<typeof PlanApprovalStatusSchema>;
 export type PlanStatus = z.infer<typeof PlanStatusSchema>;
 export type ClientTokenScope = z.infer<typeof ClientTokenScopeSchema>;
@@ -245,6 +250,7 @@ export type CreatedClientToken = z.infer<typeof CreatedClientTokenSchema>;
 export type PublicClientToken = z.infer<typeof PublicClientTokenSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type AuthSession = z.infer<typeof AuthSessionSchema>;
+export type AuthSetupStatus = z.infer<typeof AuthSetupStatusSchema>;
 export type WorkLoop = z.infer<typeof WorkLoopSchema>;
 
 export class AgentWorkloopsApiClient {

@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 95
+Generated entities: 96
 
 ## Commander
 
@@ -104,6 +104,7 @@ Generated entities: 95
 
 - `interface:route.delete.api-v1-tokens-tokenid` - DELETE /api/v1/tokens/:tokenId: Discovered DELETE route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-auth-me` - GET /api/v1/auth/me: Discovered GET route in packages/server/src/app.ts.
+- `interface:route.get.api-v1-auth-setup` - GET /api/v1/auth/setup: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-health` - GET /api/v1/health: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-plans` - GET /api/v1/plans: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-plans-archive` - GET /api/v1/plans/archive: Discovered GET route in packages/server/src/app.ts.

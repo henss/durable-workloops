@@ -1,19 +1,32 @@
-import { Group, SegmentedControl, Text, useMantineColorScheme } from "@mantine/core";
+import { Group, SegmentedControl, Text, Tooltip, useMantineColorScheme } from "@mantine/core";
 import { Monitor, Moon, Sun } from "lucide-react";
 import type { ColorSchemePreference } from "../types.js";
 
-export function ColorSchemeControl({ fullWidth = false }: { fullWidth?: boolean }) {
+export function ColorSchemeControl({ fullWidth = false, compact = false }: { fullWidth?: boolean; compact?: boolean }) {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const options = [
+    { value: "light", label: "Light", icon: <Sun size={14} /> },
+    { value: "dark", label: "Dark", icon: <Moon size={14} /> },
+    { value: "auto", label: "System", icon: <Monitor size={14} /> },
+  ];
   return (
     <SegmentedControl
       value={colorScheme}
       onChange={(value) => setColorScheme(value as ColorSchemePreference)}
       fullWidth={fullWidth}
-      data={[
-        { value: "light", label: <Group gap={6} wrap="nowrap"><Sun size={14} /><Text size="xs">Light</Text></Group> },
-        { value: "dark", label: <Group gap={6} wrap="nowrap"><Moon size={14} /><Text size="xs">Dark</Text></Group> },
-        { value: "auto", label: <Group gap={6} wrap="nowrap"><Monitor size={14} /><Text size="xs">System</Text></Group> },
-      ]}
+      data={options.map((option) => ({
+        value: option.value,
+        label: compact ? (
+          <Tooltip label={option.label}>
+            <Group gap={0} wrap="nowrap">{option.icon}</Group>
+          </Tooltip>
+        ) : (
+          <Group gap={6} wrap="nowrap">
+            {option.icon}
+            <Text size="xs">{option.label}</Text>
+          </Group>
+        ),
+      }))}
     />
   );
 }

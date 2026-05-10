@@ -34,22 +34,22 @@ export const appTheme = createTheme({
   radius: {
     xs: "4px",
     sm: "6px",
-    md: "8px",
-    lg: "10px",
-    xl: "14px",
+    md: "10px",
+    lg: "14px",
+    xl: "18px",
   },
   colors: {
     brand: [
-      "#edf5ff",
+      "#eff6ff",
       "#d8e8ff",
       "#afcffd",
       "#83b4f8",
       "#5f9df4",
-      "#448cef",
-      "#2f7feb",
-      "#236bd2",
-      "#1d5ead",
-      "#194f87",
+      "#3b82f6",
+      "#2563eb",
+      "#1d4ed8",
+      "#1e40af",
+      "#1e3a8a",
     ],
     aqua: [
       "#e9fbfb",
@@ -64,16 +64,16 @@ export const appTheme = createTheme({
       "#0a5656",
     ],
     slate: [
-      "#f6f8fb",
-      "#e9edf4",
-      "#cfd8e5",
-      "#b4c0d0",
-      "#9caabd",
-      "#8495aa",
-      "#65778d",
-      "#4f6074",
-      "#374457",
-      "#202a37",
+      "#f8fafc",
+      "#f1f5f9",
+      "#e2e8f0",
+      "#cbd5e1",
+      "#94a3b8",
+      "#64748b",
+      "#475569",
+      "#334155",
+      "#1e293b",
+      "#0f172a",
     ],
   },
   components: {
@@ -87,7 +87,7 @@ export const appTheme = createTheme({
       defaultProps: { radius: "sm", variant: "light" },
     }),
     Button: Button.extend({
-      defaultProps: { radius: "md" },
+      defaultProps: { radius: "md", size: "sm" },
     }),
     Code: Code.extend({
       defaultProps: { color: "slate" },
@@ -97,24 +97,48 @@ export const appTheme = createTheme({
     }),
     MultiSelect: MultiSelect.extend({
       defaultProps: { radius: "md", variant: "default" },
+      styles: {
+        input: {
+          backgroundColor: "light-dark(#ffffff, #111c2d)",
+          borderColor: "light-dark(#dbe5f0, #26364a)",
+        },
+      },
     }),
     NavLink: NavLink.extend({
       defaultProps: { color: "brand", variant: "light" },
     }),
     Paper: Paper.extend({
-      defaultProps: { radius: "md", shadow: "xs" },
+      defaultProps: { radius: "md", shadow: "none" },
     }),
     PasswordInput: PasswordInput.extend({
       defaultProps: { radius: "md", variant: "default" },
+      styles: {
+        input: {
+          backgroundColor: "light-dark(#ffffff, #111c2d)",
+          borderColor: "light-dark(#dbe5f0, #26364a)",
+        },
+      },
     }),
     Progress: Progress.extend({
       defaultProps: { radius: "xl" },
     }),
     SegmentedControl: SegmentedControl.extend({
-      defaultProps: { radius: "md", color: "brand" },
+      defaultProps: { radius: "md", color: "brand", size: "xs" },
+      styles: {
+        root: {
+          backgroundColor: "light-dark(#f1f5f9, #111c2d)",
+          border: "1px solid light-dark(#dbe5f0, #26364a)",
+        },
+      },
     }),
     Select: Select.extend({
       defaultProps: { radius: "md", variant: "default" },
+      styles: {
+        input: {
+          backgroundColor: "light-dark(#ffffff, #111c2d)",
+          borderColor: "light-dark(#dbe5f0, #26364a)",
+        },
+      },
     }),
     Table: Table.extend({
       defaultProps: { highlightOnHover: true, verticalSpacing: "sm" },
@@ -124,6 +148,12 @@ export const appTheme = createTheme({
     }),
     TextInput: TextInput.extend({
       defaultProps: { radius: "md", variant: "default" },
+      styles: {
+        input: {
+          backgroundColor: "light-dark(#ffffff, #111c2d)",
+          borderColor: "light-dark(#dbe5f0, #26364a)",
+        },
+      },
     }),
     ThemeIcon: ThemeIcon.extend({
       defaultProps: { radius: "md" },

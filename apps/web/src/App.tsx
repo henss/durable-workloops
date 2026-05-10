@@ -20,6 +20,7 @@ export function App() {
   const [tokens, setTokens] = useState<PublicClientToken[]>([]);
   const [createdToken, setCreatedToken] = useState<CreatedClientToken | null>(null);
   const [setupStatus, setSetupStatus] = useState<AuthSetupStatus | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<DashboardTab>("pending");
   const [login, setLogin] = useState({ email: "", password: "" });
   const [bootstrapForm, setBootstrapForm] = useState({ email: "", password: "", name: "" });
@@ -51,6 +52,7 @@ export function App() {
     if (me.user.roles.includes("admin")) {
       setUsers(await api<User[]>("/api/v1/users"));
     }
+    setLastRefreshedAt(new Date());
   }
 
   useEffect(() => {
@@ -180,6 +182,7 @@ export function App() {
         users={users}
         tokens={tokens}
         createdToken={createdToken}
+        lastRefreshedAt={lastRefreshedAt}
         isAdmin={isAdmin}
         isReviewer={isReviewer}
         userForm={userForm}

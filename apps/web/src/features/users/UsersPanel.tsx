@@ -26,7 +26,7 @@ export function UsersPanel(props: {
       ) : null}
       <PageSection>
         {props.users.length === 0 ? (
-          <EmptyState label="No users are visible for this account." />
+          <EmptyState title="No users visible" description="Accounts available to your role will appear here." />
         ) : (
           <Table.ScrollContainer minWidth={720}>
             <Table highlightOnHover verticalSpacing="sm">

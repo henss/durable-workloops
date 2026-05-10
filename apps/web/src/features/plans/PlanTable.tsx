@@ -9,10 +9,12 @@ export function PlanTable(props: {
   onDetail: (planId: string) => void;
   onApprove?: (planId: string) => void;
   onReject?: (planId: string) => void;
-  emptyLabel: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  onRefresh?: () => void;
 }) {
   if (props.plans.length === 0) {
-    return <EmptyState label={props.emptyLabel} />;
+    return <EmptyState title={props.emptyTitle} description={props.emptyDescription} actionLabel="Refresh" onAction={props.onRefresh} />;
   }
 
   return (

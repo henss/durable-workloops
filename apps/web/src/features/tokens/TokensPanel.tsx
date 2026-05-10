@@ -46,7 +46,7 @@ export function TokensPanel(props: {
       ) : null}
       <PageSection>
         {props.tokens.length === 0 ? (
-          <EmptyState label="No client tokens have been minted yet." />
+          <EmptyState title="No client tokens" description="Mint a token when a CLI or executor client needs API access." />
         ) : (
           <Table.ScrollContainer minWidth={760}>
             <Table highlightOnHover verticalSpacing="sm">

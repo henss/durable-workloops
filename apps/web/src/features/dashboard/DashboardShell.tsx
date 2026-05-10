@@ -1,20 +1,22 @@
+import type React from "react";
 import {
   AppShell,
   Badge,
   Box,
   Button,
+  Container,
   Divider,
   Group,
+  Menu,
   NavLink,
   SimpleGrid,
   Stack,
-  Tabs,
   Text,
   ThemeIcon,
   Title,
   useComputedColorScheme,
 } from "@mantine/core";
-import { CheckCircle2, Clock3, ListChecks, Lock, LogOut, RefreshCw } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock3, ListChecks, Lock, LogOut, RefreshCw, UserCircle } from "lucide-react";
 import type { CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
 import { ColorSchemeControl } from "../../components/ColorSchemeControl.js";
 import { MetricCard } from "../../components/MetricCard.js";
@@ -35,6 +37,7 @@ export function DashboardShell(props: {
   users: User[];
   tokens: PublicClientToken[];
   createdToken: CreatedClientToken | null;
+  lastRefreshedAt: Date | null;
   isAdmin: boolean;
   isReviewer: boolean;
   userForm: { email: string; password: string; name: string; role: string };
@@ -61,9 +64,9 @@ export function DashboardShell(props: {
 
   return (
     <AppShell
-      header={{ height: 72 }}
+      header={{ height: 60 }}
       navbar={{ width: 280, breakpoint: "sm" }}
-      padding="lg"
+      padding={0}
       bg={appBackground(computedColorScheme)}
     >
       <AppShell.Header px="lg" bg={shellPanelBackground(computedColorScheme)} style={{ borderBottom: subtleBorder(computedColorScheme), backdropFilter: "blur(14px)" }}>
@@ -78,9 +81,20 @@ export function DashboardShell(props: {
             </Box>
           </Group>
           <Group gap="xs">
-            <ColorSchemeControl />
-            <Button variant="light" leftSection={<RefreshCw size={16} />} onClick={props.onRefresh}>Refresh</Button>
-            <Button variant="default" leftSection={<LogOut size={16} />} onClick={props.onSignOut}>Sign out</Button>
+            <ColorSchemeControl compact />
+            <Text size="xs" c="dimmed">Last refreshed: {formatLastRefreshed(props.lastRefreshedAt)}</Text>
+            <Button variant="default" leftSection={<RefreshCw size={16} />} onClick={props.onRefresh}>Refresh</Button>
+            <Menu position="bottom-end" width={240}>
+              <Menu.Target>
+                <Button variant="subtle" color="slate" rightSection={<ChevronDown size={14} />} leftSection={<UserCircle size={16} />}>
+                  Account
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>{props.session.user.email}</Menu.Label>
+                <Menu.Item c="red" leftSection={<LogOut size={14} />} onClick={props.onSignOut}>Sign out</Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Group>
         </Group>
       </AppShell.Header>
@@ -90,86 +104,151 @@ export function DashboardShell(props: {
           <Box>
             <Text size="xs" tt="uppercase" fw={700} c="dimmed">Signed in</Text>
             <Text size="sm" fw={600} truncate>{props.session.user.email}</Text>
-            <Group gap={4} mt={6}>
-              {props.session.user.roles.map((role) => (
-                <Badge key={role} size="xs" variant="light">{role}</Badge>
-              ))}
-            </Group>
+            <Text size="xs" c="dimmed" mt={4}>{props.session.user.roles.join(", ")}</Text>
           </Box>
           <Divider />
-          <Stack gap={4}>
-            {tabs.map((tab) => (
-              <NavLink
-                key={tab.value}
-                active={props.activeTab === tab.value}
-                disabled={tab.value === "users" && !props.isAdmin}
-                label={tab.label}
-                leftSection={tab.icon}
-                rightSection={<Badge size="xs" variant={props.activeTab === tab.value ? "filled" : "light"}>{tab.count}</Badge>}
-                onClick={() => props.setActiveTab(tab.value)}
-                variant="light"
-              />
-            ))}
+          <Stack gap="xs">
+            <SidebarGroup label="Queues">
+              {tabs.filter((tab) => isQueueTab(tab.value)).map((tab) => (
+                <DashboardNavLink key={tab.value} tab={tab} activeTab={props.activeTab} onSelect={props.setActiveTab} />
+              ))}
+            </SidebarGroup>
+            <SidebarGroup label="Administration">
+              {tabs.filter((tab) => !isQueueTab(tab.value)).map((tab) => (
+                <DashboardNavLink
+                  key={tab.value}
+                  tab={tab}
+                  activeTab={props.activeTab}
+                  disabled={tab.value === "users" && !props.isAdmin}
+                  onSelect={props.setActiveTab}
+                />
+              ))}
+            </SidebarGroup>
           </Stack>
         </Stack>
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Stack gap="lg">
-          <Group justify="space-between" align="flex-end">
-            <Box>
-              <Title order={2}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
-              <Text size="sm" c="dimmed">{tabs.find((tab) => tab.value === props.activeTab)?.description}</Text>
-            </Box>
-          </Group>
+        <Container size={1440} px={{ base: "md", sm: "xl" }} py="lg">
+          <Stack gap="lg">
+            <Group justify="space-between" align="flex-end">
+              <Box>
+                <Title order={2}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
+                <Text size="sm" c="dimmed">{tabs.find((tab) => tab.value === props.activeTab)?.description}</Text>
+              </Box>
+            </Group>
 
-          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-            <MetricCard label="Pending approval" value={props.buckets.pending.length} icon={<Clock3 size={18} />} color="yellow" />
-            <MetricCard label="Claimable" value={props.buckets.claimable.length} icon={<CheckCircle2 size={18} />} color="aqua" />
-            <MetricCard label="Locked" value={props.buckets.locked.length} icon={<Lock size={18} />} color="brand" />
-          </SimpleGrid>
+            {isQueueTab(props.activeTab) ? (
+              <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+                <MetricCard label="Pending approval" value={props.buckets.pending.length} icon={<Clock3 size={18} />} color="yellow" />
+                <MetricCard label="Claimable" value={props.buckets.claimable.length} icon={<CheckCircle2 size={18} />} color="aqua" />
+                <MetricCard label="Locked" value={props.buckets.locked.length} icon={<Lock size={18} />} color="brand" />
+              </SimpleGrid>
+            ) : null}
 
-          <Tabs value={props.activeTab} onChange={(value) => props.setActiveTab((value ?? "pending") as DashboardTab)} keepMounted={false}>
-            <Tabs.List>
-              {tabs.map((tab) => (
-                <Tabs.Tab key={tab.value} value={tab.value} disabled={tab.value === "users" && !props.isAdmin}>
-                  <Group gap={8}>
-                    <Text size="sm">{tab.label}</Text>
-                    <Badge size="xs" variant="light">{tab.count}</Badge>
-                  </Group>
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-
-            <Tabs.Panel value="pending" pt="md">
-              <PageSection>
-                <PlanTable plans={props.buckets.pending} onDetail={props.onDetail} onApprove={props.isReviewer ? props.onApprove : undefined} onReject={props.isReviewer ? props.onReject : undefined} emptyLabel="No plans are waiting for approval." />
-              </PageSection>
-            </Tabs.Panel>
-            <Tabs.Panel value="claimable" pt="md">
-              <PageSection>
-                <PlanTable plans={props.buckets.claimable} onDetail={props.onDetail} emptyLabel="No approved plans are ready to claim." />
-              </PageSection>
-            </Tabs.Panel>
-            <Tabs.Panel value="locked" pt="md">
-              <PageSection>
-                <PlanTable plans={props.buckets.locked} onDetail={props.onDetail} emptyLabel="No plans are currently locked by executors." />
-              </PageSection>
-            </Tabs.Panel>
-            <Tabs.Panel value="archive" pt="md">
-              <PageSection>
-                <PlanTable plans={props.archive} onDetail={props.onDetail} emptyLabel="No completed plans are archived yet." />
-              </PageSection>
-            </Tabs.Panel>
-            <Tabs.Panel value="users" pt="md">
-              <UsersPanel isAdmin={props.isAdmin} users={props.users} form={props.userForm} setForm={props.setUserForm} onCreate={props.onCreateUser} />
-            </Tabs.Panel>
-            <Tabs.Panel value="tokens" pt="md">
-              <TokensPanel tokens={props.tokens} form={props.tokenForm} setForm={props.setTokenForm} onCreate={props.onCreateToken} createdToken={props.createdToken} />
-            </Tabs.Panel>
-          </Tabs>
-        </Stack>
+            {renderDashboardContent(props)}
+          </Stack>
+        </Container>
       </AppShell.Main>
     </AppShell>
   );
+}
+
+type DashboardTabInfo = ReturnType<typeof getDashboardTabs>[number];
+
+function SidebarGroup(props: { label: string; children: React.ReactNode }) {
+  return (
+    <Stack gap={4}>
+      <Text size="xs" tt="uppercase" fw={700} c="dimmed">{props.label}</Text>
+      {props.children}
+    </Stack>
+  );
+}
+
+function DashboardNavLink(props: {
+  tab: DashboardTabInfo;
+  activeTab: DashboardTab;
+  disabled?: boolean;
+  onSelect: (tab: DashboardTab) => void;
+}) {
+  return (
+    <NavLink
+      active={props.activeTab === props.tab.value}
+      disabled={props.disabled}
+      label={props.tab.label}
+      leftSection={props.tab.icon}
+      rightSection={<Badge size="xs" variant="light">{props.tab.count}</Badge>}
+      onClick={() => props.onSelect(props.tab.value)}
+      variant="light"
+    />
+  );
+}
+
+function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
+  if (props.activeTab === "pending") {
+    return (
+      <PageSection>
+        <PlanTable
+          plans={props.buckets.pending}
+          onDetail={props.onDetail}
+          onApprove={props.isReviewer ? props.onApprove : undefined}
+          onReject={props.isReviewer ? props.onReject : undefined}
+          emptyTitle="No pending approvals"
+          emptyDescription="Plans that need review will appear here."
+          onRefresh={props.onRefresh}
+        />
+      </PageSection>
+    );
+  }
+  if (props.activeTab === "claimable") {
+    return (
+      <PageSection>
+        <PlanTable
+          plans={props.buckets.claimable}
+          onDetail={props.onDetail}
+          emptyTitle="No claimable plans"
+          emptyDescription="Approved or ungated plans ready for executors will appear here."
+          onRefresh={props.onRefresh}
+        />
+      </PageSection>
+    );
+  }
+  if (props.activeTab === "locked") {
+    return (
+      <PageSection>
+        <PlanTable
+          plans={props.buckets.locked}
+          onDetail={props.onDetail}
+          emptyTitle="No locked plans"
+          emptyDescription="Plans currently leased by executors will appear here."
+          onRefresh={props.onRefresh}
+        />
+      </PageSection>
+    );
+  }
+  if (props.activeTab === "archive") {
+    return (
+      <PageSection>
+        <PlanTable
+          plans={props.archive}
+          onDetail={props.onDetail}
+          emptyTitle="No completed plans"
+          emptyDescription="Executor completions are archived here."
+          onRefresh={props.onRefresh}
+        />
+      </PageSection>
+    );
+  }
+  if (props.activeTab === "users") {
+    return <UsersPanel isAdmin={props.isAdmin} users={props.users} form={props.userForm} setForm={props.setUserForm} onCreate={props.onCreateUser} />;
+  }
+  return <TokensPanel tokens={props.tokens} form={props.tokenForm} setForm={props.setTokenForm} onCreate={props.onCreateToken} createdToken={props.createdToken} />;
+}
+
+function isQueueTab(tab: DashboardTab): boolean {
+  return tab === "pending" || tab === "claimable" || tab === "locked" || tab === "archive";
+}
+
+function formatLastRefreshed(value: Date | null): string {
+  return value ? value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "not yet";
 }

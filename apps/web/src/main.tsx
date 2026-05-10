@@ -20,6 +20,7 @@ import {
   Paper,
   PasswordInput,
   ScrollArea,
+  SegmentedControl,
   Select,
   SimpleGrid,
   Stack,
@@ -29,6 +30,8 @@ import {
   TextInput,
   ThemeIcon,
   Title,
+  useComputedColorScheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -41,8 +44,12 @@ import {
   ListChecks,
   Lock,
   LogIn,
+  LogOut,
+  Monitor,
+  Moon,
   RefreshCw,
   ShieldCheck,
+  Sun,
   UserPlus,
   UsersRound,
   X,
@@ -60,8 +67,10 @@ import { bucketPlans } from "./plans.js";
 type Session = { user: User };
 type Detail = { plan: PlanRecord; audit: AuditEvent[] };
 type DashboardTab = "pending" | "claimable" | "locked" | "archive" | "users" | "tokens";
+type ColorSchemePreference = "light" | "dark" | "auto";
 
 function App() {
+  const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   const [session, setSession] = useState<Session | null>(null);
   const [plans, setPlans] = useState<PlanRecord[]>([]);
   const [archive, setArchive] = useState<PlanRecord[]>([]);
@@ -115,6 +124,17 @@ function App() {
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
     }
+  }
+
+  async function signOut() {
+    await api("/api/v1/auth/logout", { method: "POST", body: {} }).catch(() => undefined);
+    setSession(null);
+    setPlans([]);
+    setArchive([]);
+    setDetail(null);
+    setUsers([]);
+    setTokens([]);
+    setCreatedToken(null);
   }
 
   async function bootstrapAdmin() {
@@ -180,51 +200,45 @@ function App() {
 
   if (!setupStatus) {
     return (
-      <MantineProvider defaultColorScheme="light">
-        <AuthShell>
-          <Text c="dimmed">Checking server setup...</Text>
-        </AuthShell>
-      </MantineProvider>
+      <AuthShell>
+        <Text c="dimmed">Checking server setup...</Text>
+      </AuthShell>
     );
   }
 
   if (!setupStatus.usersExist) {
     return (
-      <MantineProvider defaultColorScheme="light">
-        <AuthShell size="sm">
-          <SetupRequired
-            form={bootstrapForm}
-            setForm={setBootstrapForm}
-            onCreate={bootstrapAdmin}
-            bootstrapConfigured={setupStatus.bootstrapConfigured}
-            errorMessage={errorMessage}
-          />
-        </AuthShell>
-      </MantineProvider>
+      <AuthShell size="sm">
+        <SetupRequired
+          form={bootstrapForm}
+          setForm={setBootstrapForm}
+          onCreate={bootstrapAdmin}
+          bootstrapConfigured={setupStatus.bootstrapConfigured}
+          errorMessage={errorMessage}
+        />
+      </AuthShell>
     );
   }
 
   if (!session) {
     return (
-      <MantineProvider defaultColorScheme="light">
-        <AuthShell>
-          <Stack gap="md">
-            <Group gap="sm">
-              <ThemeIcon size="lg" radius="md" variant="light">
-                <ListChecks size={20} />
-              </ThemeIcon>
-              <Box>
-                <Title order={1} size="h2">Agent Workloops</Title>
-                <Text size="sm" c="dimmed">Sign in to review and manage plans.</Text>
-              </Box>
-            </Group>
-            {errorMessage ? <Alert color="red">{errorMessage}</Alert> : null}
-            <TextInput label="Email" value={login.email} onChange={(event) => setLogin({ ...login, email: event.target.value })} />
-            <PasswordInput label="Password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} />
-            <Button leftSection={<LogIn size={16} />} onClick={doLogin}>Sign in</Button>
-          </Stack>
-        </AuthShell>
-      </MantineProvider>
+      <AuthShell>
+        <Stack gap="md">
+          <Group gap="sm">
+            <ThemeIcon size="lg" radius="md" variant="light">
+              <ListChecks size={20} />
+            </ThemeIcon>
+            <Box>
+              <Title order={1} size="h2">Agent Workloops</Title>
+              <Text size="sm" c="dimmed">Sign in to review and manage plans.</Text>
+            </Box>
+          </Group>
+          {errorMessage ? <Alert color="red">{errorMessage}</Alert> : null}
+          <TextInput label="Email" value={login.email} onChange={(event) => setLogin({ ...login, email: event.target.value })} />
+          <PasswordInput label="Password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} />
+          <Button leftSection={<LogIn size={16} />} onClick={doLogin}>Sign in</Button>
+        </Stack>
+      </AuthShell>
     );
   }
 
@@ -238,12 +252,12 @@ function App() {
   });
 
   return (
-    <MantineProvider defaultColorScheme="light">
+    <>
       <AppShell
-        header={{ height: 64 }}
+        header={{ height: 72 }}
         navbar={{ width: 280, breakpoint: "sm" }}
         padding="lg"
-        bg="gray.0"
+        bg={computedColorScheme === "dark" ? "dark.8" : "gray.0"}
       >
         <AppShell.Header px="lg">
           <Group h="100%" justify="space-between">
@@ -256,7 +270,11 @@ function App() {
                 <Text size="xs" c="dimmed">Hosted approval and execution queue</Text>
               </Box>
             </Group>
-            <Button variant="light" leftSection={<RefreshCw size={16} />} onClick={refresh}>Refresh</Button>
+            <Group gap="xs">
+              <ColorSchemeControl />
+              <Button variant="light" leftSection={<RefreshCw size={16} />} onClick={refresh}>Refresh</Button>
+              <Button variant="default" leftSection={<LogOut size={16} />} onClick={signOut}>Sign out</Button>
+            </Group>
           </Group>
         </AppShell.Header>
 
@@ -349,21 +367,43 @@ function App() {
       <Modal opened={opened} onClose={modal.close} size="xl" title={detail?.plan.workLoop.objective ?? "Plan detail"}>
         {detail ? <PlanDetail detail={detail} /> : null}
       </Modal>
-    </MantineProvider>
+    </>
   );
 }
 
 function AuthShell(props: { children: React.ReactNode; size?: "xs" | "sm" }) {
+  const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   return (
-    <Box bg="gray.0" mih="100vh">
+    <Box bg={computedColorScheme === "dark" ? "dark.8" : "gray.0"} mih="100vh">
       <Center mih="100vh" p="lg">
         <Container size={props.size ?? "xs"} w="100%">
           <Paper withBorder radius="md" p="xl" shadow="sm">
-            {props.children}
+            <Stack gap="md">
+              <Group justify="flex-end">
+                <ColorSchemeControl />
+              </Group>
+              {props.children}
+            </Stack>
           </Paper>
         </Container>
       </Center>
     </Box>
+  );
+}
+
+function ColorSchemeControl({ fullWidth = false }: { fullWidth?: boolean }) {
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  return (
+    <SegmentedControl
+      value={colorScheme}
+      onChange={(value) => setColorScheme(value as ColorSchemePreference)}
+      fullWidth={fullWidth}
+      data={[
+        { value: "light", label: <Group gap={6} wrap="nowrap"><Sun size={14} /><Text size="xs">Light</Text></Group> },
+        { value: "dark", label: <Group gap={6} wrap="nowrap"><Moon size={14} /><Text size="xs">Dark</Text></Group> },
+        { value: "auto", label: <Group gap={6} wrap="nowrap"><Monitor size={14} /><Text size="xs">System</Text></Group> },
+      ]}
+    />
   );
 }
 
@@ -705,6 +745,8 @@ async function api<T>(path: string, init: { method?: string; body?: unknown } = 
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <MantineProvider defaultColorScheme="auto">
+      <App />
+    </MantineProvider>
   </React.StrictMode>,
 );

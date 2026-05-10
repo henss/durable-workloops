@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const mode = process.argv[2];
-const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const isWindows = process.platform === "win32";
+const pnpm = isWindows ? "pnpm.cmd" : "pnpm";
 const node = process.execPath;
 const children = new Set();
 
@@ -22,6 +23,8 @@ if (mode === "dev") {
 }
 
 function runDev() {
+  runChecked(pnpm, ["--filter", "@agent-workloops/api", "build"]);
+
   const server = spawnManaged(pnpm, ["--filter", "@agent-workloops/server", "dev"]);
   const web = spawnManaged(pnpm, ["--filter", "@agent-workloops/web", "dev"]);
 
@@ -46,10 +49,12 @@ async function runStart() {
 }
 
 function runChecked(command, args) {
-  const result = spawnSync(command, args, {
+  const spawnCommand = resolveSpawnCommand(command, args);
+  const result = spawnSync(spawnCommand.command, spawnCommand.args, {
     cwd: root,
     stdio: "inherit",
     env: process.env,
+    shell: spawnCommand.shell,
   });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
@@ -57,14 +62,43 @@ function runChecked(command, args) {
 }
 
 function spawnManaged(command, args, env = {}) {
-  const child = spawn(command, args, {
+  const spawnCommand = resolveSpawnCommand(command, args);
+  const child = spawn(spawnCommand.command, spawnCommand.args, {
     cwd: root,
     stdio: "inherit",
     env: { ...process.env, ...env },
+    shell: spawnCommand.shell,
   });
   children.add(child);
   child.on("exit", () => children.delete(child));
+  child.on("error", (error) => {
+    console.error(`Failed to start ${command}: ${error.message}`);
+    stopChildren(1);
+  });
   return child;
+}
+
+function resolveSpawnCommand(command, args) {
+  if (!isWindows) {
+    return { command, args, shell: false };
+  }
+  return {
+    command: quoteWindowsCommand([command, ...args]),
+    args: [],
+    shell: true,
+  };
+}
+
+function quoteWindowsCommand(parts) {
+  return parts.map(quoteWindowsArg).join(" ");
+}
+
+function quoteWindowsArg(value) {
+  const arg = String(value);
+  if (!/[\s&()<>^|"]/u.test(arg)) {
+    return arg;
+  }
+  return `"${arg.replaceAll('"', '""')}"`;
 }
 
 function exitWhenAnyChildExits(trackedChildren) {
@@ -77,9 +111,19 @@ function exitWhenAnyChildExits(trackedChildren) {
 
 function stopChildren(code) {
   for (const child of children) {
-    child.kill("SIGTERM");
+    stopChild(child);
   }
   process.exit(code);
+}
+
+function stopChild(child) {
+  if (isWindows) {
+    spawnSync("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
+      stdio: "ignore",
+    });
+    return;
+  }
+  child.kill("SIGTERM");
 }
 
 process.on("SIGINT", () => stopChildren(130));

@@ -398,9 +398,10 @@ function TokensPanel(props: {
       <Alert icon={<Info size={16} />} title="Using tokens with the CLI">
         <Stack gap="xs">
           <Text size="sm">
-            Mint a token, save the shown-once value, then put it in AWL_TOKEN or pass it with --token.
+            Mint a token, save the shown-once value, then put it in a local .env file or pass it with --token.
           </Text>
           <Code block>
+            # .env{"\n"}
             AWL_SERVER=http://127.0.0.1:3210{"\n"}
             AWL_TOKEN=awl_client_...{"\n\n"}
             agent-workloops submit --file examples/workloop.json{"\n"}

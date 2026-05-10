@@ -1,14 +1,15 @@
 import type React from "react";
 import { Box, Center, Container, Group, Paper, Stack, useComputedColorScheme } from "@mantine/core";
 import { ColorSchemeControl } from "../../components/ColorSchemeControl.js";
+import { appBackground, elevatedPanelBackground, subtleBorder } from "../../components/themeSurfaces.js";
 
 export function AuthShell(props: { children: React.ReactNode; size?: "xs" | "sm" }) {
   const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   return (
-    <Box bg={computedColorScheme === "dark" ? "dark.8" : "gray.0"} mih="100vh">
+    <Box bg={appBackground(computedColorScheme)} mih="100vh">
       <Center mih="100vh" p="lg">
         <Container size={props.size ?? "xs"} w="100%">
-          <Paper withBorder radius="md" p="xl" shadow="sm">
+          <Paper p="xl" shadow="xl" bg={elevatedPanelBackground(computedColorScheme)} style={{ border: subtleBorder(computedColorScheme) }}>
             <Stack gap="md">
               <Group justify="flex-end">
                 <ColorSchemeControl />

@@ -19,6 +19,7 @@ import type { CreatedClientToken, PlanRecord, PublicClientToken, User } from "@a
 import { ColorSchemeControl } from "../../components/ColorSchemeControl.js";
 import { MetricCard } from "../../components/MetricCard.js";
 import { PageSection } from "../../components/PageSection.js";
+import { appBackground, shellPanelBackground, subtleBorder } from "../../components/themeSurfaces.js";
 import { PlanTable } from "../plans/PlanTable.js";
 import { TokensPanel } from "../tokens/TokensPanel.js";
 import { UsersPanel } from "../users/UsersPanel.js";
@@ -63,12 +64,12 @@ export function DashboardShell(props: {
       header={{ height: 72 }}
       navbar={{ width: 280, breakpoint: "sm" }}
       padding="lg"
-      bg={computedColorScheme === "dark" ? "dark.8" : "gray.0"}
+      bg={appBackground(computedColorScheme)}
     >
-      <AppShell.Header px="lg">
+      <AppShell.Header px="lg" bg={shellPanelBackground(computedColorScheme)} style={{ borderBottom: subtleBorder(computedColorScheme), backdropFilter: "blur(14px)" }}>
         <Group h="100%" justify="space-between">
           <Group gap="sm">
-            <ThemeIcon size="lg" radius="md" variant="light">
+            <ThemeIcon size="lg" radius="md" variant="gradient">
               <ListChecks size={20} />
             </ThemeIcon>
             <Box>
@@ -84,7 +85,7 @@ export function DashboardShell(props: {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="md" bg={shellPanelBackground(computedColorScheme)} style={{ borderRight: subtleBorder(computedColorScheme), backdropFilter: "blur(14px)" }}>
         <Stack gap="md" h="100%">
           <Box>
             <Text size="xs" tt="uppercase" fw={700} c="dimmed">Signed in</Text>
@@ -124,8 +125,8 @@ export function DashboardShell(props: {
 
           <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
             <MetricCard label="Pending approval" value={props.buckets.pending.length} icon={<Clock3 size={18} />} color="yellow" />
-            <MetricCard label="Claimable" value={props.buckets.claimable.length} icon={<CheckCircle2 size={18} />} color="green" />
-            <MetricCard label="Locked" value={props.buckets.locked.length} icon={<Lock size={18} />} color="blue" />
+            <MetricCard label="Claimable" value={props.buckets.claimable.length} icon={<CheckCircle2 size={18} />} color="aqua" />
+            <MetricCard label="Locked" value={props.buckets.locked.length} icon={<Lock size={18} />} color="brand" />
           </SimpleGrid>
 
           <Tabs value={props.activeTab} onChange={(value) => props.setActiveTab((value ?? "pending") as DashboardTab)} keepMounted={false}>

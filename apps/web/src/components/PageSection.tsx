@@ -1,9 +1,11 @@
 import type React from "react";
-import { Paper } from "@mantine/core";
+import { Paper, useComputedColorScheme } from "@mantine/core";
+import { elevatedPanelBackground, subtleBorder } from "./themeSurfaces.js";
 
 export function PageSection(props: { children: React.ReactNode }) {
+  const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   return (
-    <Paper withBorder radius="md" p={0} shadow="xs">
+    <Paper p={0} shadow="sm" bg={elevatedPanelBackground(computedColorScheme)} style={{ border: subtleBorder(computedColorScheme), overflow: "hidden" }}>
       {props.children}
     </Paper>
   );

@@ -11,7 +11,7 @@ Profile: `public`
 - `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
 - `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
 - `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 1 discovered test file under packages/server.
-- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 1 discovered test file under apps/web.
+- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 2 discovered test files under apps/web.
 - `test-scope:generated.src` - src tests: 4 discovered test files under src.
 - `test-scope:hosted-workloops-tests` - Hosted Workloops Tests: Package tests for hosted API contracts, server approval and lease behavior, CLI parsing, and web queue bucketing.
 - `test-scope:launcher-tests` - Launcher Tests: Verifies Codex launch prompt rendering and launch-record generation for WorkLoop slices.
@@ -71,7 +71,7 @@ ID: `test-scope:generated.package.agent-workloops-server`
 
 ID: `test-scope:generated.package.agent-workloops-web`
 
-1 discovered test file under apps/web.
+2 discovered test files under apps/web.
 
 - command: `pnpm test`
   purpose: Run repository test suite.

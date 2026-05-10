@@ -11,7 +11,7 @@ export function SetupRequired(props: {
   return (
     <Stack gap="md">
       <Group gap="sm">
-        <ThemeIcon size="lg" radius="md" variant="light" color="yellow">
+        <ThemeIcon size="lg" radius="md" variant="gradient" gradient={{ from: "yellow.6", to: "brand.6", deg: 135 }}>
           <UserPlus size={20} />
         </ThemeIcon>
         <Box>

@@ -10,7 +10,7 @@ export function LoginForm(props: {
   return (
     <Stack gap="md">
       <Group gap="sm">
-        <ThemeIcon size="lg" radius="md" variant="light">
+        <ThemeIcon size="lg" radius="md" variant="gradient">
           <ListChecks size={20} />
         </ThemeIcon>
         <Box>

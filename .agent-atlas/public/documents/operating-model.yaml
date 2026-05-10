@@ -1,7 +1,7 @@
 id: document:operating-model
 kind: document
 title: Operating Model
-summary: Human-facing package map, integration shape, and non-goals for durable-workloops.
+summary: Human-facing package map, hosted server shape, integration shape, and non-goals for durable-workloops.
 visibility: public
 uris:
   - docs/index.md

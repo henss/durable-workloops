@@ -1,0 +1,19 @@
+id: component:hosted-workloops-cli
+kind: component
+title: Hosted Workloops CLI
+summary: Client executor CLI for submitting, claiming, polling, completing, and launching claimed plans through Codex.
+visibility: public
+code:
+  paths:
+    - packages/cli/src/index.ts
+    - packages/cli/src/index.test.ts
+    - packages/cli/package.json
+  entrypoints:
+    - packages/cli/src/index.ts
+relations:
+  - type: uses
+    target: component:hosted-workloops-api
+  - type: uses
+    target: component:workloop-codex-launcher
+  - type: tested-by
+    target: test-scope:hosted-workloops-tests

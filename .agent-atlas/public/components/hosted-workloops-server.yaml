@@ -1,0 +1,20 @@
+id: component:hosted-workloops-server
+kind: component
+title: Hosted Workloops Server
+summary: Fastify server for authenticated plan submission, manual approval, client-token leasing, completion archive, and persistence adapters.
+visibility: public
+code:
+  paths:
+    - packages/server/src/app.ts
+    - packages/server/src/config.ts
+    - packages/server/src/filesystem-store.ts
+    - packages/server/src/store.ts
+    - packages/server/src/app.test.ts
+    - packages/server/package.json
+  entrypoints:
+    - packages/server/src/index.ts
+relations:
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:hosted-workloops-tests

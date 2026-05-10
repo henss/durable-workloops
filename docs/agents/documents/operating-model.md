@@ -6,7 +6,7 @@ ID: `document:operating-model`
 Kind: `document`
 Profile: `public`
 
-Human-facing package map, integration shape, and non-goals for durable-workloops.
+Human-facing package map, hosted server shape, integration shape, and non-goals for durable-workloops.
 
 ## Metadata
 

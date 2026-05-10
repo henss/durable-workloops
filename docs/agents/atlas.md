@@ -52,8 +52,19 @@ Profile: `public`
 
 ## Other entities
 
+- `component:hosted-workloops-api` (component) - Hosted Workloops API Contracts: Shared Zod wire contracts and typed HTTP client for hosted Durable Workloops.
+- `component:hosted-workloops-cli` (component) - Hosted Workloops CLI: Client executor CLI for submitting, claiming, polling, completing, and launching claimed plans through Codex.
+- `component:hosted-workloops-server` (component) - Hosted Workloops Server: Fastify server for authenticated plan submission, manual approval, client-token leasing, completion archive, and persistence adapters.
+- `component:hosted-workloops-web` (component) - Hosted Workloops Web UI: Vite React and Mantine UI for login, approval queue review, archive browsing, users, and client tokens.
 - `component:package-entrypoint` (component) - Package Entrypoint: Aggregate public exports for the durable-workloops package.
 - `component:package.durable-workloops` (component) - durable-workloops: Portable durable work-loop schemas and state transitions for agent workflows.
+- `component:package.durable-workloops-api` (component) - @durable-workloops/api: Package manifest at packages/api/package.json.
+- `component:package.durable-workloops-cli` (component) - @durable-workloops/cli: Package manifest at packages/cli/package.json.
+- `component:package.durable-workloops-cli.dependencies` (component) - @durable-workloops/cli dependency surface: Workspace dependency relations for @durable-workloops/cli.
+- `component:package.durable-workloops-server` (component) - @durable-workloops/server: Package manifest at packages/server/package.json.
+- `component:package.durable-workloops-server.dependencies` (component) - @durable-workloops/server dependency surface: Workspace dependency relations for @durable-workloops/server.
+- `component:package.durable-workloops-web` (component) - @durable-workloops/web: Package manifest at apps/web/package.json.
+- `component:package.durable-workloops-web.dependencies` (component) - @durable-workloops/web dependency surface: Workspace dependency relations for @durable-workloops/web.
 - `document:agent-instructions` (document) - Agent Instructions: Repo-local instructions for agents working in durable-workloops.
 - `document:generated.agents` (document) - AGENTS.md: Markdown document at AGENTS.md.
 - `document:generated.codex-portfolio-guidance` (document) - Local Agent Guidance: Markdown document at .codex/portfolio-guidance.md.
@@ -61,14 +72,3 @@ Profile: `public`
 - `document:generated.docs-index` (document) - Durable WorkLoops: Markdown document at docs/index.md.
 - `document:generated.examples-readme` (document) - Synthetic Examples For durable-workloops: Markdown document at examples/README.md.
 - `document:generated.github-copilot-instructions` (document) - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md.
-- `document:generated.security` (document) - Security Policy For durable-workloops: Markdown document at SECURITY.md.
-- `interface:package-script.durable-workloops.atlas` (interface) - durable-workloops atlas: Package script `atlas` from package.json.
-- `interface:package-script.durable-workloops.atlas-boundary-check` (interface) - durable-workloops atlas:boundary-check: Package script `atlas:boundary-check` from package.json.
-- `interface:package-script.durable-workloops.atlas-check` (interface) - durable-workloops atlas:check: Package script `atlas:check` from package.json.
-- `interface:package-script.durable-workloops.atlas-context-pack` (interface) - durable-workloops atlas:context-pack: Package script `atlas:context-pack` from package.json.
-- `interface:package-script.durable-workloops.atlas-docs-check` (interface) - durable-workloops atlas:docs:check: Package script `atlas:docs:check` from package.json.
-- `interface:package-script.durable-workloops.atlas-doctor` (interface) - durable-workloops atlas:doctor: Package script `atlas:doctor` from package.json.
-- `interface:package-script.durable-workloops.atlas-refresh` (interface) - durable-workloops atlas:refresh: Package script `atlas:refresh` from package.json.
-- `interface:package-script.durable-workloops.atlas-resolve-path` (interface) - durable-workloops atlas:resolve-path: Package script `atlas:resolve-path` from package.json.
-- `interface:package-script.durable-workloops.atlas-validate` (interface) - durable-workloops atlas:validate: Package script `atlas:validate` from package.json.
-- `interface:package-script.durable-workloops.build` (interface) - durable-workloops build: Package script `build` from package.json.

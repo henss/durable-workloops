@@ -1,0 +1,18 @@
+id: component:hosted-workloops-web
+kind: component
+title: Hosted Workloops Web UI
+summary: Vite React and Mantine UI for login, approval queue review, archive browsing, users, and client tokens.
+visibility: public
+code:
+  paths:
+    - apps/web/src/main.tsx
+    - apps/web/src/plans.ts
+    - apps/web/src/plans.test.ts
+    - apps/web/package.json
+  entrypoints:
+    - apps/web/src/main.tsx
+relations:
+  - type: uses
+    target: component:hosted-workloops-api
+  - type: tested-by
+    target: test-scope:hosted-workloops-tests

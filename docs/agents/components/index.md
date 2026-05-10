@@ -7,8 +7,19 @@ Profile: `public`
 Generated index of visible `component` entities.
 
 - [AI Quality Loops Adapter](ai-quality-loops-adapter.md) - `component:ai-quality-loops-adapter`: Dependency-free adapter shape that maps WorkLoop slice outcome context into an ai-quality-loops review request and returns WorkLoop peer-review evidence.
+- [Hosted Workloops API Contracts](hosted-workloops-api.md) - `component:hosted-workloops-api`: Shared Zod wire contracts and typed HTTP client for hosted Durable Workloops.
+- [Hosted Workloops CLI](hosted-workloops-cli.md) - `component:hosted-workloops-cli`: Client executor CLI for submitting, claiming, polling, completing, and launching claimed plans through Codex.
+- [Hosted Workloops Server](hosted-workloops-server.md) - `component:hosted-workloops-server`: Fastify server for authenticated plan submission, manual approval, client-token leasing, completion archive, and persistence adapters.
+- [Hosted Workloops Web UI](hosted-workloops-web.md) - `component:hosted-workloops-web`: Vite React and Mantine UI for login, approval queue review, archive browsing, users, and client tokens.
 - [Package Entrypoint](package-entrypoint.md) - `component:package-entrypoint`: Aggregate public exports for the durable-workloops package.
 - [durable-workloops](package.durable-workloops.md) - `component:package.durable-workloops`: Portable durable work-loop schemas and state transitions for agent workflows.
+- [@durable-workloops/api](package.durable-workloops-api.md) - `component:package.durable-workloops-api`: Package manifest at packages/api/package.json.
+- [@durable-workloops/cli](package.durable-workloops-cli.md) - `component:package.durable-workloops-cli`: Package manifest at packages/cli/package.json.
+- [@durable-workloops/cli dependency surface](package.durable-workloops-cli.dependencies.md) - `component:package.durable-workloops-cli.dependencies`: Workspace dependency relations for @durable-workloops/cli.
+- [@durable-workloops/server](package.durable-workloops-server.md) - `component:package.durable-workloops-server`: Package manifest at packages/server/package.json.
+- [@durable-workloops/server dependency surface](package.durable-workloops-server.dependencies.md) - `component:package.durable-workloops-server.dependencies`: Workspace dependency relations for @durable-workloops/server.
+- [@durable-workloops/web](package.durable-workloops-web.md) - `component:package.durable-workloops-web`: Package manifest at apps/web/package.json.
+- [@durable-workloops/web dependency surface](package.durable-workloops-web.dependencies.md) - `component:package.durable-workloops-web.dependencies`: Workspace dependency relations for @durable-workloops/web.
 - [WorkLoop Adjudication](workloop-adjudication.md) - `component:workloop-adjudication`: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
 - [WorkLoop Codex Launcher](workloop-codex-launcher.md) - `component:workloop-codex-launcher`: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, fresh or same-session launch records, and required outcome paths.
 - [WorkLoop Schema](workloop-schema.md) - `component:workloop-schema`: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.

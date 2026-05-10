@@ -33,7 +33,10 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 - `atlas:context-pack`
 - `atlas:resolve-path`
 - `clean`
+- `dev:server`
+- `dev:web`
 - `build`
+- `build:all`
 - `typecheck`
 - `test`
 - `check`
@@ -52,8 +55,11 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 - `interface:package-script.durable-workloops.atlas-resolve-path`
 - `interface:package-script.durable-workloops.atlas-validate`
 - `interface:package-script.durable-workloops.build`
+- `interface:package-script.durable-workloops.build-all`
 - `interface:package-script.durable-workloops.check`
 - `interface:package-script.durable-workloops.clean`
+- `interface:package-script.durable-workloops.dev-server`
+- `interface:package-script.durable-workloops.dev-web`
 - `interface:package-script.durable-workloops.lint-docs`
 - `interface:package-script.durable-workloops.release-package`
 - `interface:package-script.durable-workloops.test`
@@ -87,13 +93,20 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 - `interface:package-script.durable-workloops.atlas-resolve-path` _(generated)_
 - `interface:package-script.durable-workloops.atlas-validate` _(generated)_
 - `interface:package-script.durable-workloops.build` _(generated)_
+- `interface:package-script.durable-workloops.build-all` _(generated)_
 - `interface:package-script.durable-workloops.check` _(generated)_
 - `interface:package-script.durable-workloops.clean` _(generated)_
+- `interface:package-script.durable-workloops.dev-server` _(generated)_
+- `interface:package-script.durable-workloops.dev-web` _(generated)_
 - `interface:package-script.durable-workloops.lint-docs` _(generated)_
 - `interface:package-script.durable-workloops.release-package` _(generated)_
 - `interface:package-script.durable-workloops.test` _(generated)_
 - `interface:package-script.durable-workloops.typecheck` _(generated)_
 - `resource:config.package` _(generated)_
+
+### `dependency-of`
+
+- `component:package.durable-workloops-cli.dependencies` _(generated)_
 
 ### `part-of`
 

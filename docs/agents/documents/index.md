@@ -14,4 +14,4 @@ Generated index of visible `document` entities.
 - [Synthetic Examples For durable-workloops](generated.examples-readme.md) - `document:generated.examples-readme`: Markdown document at examples/README.md.
 - [GitHub Copilot Instructions](generated.github-copilot-instructions.md) - `document:generated.github-copilot-instructions`: Markdown document at .github/copilot-instructions.md.
 - [Security Policy For durable-workloops](generated.security.md) - `document:generated.security`: Markdown document at SECURITY.md.
-- [Operating Model](operating-model.md) - `document:operating-model`: Human-facing package map, integration shape, and non-goals for durable-workloops.
+- [Operating Model](operating-model.md) - `document:operating-model`: Human-facing package map, hosted server shape, integration shape, and non-goals for durable-workloops.

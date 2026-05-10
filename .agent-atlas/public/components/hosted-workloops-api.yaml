@@ -1,0 +1,17 @@
+id: component:hosted-workloops-api
+kind: component
+title: Hosted Workloops API Contracts
+summary: Shared Zod wire contracts and typed HTTP client for hosted Durable Workloops.
+visibility: public
+code:
+  paths:
+    - packages/api/src/index.ts
+    - packages/api/src/index.test.ts
+    - packages/api/package.json
+  entrypoints:
+    - packages/api/src/index.ts
+relations:
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:hosted-workloops-tests

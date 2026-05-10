@@ -34,6 +34,7 @@ Generic Codex execution envelope for durable WorkLoop slices, including bounded 
 
 ### `used-by`
 
+- `component:hosted-workloops-cli` _(generated)_
 - `workflow:resume-workloop` _(generated)_
 
 ## Verification

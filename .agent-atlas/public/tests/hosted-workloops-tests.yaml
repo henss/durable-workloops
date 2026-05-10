@@ -1,0 +1,27 @@
+id: test-scope:hosted-workloops-tests
+kind: test-scope
+title: Hosted Workloops Tests
+summary: Package tests for hosted API contracts, server approval and lease behavior, CLI parsing, and web queue bucketing.
+visibility: public
+commands:
+  - command: pnpm --filter @durable-workloops/api test
+    cwd: .
+    purpose: Verify hosted API contract schemas.
+  - command: pnpm --filter @durable-workloops/server test
+    cwd: .
+    purpose: Verify server approval, token, lease, and archive behavior.
+  - command: pnpm --filter @durable-workloops/cli test
+    cwd: .
+    purpose: Verify CLI parsing and idle executor behavior.
+  - command: pnpm --filter @durable-workloops/web test
+    cwd: .
+    purpose: Verify web queue bucketing behavior.
+relations:
+  - type: verifies
+    target: component:hosted-workloops-api
+  - type: verifies
+    target: component:hosted-workloops-server
+  - type: verifies
+    target: component:hosted-workloops-cli
+  - type: verifies
+    target: component:hosted-workloops-web

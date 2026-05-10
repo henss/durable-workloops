@@ -26,6 +26,8 @@ Zod schemas and TypeScript types for durable loops, slices, policies, decisions,
 
 ### `used-by`
 
+- `component:hosted-workloops-api` _(generated)_
+- `component:hosted-workloops-server` _(generated)_
 - `component:package-entrypoint` _(generated)_
 - `component:workloop-adjudication` _(generated)_
 - `component:workloop-selection` _(generated)_

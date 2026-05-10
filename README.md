@@ -2,12 +2,13 @@
 
 # durable-workloops
 
-durable-workloops is a portable durable work-loop schemas and deterministic state transitions for agent-run work.
+durable-workloops is a portable durable work-loop schemas plus optional hosted packages for plan approval, leasing, UI review, and Codex execution.
 
 ## Quick Orientation
 
 - Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
-- Host systems keep their own tracker adapters, persistence layout, review engines, and notification routing.
+- Optional hosted packages add plan submission, manual approval, client-token execution leases, completion archive, and a review UI.
+- Host systems keep their own tracker adapters, review engines, notification routing, and private deployment policy.
 - The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
 - Adopted portfolio repos should feed public-safe generic workflow friction back into this core instead of accumulating downstream prompt caveats.
 
@@ -21,10 +22,10 @@ durable-workloops is a portable durable work-loop schemas and deterministic stat
 - Selects the next safe slice from durable loop state.
 - Adjudicates outcome plus peer-review evidence into controller decisions.
 - Applies controller decisions without depending on a specific tracker or agent runtime.
+- Provides optional server, shared API, CLI, and web UI packages around the public core.
 
 ## Non-Goals
 
-- No hosted runner.
 - No Linear, Jira, GitHub, or Slack adapter.
 - No bundled peer-review engine.
 - No private orchestration policy.
@@ -32,6 +33,8 @@ durable-workloops is a portable durable work-loop schemas and deterministic stat
 ## Where Things Live
 
 - `.agent-atlas/` - Canonical Atlas metadata and overlays.
+- `packages/` - Workspace packages and implementation surfaces.
+- `apps/` - Application and CLI entrypoint surfaces.
 - `docs/` - Human-authored documentation.
 - `examples/` - Examples and sample fixtures.
 

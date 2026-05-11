@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "node --env-file-if-exists=../../.env --import tsx src/index.ts",
     "build": "pnpm --filter @agent-workloops/api build && tsc -p tsconfig.build.json",
     "typecheck": "pnpm --filter @agent-workloops/api build && tsc --noEmit -p tsconfig.json",
     "test": "vitest run"

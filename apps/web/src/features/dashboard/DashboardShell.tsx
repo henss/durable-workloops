@@ -86,7 +86,7 @@ export function DashboardShell(props: {
               <ListChecks size={20} />
             </ThemeIcon>
             <Box>
-              <Title order={1} size="h3" fw={850} style={{ letterSpacing: "-0.01em" }}>Agent Workloops</Title>
+                <Title order={1} size="h3" fw={780}>Agent Workloops</Title>
               <Text size="xs" c={tokens.textMuted} opacity={0.78}>Hosted approval and execution queue</Text>
             </Box>
           </Group>
@@ -161,16 +161,40 @@ export function DashboardShell(props: {
           <Stack gap="lg">
             <Group justify="space-between" align="flex-end">
               <Box>
-                <Title order={2} size="32px" fw={850} lh={1.1}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
+                <Title order={2} size="30px" fw={760} lh={1.12}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
                 <Text size="sm" c={tokens.textMuted}>{tabs.find((tab) => tab.value === props.activeTab)?.description}</Text>
               </Box>
             </Group>
 
             {isQueueTab(props.activeTab) ? (
               <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-                <MetricCard label="Pending approval" value={props.buckets.pending.length} microcopy={props.buckets.pending.length === 0 ? "No plans waiting" : "Review required"} icon={<Clock3 size={18} />} color="yellow" />
-                <MetricCard label="Claimable" value={props.buckets.claimable.length} microcopy={props.buckets.claimable.length === 0 ? "No executor work" : "Ready to lease"} icon={<CheckCircle2 size={18} />} color="aqua" />
-                <MetricCard label="Locked" value={props.buckets.locked.length} microcopy={props.buckets.locked.length === 0 ? "No active leases" : "Executors running"} icon={<Lock size={18} />} color="brand" />
+                <MetricCard
+                  label="Pending approval"
+                  value={props.buckets.pending.length}
+                  microcopy={props.buckets.pending.length === 0 ? "No plans waiting" : "Review required"}
+                  icon={<Clock3 size={18} />}
+                  color="yellow"
+                  active={props.activeTab === "pending"}
+                  onClick={() => props.setActiveTab("pending")}
+                />
+                <MetricCard
+                  label="Claimable"
+                  value={props.buckets.claimable.length}
+                  microcopy={props.buckets.claimable.length === 0 ? "No executor work" : "Ready to lease"}
+                  icon={<CheckCircle2 size={18} />}
+                  color="aqua"
+                  active={props.activeTab === "claimable"}
+                  onClick={() => props.setActiveTab("claimable")}
+                />
+                <MetricCard
+                  label="Locked"
+                  value={props.buckets.locked.length}
+                  microcopy={props.buckets.locked.length === 0 ? "No active leases" : "Executors running"}
+                  icon={<Lock size={18} />}
+                  color="brand"
+                  active={props.activeTab === "locked"}
+                  onClick={() => props.setActiveTab("locked")}
+                />
               </SimpleGrid>
             ) : null}
 
@@ -286,5 +310,13 @@ function isQueueTab(tab: DashboardTab): boolean {
 }
 
 function formatLastRefreshed(value: Date | null): string {
-  return value ? value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "not yet";
+  return value
+    ? new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(value)
+    : "not yet";
 }

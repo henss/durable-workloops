@@ -2,7 +2,14 @@ import { Badge } from "@mantine/core";
 import type { PlanRecord } from "@agent-workloops/api";
 
 export function StatusBadge({ plan }: { plan: PlanRecord }) {
-  const color = plan.status === "completed" ? "green" : plan.status === "locked" ? "blue" : plan.status === "canceled" ? "red" : "gray";
+  const color =
+    plan.status === "completed"
+      ? "teal"
+      : plan.status === "locked"
+        ? "blue"
+        : plan.status === "canceled"
+          ? "red"
+          : "gray";
   return (
     <Badge color={color} variant="light" styles={badgeStyles}>
       {plan.status}
@@ -15,7 +22,7 @@ export function ApprovalBadge({ plan }: { plan: PlanRecord }) {
     plan.approvalStatus === "approved"
       ? "green"
       : plan.approvalStatus === "pending"
-        ? "yellow"
+        ? "orange"
         : plan.approvalStatus === "rejected"
           ? "red"
           : "gray";

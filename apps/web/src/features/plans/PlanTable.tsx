@@ -29,22 +29,22 @@ export function PlanTable(props: {
 
   return (
     <Table.ScrollContainer minWidth={980}>
-      <Table className="aw-plan-table" highlightOnHover verticalSpacing="sm">
+      <Table className="aw-plan-table" highlightOnHover verticalSpacing="xs">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Plan</Table.Th>
-            <Table.Th w={130}>Project</Table.Th>
-            <Table.Th w={130}>Approval</Table.Th>
-            <Table.Th w={110}>Status</Table.Th>
-            <Table.Th w={150}>Updated</Table.Th>
-            <Table.Th w={150} />
+            <Table.Th w={150}>Project</Table.Th>
+            <Table.Th w={128}>Approval</Table.Th>
+            <Table.Th w={112}>Status</Table.Th>
+            <Table.Th w={176}>Updated</Table.Th>
+            <Table.Th className="aw-actions-header" w={154}>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {props.plans.map((plan) => (
             <Table.Tr key={plan.id}>
-              <Table.Td maw={760}>
-                <Text fw={650} lineClamp={2}>{plan.workLoop.objective}</Text>
+              <Table.Td>
+                <Text fw={600} lineClamp={2}>{plan.workLoop.objective}</Text>
                 <Text size="xs" c="dimmed" ff="monospace">{plan.id}</Text>
               </Table.Td>
               <Table.Td>
@@ -53,10 +53,10 @@ export function PlanTable(props: {
               <Table.Td><ApprovalBadge plan={plan} /></Table.Td>
               <Table.Td><StatusBadge plan={plan} /></Table.Td>
               <Table.Td>
-                <Text size="sm">{new Date(plan.updatedAt).toLocaleString()}</Text>
+                <Text size="sm">{formatPlanTimestamp(plan.updatedAt)}</Text>
               </Table.Td>
-              <Table.Td>
-                <Group gap="xs" justify="flex-end" wrap="nowrap">
+              <Table.Td className="aw-actions-cell">
+                <Group className="aw-actions-group" gap="xs" justify="flex-end" wrap="nowrap">
                   {props.onApprove ? (
                     <Tooltip label="Approve plan">
                       <ActionIcon variant="gradient" aria-label="Approve plan" onClick={() => props.onApprove?.(plan.id)}>
@@ -78,8 +78,8 @@ export function PlanTable(props: {
                       </ActionIcon>
                     </Tooltip>
                   ) : null}
-                  <Tooltip label="Open plan">
-                    <ActionIcon variant="default" aria-label="Open plan" onClick={() => props.onDetail(plan.id)}>
+                  <Tooltip label="View details">
+                    <ActionIcon variant="default" aria-label="View details" onClick={() => props.onDetail(plan.id)}>
                       <Eye size={16} />
                     </ActionIcon>
                   </Tooltip>
@@ -88,7 +88,24 @@ export function PlanTable(props: {
             </Table.Tr>
           ))}
         </Table.Tbody>
+        <Table.Tfoot>
+          <Table.Tr>
+            <Table.Td colSpan={6}>
+              <Text size="xs" c="dimmed">{props.plans.length === 1 ? "1 plan" : `${props.plans.length} plans`}</Text>
+            </Table.Td>
+          </Table.Tr>
+        </Table.Tfoot>
       </Table>
     </Table.ScrollContainer>
   );
+}
+
+function formatPlanTimestamp(value: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }

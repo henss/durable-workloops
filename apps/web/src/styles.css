@@ -30,11 +30,12 @@
 }
 
 .aw-nav-link {
+  background: transparent;
   border: 1px solid transparent;
   transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.aw-nav-link:hover {
+.aw-nav-link:not([data-active="true"]):hover {
   background: linear-gradient(90deg, color-mix(in srgb, var(--aw-accent-muted) 48%, transparent), transparent);
   border-color: var(--aw-border-subtle);
 }
@@ -56,8 +57,26 @@
   table-layout: fixed;
 }
 
+.aw-actions-header {
+  text-align: right;
+}
+
+.aw-actions-cell {
+  width: 154px;
+}
+
+.aw-actions-group {
+  min-width: 132px;
+}
+
 .aw-nowrap {
   white-space: nowrap;
+}
+
+.aw-status-card-button {
+  display: block;
+  width: 100%;
+  text-align: left;
 }
 
 .aw-status-card {
@@ -66,7 +85,7 @@
   border: 1px solid var(--aw-border);
   background: linear-gradient(180deg, var(--aw-surface-elevated), var(--aw-surface));
   box-shadow: var(--aw-shadow-soft);
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, opacity 160ms ease;
 }
 
 .aw-status-card::before {
@@ -88,14 +107,21 @@
   pointer-events: none;
 }
 
-.aw-status-card:hover {
+.aw-status-card-button:hover .aw-status-card,
+.aw-status-card-button:focus-visible .aw-status-card {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--status-accent) 34%, var(--aw-border));
   box-shadow: var(--aw-shadow-hover);
 }
 
-.aw-status-card:hover::after {
+.aw-status-card-button:hover .aw-status-card::after,
+.aw-status-card-button:focus-visible .aw-status-card::after {
   opacity: 1;
+}
+
+.aw-status-card-button[data-active="true"] .aw-status-card {
+  border-color: color-mix(in srgb, var(--status-accent) 52%, var(--aw-border));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status-accent) 30%, transparent), var(--aw-shadow-hover);
 }
 
 .aw-empty-panel {

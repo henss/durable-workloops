@@ -39,7 +39,7 @@ export function SetupRequired(props: {
       <TextInput label="Admin email" value={props.form.email} onChange={(event) => props.setForm({ ...props.form, email: event.target.value })} />
       <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
       <PasswordInput label="Password" value={props.form.password} onChange={(event) => props.setForm({ ...props.form, password: event.target.value })} />
-      <Button leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create first admin</Button>
+      <Button variant="gradient" leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create first admin</Button>
     </Stack>
   );
 }

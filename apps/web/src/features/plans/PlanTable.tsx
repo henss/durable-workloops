@@ -11,10 +11,19 @@ export function PlanTable(props: {
   onReject?: (planId: string) => void;
   emptyTitle: string;
   emptyDescription: string;
+  emptyCheckedAt?: Date | null;
   onRefresh?: () => void;
 }) {
   if (props.plans.length === 0) {
-    return <EmptyState title={props.emptyTitle} description={props.emptyDescription} actionLabel="Refresh" onAction={props.onRefresh} />;
+    return (
+      <EmptyState
+        title={props.emptyTitle}
+        description={props.emptyDescription}
+        checkedAt={props.emptyCheckedAt}
+        actionLabel="Refresh queue"
+        onAction={props.onRefresh}
+      />
+    );
   }
 
   return (
@@ -47,7 +56,7 @@ export function PlanTable(props: {
               </Table.Td>
               <Table.Td>
                 <Group gap="xs" justify="flex-end" wrap="nowrap">
-                  {props.onApprove ? <Button size="xs" leftSection={<Check size={14} />} onClick={() => props.onApprove?.(plan.id)}>Approve</Button> : null}
+                  {props.onApprove ? <Button size="xs" variant="gradient" leftSection={<Check size={14} />} onClick={() => props.onApprove?.(plan.id)}>Approve</Button> : null}
                   {props.onReject ? <Button size="xs" variant="light" color="red" leftSection={<X size={14} />} onClick={() => props.onReject?.(plan.id)}>Reject</Button> : null}
                   <Button size="xs" variant="default" onClick={() => props.onDetail(plan.id)}>Open</Button>
                 </Group>

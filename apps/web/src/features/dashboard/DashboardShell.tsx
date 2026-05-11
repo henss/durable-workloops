@@ -1,6 +1,7 @@
 import type React from "react";
 import {
   AppShell,
+  Avatar,
   Badge,
   Box,
   Button,
@@ -16,12 +17,12 @@ import {
   Title,
   useComputedColorScheme,
 } from "@mantine/core";
-import { CheckCircle2, ChevronDown, Clock3, ListChecks, Lock, LogOut, RefreshCw, UserCircle } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock3, ListChecks, Lock, LogOut, RefreshCw } from "lucide-react";
 import type { CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
 import { ColorSchemeControl } from "../../components/ColorSchemeControl.js";
 import { MetricCard } from "../../components/MetricCard.js";
 import { PageSection } from "../../components/PageSection.js";
-import { appBackground, shellPanelBackground, subtleBorder } from "../../components/themeSurfaces.js";
+import { appBackground, appCssVariables, shellPanelBackground, subtleBorder, themeTokens } from "../../components/themeSurfaces.js";
 import { PlanTable } from "../plans/PlanTable.js";
 import { TokensPanel } from "../tokens/TokensPanel.js";
 import { UsersPanel } from "../users/UsersPanel.js";
@@ -38,6 +39,7 @@ export function DashboardShell(props: {
   tokens: PublicClientToken[];
   createdToken: CreatedClientToken | null;
   lastRefreshedAt: Date | null;
+  isRefreshing: boolean;
   isAdmin: boolean;
   isReviewer: boolean;
   userForm: { email: string; password: string; name: string; role: string };
@@ -53,6 +55,7 @@ export function DashboardShell(props: {
   onCreateToken: () => void;
 }) {
   const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
+  const tokens = themeTokens(computedColorScheme);
   const tabs = getDashboardTabs({
     pending: props.buckets.pending.length,
     claimable: props.buckets.claimable.length,
@@ -64,30 +67,49 @@ export function DashboardShell(props: {
 
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 68 }}
       navbar={{ width: 280, breakpoint: "sm" }}
       padding={0}
       bg={appBackground(computedColorScheme)}
+      style={appCssVariables(computedColorScheme)}
     >
-      <AppShell.Header px="lg" bg={shellPanelBackground(computedColorScheme)} style={{ borderBottom: subtleBorder(computedColorScheme), backdropFilter: "blur(14px)" }}>
+      <AppShell.Header
+        className="aw-header"
+        px="lg"
+        bg={shellPanelBackground(computedColorScheme)}
+        style={{ borderBottom: `1px solid ${tokens.borderSubtle}` }}
+      >
         <Group h="100%" justify="space-between">
           <Group gap="sm">
-            <ThemeIcon size="lg" radius="md" variant="gradient">
+            <ThemeIcon className="aw-app-icon" size={42} radius="lg" variant="gradient" gradient={{ from: "brand.6", to: "aqua.5", deg: 135 }}>
               <ListChecks size={20} />
             </ThemeIcon>
             <Box>
-              <Title order={1} size="h3">Agent Workloops</Title>
-              <Text size="xs" c="dimmed">Hosted approval and execution queue</Text>
+              <Title order={1} size="h3" fw={850} style={{ letterSpacing: "-0.01em" }}>Agent Workloops</Title>
+              <Text size="xs" c={tokens.textMuted} opacity={0.78}>Hosted approval and execution queue</Text>
             </Box>
           </Group>
           <Group gap="xs">
             <ColorSchemeControl compact />
-            <Text size="xs" c="dimmed">Last refreshed: {formatLastRefreshed(props.lastRefreshedAt)}</Text>
-            <Button variant="default" leftSection={<RefreshCw size={16} />} onClick={props.onRefresh}>Refresh</Button>
+            <Text size="xs" c={tokens.textMuted}>Last refreshed: {formatLastRefreshed(props.lastRefreshedAt)}</Text>
+            <Button
+              variant="light"
+              color="brand"
+              leftSection={<RefreshCw className="aw-refresh-icon" data-refreshing={props.isRefreshing} size={16} />}
+              disabled={props.isRefreshing}
+              onClick={props.onRefresh}
+            >
+              Refresh
+            </Button>
             <Menu position="bottom-end" width={240}>
               <Menu.Target>
-                <Button variant="subtle" color="slate" rightSection={<ChevronDown size={14} />} leftSection={<UserCircle size={16} />}>
-                  Account
+                <Button
+                  variant="default"
+                  rightSection={<ChevronDown size={14} />}
+                  leftSection={<Avatar size={22} radius="xl" color="brand">{props.session.user.email.slice(0, 1).toUpperCase()}</Avatar>}
+                  styles={{ root: { background: tokens.surfaceElevated, borderColor: tokens.border } }}
+                >
+                  <Text size="xs" fw={700} maw={120} truncate>{props.session.user.email}</Text>
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
@@ -99,14 +121,19 @@ export function DashboardShell(props: {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" bg={shellPanelBackground(computedColorScheme)} style={{ borderRight: subtleBorder(computedColorScheme), backdropFilter: "blur(14px)" }}>
+      <AppShell.Navbar className="aw-sidebar" p="md" bg={shellPanelBackground(computedColorScheme)} style={{ borderRight: `1px solid ${tokens.borderSubtle}` }}>
         <Stack gap="md" h="100%">
-          <Box>
-            <Text size="xs" tt="uppercase" fw={700} c="dimmed">Signed in</Text>
-            <Text size="sm" fw={600} truncate>{props.session.user.email}</Text>
-            <Text size="xs" c="dimmed" mt={4}>{props.session.user.roles.join(", ")}</Text>
+          <Box p="sm" style={{ border: subtleBorder(computedColorScheme), borderRadius: "var(--mantine-radius-lg)", background: tokens.surfaceElevated, boxShadow: tokens.shadowSoft }}>
+            <Group gap="sm" wrap="nowrap">
+              <Avatar size={34} radius="xl" color="brand">{props.session.user.email.slice(0, 1).toUpperCase()}</Avatar>
+              <Box miw={0}>
+                <Text size="xs" tt="uppercase" fw={800} c={tokens.textMuted} style={{ letterSpacing: "0.06em" }}>Signed in</Text>
+                <Text size="sm" fw={700} truncate>{props.session.user.email}</Text>
+                <Text size="xs" c={tokens.textMuted} truncate>{props.session.user.roles.join(", ")}</Text>
+              </Box>
+            </Group>
           </Box>
-          <Divider />
+          <Divider color={tokens.borderSubtle} />
           <Stack gap="xs">
             <SidebarGroup label="Queues">
               {tabs.filter((tab) => isQueueTab(tab.value)).map((tab) => (
@@ -128,21 +155,21 @@ export function DashboardShell(props: {
         </Stack>
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main className="aw-main">
         <Container size={1440} px={{ base: "md", sm: "xl" }} py="lg">
           <Stack gap="lg">
             <Group justify="space-between" align="flex-end">
               <Box>
-                <Title order={2}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
-                <Text size="sm" c="dimmed">{tabs.find((tab) => tab.value === props.activeTab)?.description}</Text>
+                <Title order={2} size="32px" fw={850} lh={1.1}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
+                <Text size="sm" c={tokens.textMuted}>{tabs.find((tab) => tab.value === props.activeTab)?.description}</Text>
               </Box>
             </Group>
 
             {isQueueTab(props.activeTab) ? (
               <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-                <MetricCard label="Pending approval" value={props.buckets.pending.length} icon={<Clock3 size={18} />} color="yellow" />
-                <MetricCard label="Claimable" value={props.buckets.claimable.length} icon={<CheckCircle2 size={18} />} color="aqua" />
-                <MetricCard label="Locked" value={props.buckets.locked.length} icon={<Lock size={18} />} color="brand" />
+                <MetricCard label="Pending approval" value={props.buckets.pending.length} microcopy={props.buckets.pending.length === 0 ? "No plans waiting" : "Review required"} icon={<Clock3 size={18} />} color="yellow" />
+                <MetricCard label="Claimable" value={props.buckets.claimable.length} microcopy={props.buckets.claimable.length === 0 ? "No executor work" : "Ready to lease"} icon={<CheckCircle2 size={18} />} color="aqua" />
+                <MetricCard label="Locked" value={props.buckets.locked.length} microcopy={props.buckets.locked.length === 0 ? "No active leases" : "Executors running"} icon={<Lock size={18} />} color="brand" />
               </SimpleGrid>
             ) : null}
 
@@ -158,8 +185,8 @@ type DashboardTabInfo = ReturnType<typeof getDashboardTabs>[number];
 
 function SidebarGroup(props: { label: string; children: React.ReactNode }) {
   return (
-    <Stack gap={4}>
-      <Text size="xs" tt="uppercase" fw={700} c="dimmed">{props.label}</Text>
+    <Stack gap={6}>
+      <Text size="xs" tt="uppercase" fw={800} c="dimmed" style={{ letterSpacing: "0.06em" }}>{props.label}</Text>
       {props.children}
     </Stack>
   );
@@ -173,11 +200,13 @@ function DashboardNavLink(props: {
 }) {
   return (
     <NavLink
+      className="aw-nav-link"
+      data-active={props.activeTab === props.tab.value}
       active={props.activeTab === props.tab.value}
       disabled={props.disabled}
       label={props.tab.label}
       leftSection={props.tab.icon}
-      rightSection={<Badge size="xs" variant="light">{props.tab.count}</Badge>}
+      rightSection={<Badge className="aw-count-badge" size="xs" variant="light">{props.tab.count}</Badge>}
       onClick={() => props.onSelect(props.tab.value)}
       variant="light"
     />
@@ -193,8 +222,9 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           onDetail={props.onDetail}
           onApprove={props.isReviewer ? props.onApprove : undefined}
           onReject={props.isReviewer ? props.onReject : undefined}
-          emptyTitle="No pending approvals"
-          emptyDescription="Plans that need review will appear here."
+          emptyTitle="System idle"
+          emptyDescription="No approval workloops are waiting for review."
+          emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
         />
       </PageSection>
@@ -208,6 +238,7 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           onDetail={props.onDetail}
           emptyTitle="No claimable plans"
           emptyDescription="Approved or ungated plans ready for executors will appear here."
+          emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
         />
       </PageSection>
@@ -221,6 +252,7 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           onDetail={props.onDetail}
           emptyTitle="No locked plans"
           emptyDescription="Plans currently leased by executors will appear here."
+          emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
         />
       </PageSection>
@@ -234,6 +266,7 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           onDetail={props.onDetail}
           emptyTitle="No completed plans"
           emptyDescription="Executor completions are archived here."
+          emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
         />
       </PageSection>

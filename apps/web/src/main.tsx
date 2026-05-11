@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "./styles.css";
 import React from "react";
 import { MantineProvider } from "@mantine/core";
 import { createRoot } from "react-dom/client";

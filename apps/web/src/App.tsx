@@ -21,6 +21,7 @@ export function App() {
   const [createdToken, setCreatedToken] = useState<CreatedClientToken | null>(null);
   const [setupStatus, setSetupStatus] = useState<AuthSetupStatus | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<DashboardTab>("pending");
   const [login, setLogin] = useState({ email: "", password: "" });
   const [bootstrapForm, setBootstrapForm] = useState({ email: "", password: "", name: "" });
@@ -33,26 +34,31 @@ export function App() {
   const isReviewer = isAdmin || (session?.user.roles.includes("reviewer") ?? false);
 
   async function refresh() {
-    const setup = await api<AuthSetupStatus>("/api/v1/auth/setup").catch(() => null);
-    setSetupStatus(setup);
-    if (setup && !setup.usersExist) {
-      setSession(null);
-      return;
+    setIsRefreshing(true);
+    try {
+      const setup = await api<AuthSetupStatus>("/api/v1/auth/setup").catch(() => null);
+      setSetupStatus(setup);
+      if (setup && !setup.usersExist) {
+        setSession(null);
+        return;
+      }
+      const me = await api<Session>("/api/v1/auth/me").catch(() => null);
+      setSession(me);
+      if (!me) {
+        return;
+      }
+      setPlans(await api<PlanRecord[]>("/api/v1/plans"));
+      if (me.user.roles.includes("admin") || me.user.roles.includes("reviewer")) {
+        setArchive(await api<PlanRecord[]>("/api/v1/plans/archive"));
+      }
+      setTokens(await api<PublicClientToken[]>("/api/v1/tokens"));
+      if (me.user.roles.includes("admin")) {
+        setUsers(await api<User[]>("/api/v1/users"));
+      }
+      setLastRefreshedAt(new Date());
+    } finally {
+      setIsRefreshing(false);
     }
-    const me = await api<Session>("/api/v1/auth/me").catch(() => null);
-    setSession(me);
-    if (!me) {
-      return;
-    }
-    setPlans(await api<PlanRecord[]>("/api/v1/plans"));
-    if (me.user.roles.includes("admin") || me.user.roles.includes("reviewer")) {
-      setArchive(await api<PlanRecord[]>("/api/v1/plans/archive"));
-    }
-    setTokens(await api<PublicClientToken[]>("/api/v1/tokens"));
-    if (me.user.roles.includes("admin")) {
-      setUsers(await api<User[]>("/api/v1/users"));
-    }
-    setLastRefreshedAt(new Date());
   }
 
   useEffect(() => {
@@ -183,6 +189,7 @@ export function App() {
         tokens={tokens}
         createdToken={createdToken}
         lastRefreshedAt={lastRefreshedAt}
+        isRefreshing={isRefreshing}
         isAdmin={isAdmin}
         isReviewer={isReviewer}
         userForm={userForm}

@@ -20,7 +20,7 @@ export function UsersPanel(props: {
             <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
             <PasswordInput label="Password" value={props.form.password} onChange={(event) => props.setForm({ ...props.form, password: event.target.value })} />
             <Select label="Role" data={["admin", "user", "reviewer"]} value={props.form.role} onChange={(value) => props.setForm({ ...props.form, role: value ?? "user" })} />
-            <Button leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create</Button>
+            <Button variant="gradient" leftSection={<UserPlus size={16} />} onClick={props.onCreate}>Create</Button>
           </Group>
         </Paper>
       ) : null}

@@ -21,7 +21,7 @@ export function LoginForm(props: {
       {props.errorMessage ? <Alert color="red">{props.errorMessage}</Alert> : null}
       <TextInput label="Email" value={props.login.email} onChange={(event) => props.setLogin({ ...props.login, email: event.target.value })} />
       <PasswordInput label="Password" value={props.login.password} onChange={(event) => props.setLogin({ ...props.login, password: event.target.value })} />
-      <Button leftSection={<LogIn size={16} />} onClick={props.onLogin}>Sign in</Button>
+      <Button variant="gradient" leftSection={<LogIn size={16} />} onClick={props.onLogin}>Sign in</Button>
     </Stack>
   );
 }

@@ -35,7 +35,7 @@ export function TokensPanel(props: {
         <Group align="end" grow>
           <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
           <MultiSelect label="Scopes" data={["plans:submit", "plans:claim", "plans:complete"]} value={props.form.scopes} onChange={(scopes) => props.setForm({ ...props.form, scopes })} />
-          <Button leftSection={<KeyRound size={16} />} onClick={props.onCreate}>Mint token</Button>
+          <Button variant="gradient" leftSection={<KeyRound size={16} />} onClick={props.onCreate}>Mint token</Button>
         </Group>
       </Paper>
       {props.createdToken ? (

@@ -25,10 +25,10 @@ export const appTheme = createTheme({
   defaultRadius: "md",
   defaultGradient: { from: "brand.6", to: "aqua.5", deg: 135 },
   fontFamily:
-    "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+    "Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
   headings: {
     fontFamily:
-      "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+      "Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
     fontWeight: "750",
   },
   radius: {
@@ -88,6 +88,11 @@ export const appTheme = createTheme({
     }),
     Button: Button.extend({
       defaultProps: { radius: "md", size: "sm" },
+      styles: {
+        root: {
+          transition: "transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease",
+        },
+      },
     }),
     Code: Code.extend({
       defaultProps: { color: "slate" },
@@ -99,8 +104,8 @@ export const appTheme = createTheme({
       defaultProps: { radius: "md", variant: "default" },
       styles: {
         input: {
-          backgroundColor: "light-dark(#ffffff, #111c2d)",
-          borderColor: "light-dark(#dbe5f0, #26364a)",
+          backgroundColor: "light-dark(#ffffff, #111c2b)",
+          borderColor: "light-dark(#d9e4f2, #223047)",
         },
       },
     }),
@@ -114,8 +119,8 @@ export const appTheme = createTheme({
       defaultProps: { radius: "md", variant: "default" },
       styles: {
         input: {
-          backgroundColor: "light-dark(#ffffff, #111c2d)",
-          borderColor: "light-dark(#dbe5f0, #26364a)",
+          backgroundColor: "light-dark(#ffffff, #111c2b)",
+          borderColor: "light-dark(#d9e4f2, #223047)",
         },
       },
     }),
@@ -126,8 +131,8 @@ export const appTheme = createTheme({
       defaultProps: { radius: "md", color: "brand", size: "xs" },
       styles: {
         root: {
-          backgroundColor: "light-dark(#f1f5f9, #111c2d)",
-          border: "1px solid light-dark(#dbe5f0, #26364a)",
+          backgroundColor: "light-dark(rgba(251,253,255,0.86), rgba(17,28,43,0.86))",
+          border: "1px solid light-dark(#d9e4f2, #223047)",
         },
       },
     }),
@@ -135,8 +140,8 @@ export const appTheme = createTheme({
       defaultProps: { radius: "md", variant: "default" },
       styles: {
         input: {
-          backgroundColor: "light-dark(#ffffff, #111c2d)",
-          borderColor: "light-dark(#dbe5f0, #26364a)",
+          backgroundColor: "light-dark(#ffffff, #111c2b)",
+          borderColor: "light-dark(#d9e4f2, #223047)",
         },
       },
     }),
@@ -150,8 +155,8 @@ export const appTheme = createTheme({
       defaultProps: { radius: "md", variant: "default" },
       styles: {
         input: {
-          backgroundColor: "light-dark(#ffffff, #111c2d)",
-          borderColor: "light-dark(#dbe5f0, #26364a)",
+          backgroundColor: "light-dark(#ffffff, #111c2b)",
+          borderColor: "light-dark(#d9e4f2, #223047)",
         },
       },
     }),

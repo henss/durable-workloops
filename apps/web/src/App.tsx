@@ -7,11 +7,22 @@ import { AuthShell } from "./features/auth/AuthShell.js";
 import { LoginForm } from "./features/auth/LoginForm.js";
 import { SetupRequired } from "./features/auth/SetupRequired.js";
 import { DashboardShell } from "./features/dashboard/DashboardShell.js";
+import { DemoDashboard } from "./features/demo/DemoDashboard.js";
+import { readDemoRoute } from "./features/demo/demoRoute.js";
 import { PlanDetail } from "./features/plans/PlanDetail.js";
 import { bucketPlans } from "./plans.js";
 import type { DashboardTab, PlanDetailRecord, Session } from "./types.js";
 
 export function App() {
+  const demoRoute = readDemoRoute();
+  if (demoRoute.enabled) {
+    return <DemoDashboard initialTab={demoRoute.tab} />;
+  }
+
+  return <LiveApp />;
+}
+
+function LiveApp() {
   const [session, setSession] = useState<Session | null>(null);
   const [plans, setPlans] = useState<PlanRecord[]>([]);
   const [archive, setArchive] = useState<PlanRecord[]>([]);

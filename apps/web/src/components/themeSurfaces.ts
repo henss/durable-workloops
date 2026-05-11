@@ -32,7 +32,7 @@ export const lightTokens: AppThemeTokens = {
   accentMuted: "#dbeafe",
   glowBlue: "rgba(37, 99, 235, 0.16)",
   glowCyan: "rgba(8, 145, 178, 0.12)",
-  gridLine: "rgba(37, 99, 235, 0.035)",
+  gridLine: "rgba(37, 99, 235, 0.024)",
   shadowSoft: "0 12px 34px rgba(15, 23, 42, 0.07)",
   shadowHover: "0 18px 42px rgba(37, 99, 235, 0.13)",
 };
@@ -50,7 +50,7 @@ export const darkTokens: AppThemeTokens = {
   accentMuted: "#102a4d",
   glowBlue: "rgba(96, 165, 250, 0.22)",
   glowCyan: "rgba(34, 211, 238, 0.14)",
-  gridLine: "rgba(96, 165, 250, 0.045)",
+  gridLine: "rgba(96, 165, 250, 0.034)",
   shadowSoft: "0 18px 48px rgba(0, 0, 0, 0.28)",
   shadowHover: "0 22px 58px rgba(34, 211, 238, 0.12)",
 };

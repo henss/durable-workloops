@@ -51,6 +51,16 @@ The package includes `agent-workloops/ai-quality-loops` as an optional adapter s
 - Executors claim plans with an auto-lock lease and must heartbeat or complete before expiry.
 - Completed plans remain available from the archive with metadata payloads.
 
+## Web UI Screenshots
+
+The web UI includes a public-safe synthetic dashboard route for screenshots and UI review. Start the web app, then open:
+
+- `/?demo=1&theme=light&tab=pending`
+- `/?demo=1&theme=dark&tab=pending`
+- `/?demo=1&theme=light&tab=locked`
+
+Supported `tab` values are `pending`, `claimable`, `locked`, `archive`, `users`, and `tokens`. Supported forced `theme` values are `light` and `dark`. The route bypasses live auth and API calls, uses synthetic data only, and is intended for local screenshot tests, README assets, and external UI review prompts.
+
 ## Non-Goals
 
 - No tracker-specific API client.

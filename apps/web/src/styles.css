@@ -52,6 +52,14 @@
   border: 1px solid color-mix(in srgb, var(--aw-accent) 20%, var(--aw-border));
 }
 
+.aw-plan-table {
+  table-layout: fixed;
+}
+
+.aw-nowrap {
+  white-space: nowrap;
+}
+
 .aw-status-card {
   position: relative;
   overflow: hidden;

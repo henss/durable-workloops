@@ -73,6 +73,135 @@
   white-space: nowrap;
 }
 
+.aw-break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.aw-code-wrap,
+.aw-code-chip {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+.aw-code-chip {
+  display: inline-block;
+  padding: 3px 7px;
+}
+
+.aw-code-block {
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.aw-plan-detail-modal-content {
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+}
+
+.aw-plan-detail-modal-header {
+  min-height: 54px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--aw-border-subtle);
+}
+
+.aw-plan-detail-modal-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.aw-plan-detail-modal-body {
+  max-height: calc(100dvh - 104px);
+  overflow: auto;
+  padding: 18px;
+}
+
+.aw-plan-detail {
+  min-width: 0;
+}
+
+.aw-plan-detail-hero {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aw-accent-muted) 44%, transparent), transparent 46%),
+    linear-gradient(180deg, var(--aw-surface-elevated), var(--aw-surface));
+}
+
+.aw-plan-detail-heading {
+  min-width: 0;
+  flex: 1;
+}
+
+.aw-plan-detail-badges {
+  max-width: 100%;
+}
+
+.aw-plan-detail-objective {
+  max-width: 880px;
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.14;
+  overflow-wrap: anywhere;
+}
+
+.aw-fact {
+  min-width: 0;
+}
+
+.aw-workloop-tabs {
+  min-width: 0;
+}
+
+.aw-workloop-tabs .mantine-Tabs-list {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.aw-slice-title {
+  min-width: 0;
+}
+
+.aw-dependency-list {
+  min-width: 0;
+  flex: 1;
+}
+
+.aw-audit-event {
+  background: color-mix(in srgb, var(--aw-surface-elevated) 88%, transparent);
+}
+
+@media (max-width: 640px) {
+  .aw-plan-detail-modal-content {
+    max-height: calc(100dvh - 24px);
+  }
+
+  .aw-plan-detail-modal-body {
+    max-height: calc(100dvh - 80px);
+    padding: 12px;
+  }
+
+  .aw-plan-detail-hero-top {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .aw-plan-detail-heading {
+    width: 100%;
+    flex: none;
+  }
+
+  .aw-plan-detail-badges {
+    justify-content: flex-start;
+  }
+
+  .aw-plan-detail-objective {
+    font-size: 22px;
+    line-height: 1.16;
+  }
+}
+
 .aw-status-card-button {
   display: block;
   width: 100%;

@@ -1,4 +1,4 @@
-import type { PlanRecord, PublicClientToken, User, WorkLoop } from "@agent-workloops/api";
+import type { AuditEvent, PlanRecord, PublicClientToken, User, WorkLoop } from "@agent-workloops/api";
 
 const now = "2026-05-11T16:30:00.000Z";
 type WorkLoopSlice = WorkLoop["slices"][number];
@@ -138,6 +138,49 @@ export const demoArchive: PlanRecord[] = [
       createSlice({ id: "slice-tests", title: "Cover core queue states", status: "done", attemptCount: 1 }),
     ],
   }),
+];
+
+export const demoAudit: AuditEvent[] = [
+  {
+    id: "audit-submit-ui-review",
+    planId: "plan-ui-review",
+    actorUserId: "user-reviewer",
+    type: "submit",
+    createdAt: "2026-05-11T16:21:00.000Z",
+    metadata: { source: "demo", slices: 3 },
+  },
+  {
+    id: "audit-review-request-ui-review",
+    planId: "plan-ui-review",
+    actorUserId: "user-reviewer",
+    type: "request_review",
+    createdAt: "2026-05-11T16:24:00.000Z",
+    metadata: { reason: "Screenshots ready for approval" },
+  },
+  {
+    id: "audit-submit-release-docs",
+    planId: "plan-release-docs",
+    actorUserId: "user-reviewer",
+    type: "submit",
+    createdAt: "2026-05-11T15:04:00.000Z",
+    metadata: { source: "demo" },
+  },
+  {
+    id: "audit-approve-release-docs",
+    planId: "plan-release-docs",
+    actorUserId: "user-reviewer",
+    type: "approve",
+    createdAt: "2026-05-11T15:09:00.000Z",
+    metadata: { reason: "Public-safe synthetic assets" },
+  },
+  {
+    id: "audit-complete-plan-complete",
+    planId: "plan-complete",
+    actorTokenId: "token-cli",
+    type: "complete",
+    createdAt: "2026-05-10T18:00:00.000Z",
+    metadata: { outcome: "completed", tests: "passed" },
+  },
 ];
 
 type PlanInput = Pick<PlanRecord, "id" | "approvalStatus" | "status" | "updatedAt" | "lock" | "completion"> & {

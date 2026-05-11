@@ -1,0 +1,24 @@
+
+> @agent-workloops/web@0.1.0 dev D:\workspace\agent-workloops\apps\web
+> vite --host 127.0.0.1 "--" "--port" "5173"
+
+Port 5173 is in use, trying another one...
+Port 5174 is in use, trying another one...
+
+  [32m[1mVITE[22m v7.3.3[39m  [2mready in [0m[1m408[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5175[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m22:05:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m22:05:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/demo/DemoDashboard.tsx[22m
+[2m22:05:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/features/demo/demoRoute.ts[22m
+[2m22:07:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/plans/PlanDetail.tsx[22m
+[2m22:07:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/plans/WorkLoopVisualization.tsx[22m
+[2m22:07:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/demo/DemoDashboard.tsx[22m
+[2m22:07:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m22:07:52[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/features/demo/demoRoute.ts[22m
+[2m22:08:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/plans/PlanDetail.tsx[22m
+[2m22:08:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+D:\workspace\agent-workloops\apps\web:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @agent-workloops/web@0.1.0 dev: `vite --host 127.0.0.1 "--" "--port" "5173"`
+Exit status 4294967295

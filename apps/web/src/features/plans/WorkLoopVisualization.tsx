@@ -15,11 +15,11 @@ import {
   Text,
   ThemeIcon,
   Timeline,
-  Title,
 } from "@mantine/core";
 import { CheckCircle2, CircleDot, FileText, GitBranch, Link2, ListChecks, RotateCcw, ShieldCheck } from "lucide-react";
 import type { WorkLoop } from "@agent-workloops/api";
 import type React from "react";
+import type { PlanDetailTab } from "./PlanDetail.js";
 import { countSlicesByStatus, getBlockedByLabels, getSliceProgress } from "./workLoopView.js";
 
 const sliceStatusColors: Record<string, string> = {
@@ -33,12 +33,12 @@ const sliceStatusColors: Record<string, string> = {
   canceled: "gray",
 };
 
-export function WorkLoopVisualization({ workLoop }: { workLoop: WorkLoop }) {
+export function WorkLoopVisualization({ workLoop, initialTab = "overview" }: { workLoop: WorkLoop; initialTab?: PlanDetailTab }) {
   const progress = getSliceProgress(workLoop);
   const statusCounts = countSlicesByStatus(workLoop);
 
   return (
-    <Tabs defaultValue="overview" keepMounted={false}>
+    <Tabs defaultValue={initialTab} keepMounted={false} className="aw-workloop-tabs">
       <Tabs.List>
         <Tabs.Tab value="overview">Overview</Tabs.Tab>
         <Tabs.Tab value="slices">Slices</Tabs.Tab>
@@ -48,34 +48,6 @@ export function WorkLoopVisualization({ workLoop }: { workLoop: WorkLoop }) {
 
       <Tabs.Panel value="overview" pt="md">
         <Stack gap="md">
-          <Paper withBorder radius="md" p="md">
-            <Stack gap="md">
-              <Group justify="space-between" align="flex-start">
-                <Box>
-                  <Text size="xs" tt="uppercase" fw={700} c="dimmed">Objective</Text>
-                  <Title order={3}>{workLoop.objective}</Title>
-                </Box>
-                <Badge color={workLoop.status === "done" ? "green" : workLoop.status === "blocked" ? "red" : "blue"} variant="light">
-                  {workLoop.status}
-                </Badge>
-              </Group>
-              <Grid>
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                  <Fact label="Workloop" value={workLoop.id} />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                  <Fact label="Project" value={workLoop.projectId} />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                  <Fact label="Source" value={workLoop.source} />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                  <Fact label="Issue" value={workLoop.linearIssueId ?? "none"} />
-                </Grid.Col>
-              </Grid>
-            </Stack>
-          </Paper>
-
           <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
             <Paper withBorder radius="md" p="md">
               <Stack gap="xs">
@@ -108,6 +80,29 @@ export function WorkLoopVisualization({ workLoop }: { workLoop: WorkLoop }) {
               </Stack>
             </Paper>
           </SimpleGrid>
+
+          <Paper withBorder radius="md" p="md">
+            <Stack gap="sm">
+              <Group gap="xs">
+                <ThemeIcon variant="light" size="sm"><ListChecks size={14} /></ThemeIcon>
+                <Text fw={700}>Workloop identity</Text>
+              </Group>
+              <Grid>
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Fact label="Workloop" value={workLoop.id} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Fact label="Project" value={workLoop.projectId} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Fact label="Source" value={workLoop.source} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Fact label="Issue" value={workLoop.linearIssueId ?? "none"} />
+                </Grid.Col>
+              </Grid>
+            </Stack>
+          </Paper>
 
           <Paper withBorder radius="md" p="md">
             <Stack gap="sm">
@@ -145,8 +140,8 @@ export function WorkLoopVisualization({ workLoop }: { workLoop: WorkLoop }) {
               key={slice.id}
               bullet={slice.status === "done" ? <CheckCircle2 size={14} /> : <CircleDot size={14} />}
               title={
-                <Group gap="xs" wrap="wrap">
-                  <Text fw={700}>{slice.title}</Text>
+                <Group gap="xs" wrap="wrap" className="aw-slice-title">
+                  <Text fw={700} className="aw-break-anywhere">{slice.title}</Text>
                   <Badge size="sm" color={sliceStatusColors[slice.status] ?? "gray"} variant="light">{slice.status.replace("_", " ")}</Badge>
                   <Badge size="sm" variant="outline">#{index + 1}</Badge>
                 </Group>
@@ -203,11 +198,11 @@ function SliceCard({ slice, workLoop }: { slice: WorkLoop["slices"][number]; wor
         {dependencies.length > 0 ? (
           <Group gap="xs" align="flex-start">
             <ThemeIcon variant="light" size="sm"><GitBranch size={14} /></ThemeIcon>
-            <Box>
+            <Box className="aw-dependency-list">
               <Text size="xs" tt="uppercase" fw={700} c="dimmed">Depends on</Text>
-              <Group gap="xs" mt={4}>
+              <Group gap="xs" mt={4} align="flex-start">
                 {dependencies.map((dependency) => (
-                  <Badge key={dependency} variant="light">{dependency}</Badge>
+                  <Code key={dependency} className="aw-code-chip">{dependency}</Code>
                 ))}
               </Group>
             </Box>
@@ -240,7 +235,7 @@ function ArtifactLinks({ slice }: { slice: WorkLoop["slices"][number] }) {
               <Group key={artifact.label} gap="xs">
                 <ThemeIcon variant="light" size="sm">{artifact.icon}</ThemeIcon>
                 <Text size="sm" fw={600}>{artifact.label}</Text>
-                <Code>{artifact.path}</Code>
+                <Code className="aw-code-wrap">{artifact.path}</Code>
               </Group>
             ))}
           </Stack>
@@ -268,7 +263,7 @@ function Fact(props: { label: string; value: string; inline?: boolean }) {
   return (
     <Box>
       <Text size="xs" tt="uppercase" fw={700} c="dimmed">{props.label}</Text>
-      {props.inline ? <Code>{props.value}</Code> : <Text size="sm" fw={600}>{props.value}</Text>}
+      {props.inline ? <Code className="aw-code-wrap">{props.value}</Code> : <Text size="sm" fw={600} className="aw-break-anywhere">{props.value}</Text>}
     </Box>
   );
 }

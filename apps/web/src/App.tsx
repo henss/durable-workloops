@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import type { AuthSetupStatus, CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
 import { api } from "./api/client.js";
@@ -9,14 +9,20 @@ import { SetupRequired } from "./features/auth/SetupRequired.js";
 import { DashboardShell } from "./features/dashboard/DashboardShell.js";
 import { DemoDashboard } from "./features/demo/DemoDashboard.js";
 import { readDemoRoute } from "./features/demo/demoRoute.js";
-import { PlanDetail } from "./features/plans/PlanDetail.js";
+import { PlanDetailModal } from "./features/plans/PlanDetail.js";
 import { bucketPlans } from "./plans.js";
 import type { DashboardTab, PlanDetailRecord, Session } from "./types.js";
 
 export function App() {
   const demoRoute = readDemoRoute();
   if (demoRoute.enabled) {
-    return <DemoDashboard initialTab={demoRoute.tab} />;
+    return (
+      <DemoDashboard
+        initialTab={demoRoute.tab}
+        initialDetailPlanId={demoRoute.detailPlanId}
+        initialDetailTab={demoRoute.detailTab}
+      />
+    );
   }
 
   return <LiveApp />;
@@ -221,9 +227,7 @@ function LiveApp() {
         onCreateUser={createUser}
         onCreateToken={createToken}
       />
-      <Modal opened={opened} onClose={modal.close} size="xl" title={detail?.plan.workLoop.objective ?? "Plan detail"}>
-        {detail ? <PlanDetail detail={detail} /> : null}
-      </Modal>
+      <PlanDetailModal opened={opened} onClose={modal.close} detail={detail} />
     </>
   );
 }

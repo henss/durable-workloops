@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from "node:child_process";
+import net from "node:net";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -17,20 +18,31 @@ if (mode !== "dev" && mode !== "start") {
 }
 
 if (mode === "dev") {
-  runDev();
+  await runDev();
 } else {
   await runStart();
 }
 
-function runDev() {
+async function runDev() {
   runChecked(pnpm, ["--filter", "@agent-workloops/api", "build"]);
 
-  const server = spawnManaged(pnpm, ["--filter", "@agent-workloops/server", "dev"]);
-  const web = spawnManaged(pnpm, ["--filter", "@agent-workloops/web", "dev"]);
+  const serverPort = await resolveServerPort();
+  const webPort = await resolveWebPort();
+  const serverUrl = resolveServerUrl(serverPort);
+  const webUrl = `http://127.0.0.1:${webPort}`;
+  const stackEnv = {
+    AWL_PORT: String(serverPort),
+    AWL_WEB_PORT: String(webPort),
+    AWL_PUBLIC_BASE_URL: serverUrl,
+    VITE_AWL_API_PROXY_TARGET: serverUrl,
+    VITE_AWL_SERVER_URL: serverUrl,
+  };
+  const server = spawnManaged(pnpm, ["--filter", "@agent-workloops/server", "dev"], stackEnv);
+  const web = spawnManaged(pnpm, ["--filter", "@agent-workloops/web", "dev"], stackEnv);
 
   console.log("Agent Workloops dev stack:");
-  console.log("  API: http://127.0.0.1:3210");
-  console.log("  UI:  http://127.0.0.1:5173");
+  console.log(`  API: ${serverUrl}`);
+  console.log(`  UI:  ${webUrl}`);
 
   exitWhenAnyChildExits([server, web]);
 }
@@ -41,10 +53,53 @@ async function runStart() {
 
   const webDistDir = path.join(root, "apps", "web", "dist");
   const serverEntry = path.join(root, "packages", "server", "dist", "index.js");
+  const serverPort = await resolveServerPort();
+  const serverUrl = resolveServerUrl(serverPort);
   console.log("Agent Workloops hosted stack:");
-  console.log("  Server + UI: http://127.0.0.1:3210");
+  console.log(`  Server + UI: ${serverUrl}`);
   spawnManaged(node, [serverEntry], {
+    AWL_PORT: String(serverPort),
+    AWL_PUBLIC_BASE_URL: serverUrl,
     AWL_WEB_DIST_DIR: webDistDir,
+  });
+}
+
+async function resolveServerPort() {
+  const configured = process.env.AWL_PORT ?? process.env.DWL_PORT;
+  if (configured) {
+    return Number(configured);
+  }
+  return findAvailablePort(3210);
+}
+
+async function resolveWebPort() {
+  const configured = process.env.AWL_WEB_PORT ?? process.env.DWL_WEB_PORT;
+  if (configured) {
+    return Number(configured);
+  }
+  return findAvailablePort(5173);
+}
+
+function resolveServerUrl(port) {
+  return process.env.AWL_PUBLIC_BASE_URL ?? process.env.DWL_PUBLIC_BASE_URL ?? `http://127.0.0.1:${port}`;
+}
+
+async function findAvailablePort(startPort) {
+  for (let port = startPort; port < startPort + 100; port += 1) {
+    if (await canListen(port)) {
+      return port;
+    }
+  }
+  throw new Error(`No available port found from ${startPort} to ${startPort + 99}.`);
+}
+
+function canListen(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once("error", () => resolve(false));
+    server.listen({ host: "127.0.0.1", port }, () => {
+      server.close(() => resolve(true));
+    });
   });
 }
 

@@ -11,6 +11,8 @@ export function TokensPanel(props: {
   onCreate: () => void;
   createdToken: CreatedClientToken | null;
 }) {
+  const serverUrl = import.meta.env.VITE_AWL_SERVER_URL ?? window.location.origin;
+
   return (
     <Stack>
       <Alert icon={<Info size={16} />} title="Using tokens with the CLI" variant="light">
@@ -20,11 +22,11 @@ export function TokensPanel(props: {
           </Text>
           <Code block>
             # .env{"\n"}
-            AWL_SERVER=http://127.0.0.1:3210{"\n"}
+            AWL_SERVER={serverUrl}{"\n"}
             AWL_TOKEN=awl_client_...{"\n\n"}
             agent-workloops submit --file examples/workloop.json{"\n"}
             agent-workloops run-codex --workspace /path/to/repo{"\n\n"}
-            agent-workloops submit --server http://127.0.0.1:3210 --token awl_client_... --file examples/workloop.json
+            agent-workloops submit --server {serverUrl} --token awl_client_... --file examples/workloop.json
           </Code>
           <Text size="sm" c="dimmed">
             Use plans:submit for submitting plans. Use plans:claim and plans:complete for executor clients that claim, heartbeat, and complete plans.

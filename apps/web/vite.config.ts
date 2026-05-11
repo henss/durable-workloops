@@ -10,8 +10,9 @@ export default defineConfig({
     },
   },
   server: {
+    port: Number(process.env.AWL_WEB_PORT ?? 5173),
     proxy: {
-      "/api": "http://127.0.0.1:3210",
+      "/api": process.env.VITE_AWL_API_PROXY_TARGET ?? "http://127.0.0.1:3210",
     },
   },
 });

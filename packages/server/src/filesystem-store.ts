@@ -16,21 +16,17 @@ import {
   type UserRole,
   type WorkLoop,
 } from "@agent-workloops/api";
+import {
+  emptyAuthState,
+  hashToken,
+  makeUser,
+  newSecret,
+  verifySecret,
+  type AuthState,
+} from "./auth-utils.js";
 import type { AuthStore, PlanActor, PlanStore } from "./store.js";
 
-interface AuthFile {
-  users: Array<User & { passwordHash: string }>;
-  sessions: Array<{ id: string; userId: string; secretHash: string; createdAt: string }>;
-  tokens: Array<
-    PublicClientToken & {
-      userId: string;
-      secretHash: string;
-      scopes: ClientTokenScope[];
-    }
-  >;
-}
-
-const emptyAuthFile = (): AuthFile => ({ users: [], sessions: [], tokens: [] });
+type AuthFile = AuthState;
 
 export class FilesystemPlanStore implements PlanStore {
   private readonly plansDir: string;
@@ -529,7 +525,7 @@ export class FilesystemAuthStore implements AuthStore {
       throw error;
     });
     if (!raw) {
-      return emptyAuthFile();
+      return emptyAuthState();
     }
     const parsed = JSON.parse(raw) as AuthFile;
     return {
@@ -577,47 +573,3 @@ function assertLease(plan: PlanRecord, leaseId: string, clientTokenId: string): 
   }
 }
 
-async function makeUser(input: {
-  email: string;
-  password: string;
-  name?: string;
-  roles: UserRole[];
-}): Promise<User & { passwordHash: string }> {
-  const now = new Date().toISOString();
-  return {
-    id: crypto.randomUUID(),
-    email: input.email,
-    name: input.name,
-    roles: input.roles,
-    passwordHash: await hashSecret(input.password),
-    createdAt: now,
-    updatedAt: now,
-  };
-}
-
-function hashToken(secret: string): string {
-  return crypto.createHash("sha256").update(secret).digest("hex");
-}
-
-async function hashSecret(secret: string): Promise<string> {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = await new Promise<Buffer>((resolve, reject) => {
-    crypto.scrypt(secret, salt, 64, (error, key) => (error ? reject(error) : resolve(key)));
-  });
-  return `${salt}:${hash.toString("hex")}`;
-}
-
-async function verifySecret(secret: string, stored: string): Promise<boolean> {
-  const [salt, expected] = stored.split(":");
-  if (!salt || !expected) {
-    return false;
-  }
-  const actual = await new Promise<Buffer>((resolve, reject) => {
-    crypto.scrypt(secret, salt, 64, (error, key) => (error ? reject(error) : resolve(key)));
-  });
-  return crypto.timingSafeEqual(Buffer.from(expected, "hex"), actual);
-}
-
-function newSecret(prefix: string): string {
-  return `${prefix}_${crypto.randomUUID()}_${crypto.randomBytes(24).toString("base64url")}`;
-}

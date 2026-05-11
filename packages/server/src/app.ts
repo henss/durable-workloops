@@ -22,7 +22,7 @@ import Fastify, {
 import { z } from "zod";
 import type { ServerConfig } from "./config.js";
 import { FilesystemAuthStore, FilesystemPlanStore } from "./filesystem-store.js";
-import { createMongoPlanStore } from "./mongodb-store.js";
+import { createMongoAuthStore, createMongoPlanStore } from "./mongodb-store.js";
 import { createSqlPlanStore } from "./sql-store.js";
 import type { AuthStore, PlanStore } from "./store.js";
 
@@ -42,11 +42,18 @@ export interface BuildServerOptions {
 export async function buildServer(options: BuildServerOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   const planStore = options.planStore ?? (await createPlanStore(options.config));
-  const authStore = options.authStore ?? new FilesystemAuthStore(options.config.dataDir);
+  const authStore = options.authStore ?? (await createAuthStore(options.config));
 
   if (options.config.bootstrapAdmin) {
     await authStore.ensureBootstrapAdmin(options.config.bootstrapAdmin);
   }
+
+  app.addHook("onClose", async () => {
+    await closeStore(planStore);
+    if ((authStore as unknown) !== planStore) {
+      await closeStore(authStore);
+    }
+  });
 
   await app.register(cookie);
 
@@ -304,6 +311,13 @@ async function createPlanStore(config: ServerConfig): Promise<PlanStore> {
   return createMongoPlanStore(config);
 }
 
+async function createAuthStore(config: ServerConfig): Promise<AuthStore> {
+  if (config.persistence.kind === "mongodb") {
+    return createMongoAuthStore(config);
+  }
+  return new FilesystemAuthStore(config.dataDir);
+}
+
 async function authenticate(request: FastifyRequest, authStore: AuthStore): Promise<AuthContext | undefined> {
   const header = request.headers.authorization;
   if (header?.startsWith("Bearer ")) {
@@ -380,4 +394,15 @@ function requireScope(auth: AuthContext, scope: ClientTokenScope, reply: Fastify
 
 function hasRole(user: User, role: UserRole): boolean {
   return user.roles.includes(role);
+}
+
+async function closeStore(store: unknown): Promise<void> {
+  if (
+    typeof store === "object" &&
+    store !== null &&
+    "close" in store &&
+    typeof store.close === "function"
+  ) {
+    await store.close();
+  }
 }

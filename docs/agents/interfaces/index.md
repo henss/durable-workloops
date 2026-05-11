@@ -59,5 +59,6 @@ Generated index of visible `interface` entities.
 - [POST /api/v1/plans/:planId/complete](route.post.api-v1-plans-planid-complete.md) - `interface:route.post.api-v1-plans-planid-complete`: Discovered POST route in packages/server/src/app.ts.
 - [POST /api/v1/plans/:planId/heartbeat](route.post.api-v1-plans-planid-heartbeat.md) - `interface:route.post.api-v1-plans-planid-heartbeat`: Discovered POST route in packages/server/src/app.ts.
 - [POST /api/v1/plans/:planId/reject](route.post.api-v1-plans-planid-reject.md) - `interface:route.post.api-v1-plans-planid-reject`: Discovered POST route in packages/server/src/app.ts.
+- [POST /api/v1/plans/:planId/request-review](route.post.api-v1-plans-planid-request-review.md) - `interface:route.post.api-v1-plans-planid-request-review`: Discovered POST route in packages/server/src/app.ts.
 - [POST /api/v1/tokens](route.post.api-v1-tokens.md) - `interface:route.post.api-v1-tokens`: Discovered POST route in packages/server/src/app.ts.
 - [POST /api/v1/users](route.post.api-v1-users.md) - `interface:route.post.api-v1-users`: Discovered POST route in packages/server/src/app.ts.

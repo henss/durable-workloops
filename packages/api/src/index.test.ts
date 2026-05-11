@@ -4,6 +4,7 @@ import {
   CompletePlanRequestSchema,
   CreateClientTokenRequestSchema,
   PlanRecordSchema,
+  RequestReviewPlanRequestSchema,
   SubmitPlanRequestSchema,
 } from "./index.js";
 
@@ -32,6 +33,9 @@ describe("Agent Workloops API schemas", () => {
     expect(
       CompletePlanRequestSchema.parse({ leaseId: "lease-1", metadata: { ok: true } }),
     ).toMatchObject({ metadata: { ok: true } });
+    expect(RequestReviewPlanRequestSchema.parse({ reason: "Needs another look" })).toEqual({
+      reason: "Needs another look",
+    });
   });
 
   it("parses client token requests", () => {

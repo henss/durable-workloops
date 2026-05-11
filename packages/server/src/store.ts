@@ -27,6 +27,7 @@ export interface PlanStore {
   getPlan(planId: string): Promise<PlanRecord | undefined>;
   approvePlan(planId: string, actor: PlanActor, reason?: string): Promise<PlanRecord>;
   rejectPlan(planId: string, actor: PlanActor, reason?: string): Promise<PlanRecord>;
+  requestPlanReview(planId: string, actor: PlanActor, reason?: string): Promise<PlanRecord>;
   claimNextPlan(input: {
     clientTokenId: string;
     leaseTimeoutMs: number;

@@ -128,6 +128,27 @@ export class FilesystemPlanStore implements PlanStore {
     });
   }
 
+  async requestPlanReview(planId: string, actor: PlanActor, reason?: string): Promise<PlanRecord> {
+    return this.withLock(async () => {
+      const plan = await this.requirePlan(planId);
+      const updated = {
+        ...plan,
+        approvalRequired: true,
+        approvalStatus: "pending" as const,
+        updatedAt: new Date().toISOString(),
+      };
+      await this.writePlan(updated);
+      await this.appendAuditUnlocked({
+        planId,
+        actorUserId: actor.userId,
+        actorTokenId: actor.tokenId,
+        type: "request_review",
+        metadata: reason ? { reason } : {},
+      });
+      return updated;
+    });
+  }
+
   async claimNextPlan(input: {
     clientTokenId: string;
     leaseTimeoutMs: number;

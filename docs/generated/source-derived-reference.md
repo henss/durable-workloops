@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 96
+Generated entities: 97
 
 ## Commander
 
@@ -120,6 +120,7 @@ Generated entities: 96
 - `interface:route.post.api-v1-plans-planid-complete` - POST /api/v1/plans/:planId/complete: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-heartbeat` - POST /api/v1/plans/:planId/heartbeat: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-reject` - POST /api/v1/plans/:planId/reject: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-plans-planid-request-review` - POST /api/v1/plans/:planId/request-review: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-tokens` - POST /api/v1/tokens: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-users` - POST /api/v1/users: Discovered POST route in packages/server/src/app.ts.
 

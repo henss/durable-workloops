@@ -51,6 +51,7 @@ export function DashboardShell(props: {
   onDetail: (planId: string) => void;
   onApprove: (planId: string) => void;
   onReject: (planId: string) => void;
+  onRequestReview: (planId: string) => void;
   onCreateUser: () => void;
   onCreateToken: () => void;
 }) {
@@ -236,6 +237,8 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
         <PlanTable
           plans={props.buckets.claimable}
           onDetail={props.onDetail}
+          onReject={props.isReviewer ? props.onReject : undefined}
+          onRequestReview={props.isReviewer ? props.onRequestReview : undefined}
           emptyTitle="No claimable plans"
           emptyDescription="Approved or ungated plans ready for executors will appear here."
           emptyCheckedAt={props.lastRefreshedAt}

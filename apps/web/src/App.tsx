@@ -123,6 +123,11 @@ export function App() {
     await refresh();
   }
 
+  async function requestReview(planId: string) {
+    await api(`/api/v1/plans/${planId}/request-review`, { method: "POST", body: {} });
+    await refresh();
+  }
+
   async function createUser() {
     await api("/api/v1/users", {
       method: "POST",
@@ -201,6 +206,7 @@ export function App() {
         onDetail={showDetail}
         onApprove={approve}
         onReject={reject}
+        onRequestReview={requestReview}
         onCreateUser={createUser}
         onCreateToken={createToken}
       />

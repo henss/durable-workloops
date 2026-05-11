@@ -116,6 +116,7 @@ export const AuditEventTypeSchema = z.enum([
   "submit",
   "approve",
   "reject",
+  "request_review",
   "claim",
   "heartbeat",
   "complete",
@@ -180,6 +181,10 @@ export const ApprovePlanRequestSchema = z.object({
 });
 
 export const RejectPlanRequestSchema = z.object({
+  reason: z.string().min(1).optional(),
+});
+
+export const RequestReviewPlanRequestSchema = z.object({
   reason: z.string().min(1).optional(),
 });
 
@@ -311,6 +316,14 @@ export class AgentWorkloopsApiClient {
     const response = await this.request(`/api/v1/plans/${encodeURIComponent(planId)}/reject`, {
       method: "POST",
       body: JSON.stringify(RejectPlanRequestSchema.parse({ reason })),
+    });
+    return PlanRecordSchema.parse(await response.json());
+  }
+
+  async requestPlanReview(planId: string, reason?: string): Promise<PlanRecord> {
+    const response = await this.request(`/api/v1/plans/${encodeURIComponent(planId)}/request-review`, {
+      method: "POST",
+      body: JSON.stringify(RequestReviewPlanRequestSchema.parse({ reason })),
     });
     return PlanRecordSchema.parse(await response.json());
   }

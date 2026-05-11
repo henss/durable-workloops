@@ -104,6 +104,35 @@ describe("Agent Workloops server", () => {
     expect(approved.statusCode).toBe(200);
     expect(approved.json<{ approvalStatus: string }>().approvalStatus).toBe("approved");
 
+    const reviewRequested = await app.inject({
+      method: "POST",
+      url: `/api/v1/plans/${planId}/request-review`,
+      cookies: { awl_session: cookie ?? "" },
+      payload: { reason: "Needs manual review" },
+    });
+    expect(reviewRequested.statusCode).toBe(200);
+    expect(reviewRequested.json<{ approvalRequired: boolean; approvalStatus: string }>()).toMatchObject({
+      approvalRequired: true,
+      approvalStatus: "pending",
+    });
+
+    const claimAfterReviewRequest = await app.inject({
+      method: "POST",
+      url: "/api/v1/plans/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: {},
+    });
+    expect(claimAfterReviewRequest.statusCode).toBe(200);
+    expect(claimAfterReviewRequest.json()).toEqual({});
+
+    const approvedAgain = await app.inject({
+      method: "POST",
+      url: `/api/v1/plans/${planId}/approve`,
+      cookies: { awl_session: cookie ?? "" },
+      payload: { reason: "Reviewed" },
+    });
+    expect(approvedAgain.statusCode).toBe(200);
+
     const claim = await app.inject({
       method: "POST",
       url: "/api/v1/plans/claim",

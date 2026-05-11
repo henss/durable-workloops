@@ -1,5 +1,5 @@
 import { Button, Code, Group, Table, Text } from "@mantine/core";
-import { Check, X } from "lucide-react";
+import { Check, RotateCcw, X } from "lucide-react";
 import type { PlanRecord } from "@agent-workloops/api";
 import { EmptyState } from "../../components/EmptyState.js";
 import { ApprovalBadge, StatusBadge } from "../../components/PlanBadges.js";
@@ -9,6 +9,7 @@ export function PlanTable(props: {
   onDetail: (planId: string) => void;
   onApprove?: (planId: string) => void;
   onReject?: (planId: string) => void;
+  onRequestReview?: (planId: string) => void;
   emptyTitle: string;
   emptyDescription: string;
   emptyCheckedAt?: Date | null;
@@ -58,6 +59,7 @@ export function PlanTable(props: {
                 <Group gap="xs" justify="flex-end" wrap="nowrap">
                   {props.onApprove ? <Button size="xs" variant="gradient" leftSection={<Check size={14} />} onClick={() => props.onApprove?.(plan.id)}>Approve</Button> : null}
                   {props.onReject ? <Button size="xs" variant="light" color="red" leftSection={<X size={14} />} onClick={() => props.onReject?.(plan.id)}>Reject</Button> : null}
+                  {props.onRequestReview ? <Button size="xs" variant="light" color="yellow" leftSection={<RotateCcw size={14} />} onClick={() => props.onRequestReview?.(plan.id)}>Manual review</Button> : null}
                   <Button size="xs" variant="default" onClick={() => props.onDetail(plan.id)}>Open</Button>
                 </Group>
               </Table.Td>

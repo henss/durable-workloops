@@ -9,6 +9,7 @@ import {
   CreateUserRequestSchema,
   LoginRequestSchema,
   RejectPlanRequestSchema,
+  RequestReviewPlanRequestSchema,
   SubmitPlanRequestSchema,
   type ClientTokenScope,
   type User,
@@ -242,6 +243,16 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     const params = z.object({ planId: z.string().min(1) }).parse(request.params);
     const body = RejectPlanRequestSchema.parse(request.body ?? {});
     return planStore.rejectPlan(params.planId, { userId: auth.userId, tokenId: auth.tokenId }, body.reason);
+  });
+
+  app.post("/api/v1/plans/:planId/request-review", async (request, reply) => {
+    const auth = await requireRoles(request, reply, authStore, ["admin", "reviewer"]);
+    if (!auth) {
+      return;
+    }
+    const params = z.object({ planId: z.string().min(1) }).parse(request.params);
+    const body = RequestReviewPlanRequestSchema.parse(request.body ?? {});
+    return planStore.requestPlanReview(params.planId, { userId: auth.userId, tokenId: auth.tokenId }, body.reason);
   });
 
   app.post("/api/v1/plans/claim", async (request, reply) => {

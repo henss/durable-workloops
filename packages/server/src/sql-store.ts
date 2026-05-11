@@ -116,6 +116,15 @@ export class SqlPlanStore implements PlanStore {
     }));
   }
 
+  async requestPlanReview(planId: string, actor: { userId?: string; tokenId?: string }, reason?: string): Promise<PlanRecord> {
+    return this.updatePlan(planId, actor, "request_review", reason ? { reason } : {}, (plan) => ({
+      ...plan,
+      approvalRequired: true,
+      approvalStatus: "pending",
+      updatedAt: new Date().toISOString(),
+    }));
+  }
+
   async claimNextPlan(input: {
     clientTokenId: string;
     leaseTimeoutMs: number;

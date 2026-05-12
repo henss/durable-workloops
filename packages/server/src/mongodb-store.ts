@@ -391,9 +391,10 @@ export class MongoAuthStore implements AuthStore {
     return UserSchema.parse(user);
   }
 
-  async createSession(userId: string): Promise<string> {
+  async createSession(userId: string, options: { ttlMs?: number } = {}): Promise<string> {
     const secret = newSecret("awl_session");
-    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    const now = new Date(nowMs).toISOString();
     const id = crypto.randomUUID();
     await this.sessions.insertOne({
       _id: id,
@@ -401,6 +402,7 @@ export class MongoAuthStore implements AuthStore {
       userId,
       secretHash: hashToken(secret),
       createdAt: now,
+      expiresAt: options.ttlMs ? new Date(nowMs + options.ttlMs).toISOString() : undefined,
     });
     return secret;
   }
@@ -408,6 +410,10 @@ export class MongoAuthStore implements AuthStore {
   async getSession(secret: string): Promise<User | undefined> {
     const session = await this.sessions.findOne({ secretHash: hashToken(secret) });
     if (!session) {
+      return undefined;
+    }
+    if (session.expiresAt && new Date(session.expiresAt) <= new Date()) {
+      await this.sessions.deleteOne({ _id: session._id });
       return undefined;
     }
     const user = await this.users.findOne({ _id: session.userId, disabledAt: { $exists: false } });

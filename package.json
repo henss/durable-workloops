@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Portable durable work-loop schemas and state transitions for agent workflows.",
   "type": "module",
+  "packageManager": "pnpm@10.32.1",
   "private": false,
   "license": "MIT",
   "homepage": "https://github.com/henss/agent-workloops#readme",

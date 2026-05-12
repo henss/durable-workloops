@@ -197,14 +197,63 @@ describe("Agent Workloops server", () => {
     );
   });
 
-  function config(input: { forceApprovalRequired?: boolean; lockTimeoutMs?: number } = {}): ServerConfig {
+  it("sets production session cookie attributes when configured", async () => {
+    const app = await buildServer({
+      config: config({ cookieSecure: true, sessionTtlMs: 60_000, trustProxy: true }),
+    });
+
+    const login = await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/login",
+      payload: { email: "admin@example.com", password: "password123" },
+    });
+
+    expect(login.statusCode).toBe(200);
+    const setCookie = login.headers["set-cookie"];
+    expect(String(setCookie)).toContain("HttpOnly");
+    expect(String(setCookie)).toContain("Secure");
+    expect(String(setCookie)).toContain("SameSite=Lax");
+    expect(String(setCookie)).toContain("Max-Age=60");
+  });
+
+  it("expires sessions after the configured TTL", async () => {
+    const app = await buildServer({ config: config({ sessionTtlMs: 1 }) });
+    const login = await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/login",
+      payload: { email: "admin@example.com", password: "password123" },
+    });
+    const cookie = login.cookies[0]?.value;
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    const me = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/me",
+      cookies: { awl_session: cookie ?? "" },
+    });
+    expect(me.statusCode).toBe(401);
+  });
+
+  function config(
+    input: {
+      forceApprovalRequired?: boolean;
+      lockTimeoutMs?: number;
+      cookieSecure?: boolean;
+      sessionTtlMs?: number;
+      trustProxy?: boolean;
+    } = {},
+  ): ServerConfig {
     return {
       host: "127.0.0.1",
       port: 3210,
       publicBaseUrl: "http://127.0.0.1:3210",
+      trustProxy: input.trustProxy ?? false,
       dataDir,
       approval: { forceRequired: input.forceApprovalRequired ?? false },
       locks: { timeoutMs: input.lockTimeoutMs ?? 1000 },
+      cookies: { secure: input.cookieSecure ?? false, sameSite: "lax" },
+      session: { ttlMs: input.sessionTtlMs },
       persistence: { kind: "filesystem" },
       bootstrapAdmin: {
         email: "admin@example.com",

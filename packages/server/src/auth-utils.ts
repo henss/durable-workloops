@@ -15,6 +15,7 @@ export interface StoredSession {
   userId: string;
   secretHash: string;
   createdAt: string;
+  expiresAt?: string;
 }
 
 export interface StoredClientToken extends PublicClientToken {

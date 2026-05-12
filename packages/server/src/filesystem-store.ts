@@ -425,15 +425,17 @@ export class FilesystemAuthStore implements AuthStore {
     return UserSchema.parse(user);
   }
 
-  async createSession(userId: string): Promise<string> {
+  async createSession(userId: string, options: { ttlMs?: number } = {}): Promise<string> {
     return this.withLock(async () => {
       const auth = await this.readAuth();
       const secret = newSecret("awl_session");
+      const now = Date.now();
       auth.sessions.push({
         id: crypto.randomUUID(),
         userId,
         secretHash: hashToken(secret),
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(now).toISOString(),
+        expiresAt: options.ttlMs ? new Date(now + options.ttlMs).toISOString() : undefined,
       });
       await this.writeAuth(auth);
       return secret;
@@ -443,6 +445,10 @@ export class FilesystemAuthStore implements AuthStore {
   async getSession(secret: string): Promise<User | undefined> {
     const auth = await this.readAuth();
     const session = auth.sessions.find((candidate) => candidate.secretHash === hashToken(secret));
+    if (session?.expiresAt && new Date(session.expiresAt) <= new Date()) {
+      await this.revokeSession(secret);
+      return undefined;
+    }
     const user = session
       ? auth.users.find((candidate) => candidate.id === session.userId && !candidate.disabledAt)
       : undefined;

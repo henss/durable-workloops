@@ -1,0 +1,15 @@
+.git
+.agent-atlas
+.runtime
+.codex
+node_modules
+**/node_modules
+dist
+**/dist
+coverage
+test-results
+.env
+.env.*
+!.env.example
+npm-debug.log*
+pnpm-debug.log*

@@ -19,6 +19,26 @@ Host systems can either embed the root package directly or run the optional serv
 
 The filesystem store is the default single-server persistence path. SQL/Supabase and MongoDB are represented as provider seams so downstream deployments can add concrete adapters without changing the API, UI, or CLI contracts.
 
+## Hosted Production Container
+
+The repository includes a generic production `Dockerfile` for self-hosting the optional server and web UI. The image builds the workspace, serves `apps/web/dist` through the Fastify server, and listens on `AWL_PORT`.
+
+Production deployments should set:
+
+- `AWL_HOST=0.0.0.0`
+- `AWL_PORT=3210`
+- `AWL_PUBLIC_BASE_URL=https://your-internal-host.example.com`
+- `AWL_WEB_DIST_DIR=/app/apps/web/dist`
+- `AWL_PERSISTENCE_KIND=mongodb`
+- `AWL_MONGODB_CONNECTION_STRING=<secret>`
+- `AWL_MONGODB_DATABASE=agent_workloops`
+- `AWL_FORCE_APPROVAL_REQUIRED=true`
+- `AWL_COOKIE_SECURE=true`
+- `AWL_TRUST_PROXY=true`
+- `AWL_SESSION_TTL_MS=<milliseconds>` when browser sessions should expire automatically
+
+Keep deployment-specific domains, cloud resource names, subscriptions, and secret references in the downstream infrastructure repository, not in this public package.
+
 ## Portfolio Adoption
 
 Portfolio repos should use this package as the shared public core for long-running, multi-step, or commit-per-increment agent work when their local guidance or capability routing adopts it. Adoption friction is product evidence for this package: if a generic contract, receipt, recovery path, prompt envelope, or documentation surface is missing or confusing, fix it here when the improvement is public-safe. Keep repo-specific policy, tracker integration, private launch orchestration, and project state in downstream adapters.

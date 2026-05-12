@@ -65,7 +65,7 @@ export interface AuthStore {
   listUsers(): Promise<User[]>;
   getUser(userId: string): Promise<User | undefined>;
   verifyPassword(email: string, password: string): Promise<User | undefined>;
-  createSession(userId: string): Promise<string>;
+  createSession(userId: string, options?: { ttlMs?: number }): Promise<string>;
   getSession(secret: string): Promise<User | undefined>;
   revokeSession(secret: string): Promise<void>;
   createClientToken(input: {

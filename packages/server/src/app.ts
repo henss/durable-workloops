@@ -41,7 +41,7 @@ export interface BuildServerOptions {
 }
 
 export async function buildServer(options: BuildServerOptions): Promise<FastifyInstance> {
-  const app = Fastify({ logger: false });
+  const app = Fastify({ logger: false, trustProxy: options.config.trustProxy });
   const planStore = options.planStore ?? (await createPlanStore(options.config));
   const authStore = options.authStore ?? (await createAuthStore(options.config));
 
@@ -88,21 +88,17 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     if (!user) {
       return reply.code(401).send({ error: "Invalid credentials." });
     }
-    const session = await authStore.createSession(user.id);
-    reply.setCookie("awl_session", session, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-    });
+    const session = await authStore.createSession(user.id, options.config.session);
+    reply.setCookie("awl_session", session, sessionCookieOptions(options.config));
     return { user };
   });
 
-  app.post("/api/v1/auth/logout", async (request) => {
+  app.post("/api/v1/auth/logout", async (request, reply) => {
     const session = request.cookies.awl_session ?? request.cookies.dwl_session;
     if (session) {
       await authStore.revokeSession(session);
     }
+    reply.clearCookie("awl_session", clearSessionCookieOptions(options.config));
     return { ok: true };
   });
 
@@ -405,6 +401,24 @@ function requireScope(auth: AuthContext, scope: ClientTokenScope, reply: Fastify
 
 function hasRole(user: User, role: UserRole): boolean {
   return user.roles.includes(role);
+}
+
+function sessionCookieOptions(config: ServerConfig): Parameters<FastifyReply["setCookie"]>[2] {
+  return {
+    httpOnly: true,
+    sameSite: config.cookies.sameSite,
+    secure: config.cookies.secure,
+    path: "/",
+    maxAge: config.session.ttlMs ? Math.floor(config.session.ttlMs / 1000) : undefined,
+  };
+}
+
+function clearSessionCookieOptions(config: ServerConfig): Parameters<FastifyReply["clearCookie"]>[1] {
+  return {
+    sameSite: config.cookies.sameSite,
+    secure: config.cookies.secure,
+    path: "/",
+  };
 }
 
 async function closeStore(store: unknown): Promise<void> {

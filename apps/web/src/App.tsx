@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import type { AuthSetupStatus, CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
+import type { AuthSetupStatus, CreatedClientToken, PlanRecord, PublicClientToken, SubmitPlanRequest, User } from "@agent-workloops/api";
 import { api } from "./api/client.js";
 import { AuthShell } from "./features/auth/AuthShell.js";
 import { LoginForm } from "./features/auth/LoginForm.js";
@@ -9,6 +9,7 @@ import { SetupRequired } from "./features/auth/SetupRequired.js";
 import { DashboardShell } from "./features/dashboard/DashboardShell.js";
 import { DemoDashboard } from "./features/demo/DemoDashboard.js";
 import { readDemoRoute } from "./features/demo/demoRoute.js";
+import { parseManualPlanSubmission } from "./features/plans/manualPlan.js";
 import { PlanDetailModal } from "./features/plans/PlanDetail.js";
 import { bucketPlans } from "./plans.js";
 import type { DashboardTab, PlanDetailRecord, Session } from "./types.js";
@@ -43,8 +44,12 @@ function LiveApp() {
   const [login, setLogin] = useState({ email: "", password: "" });
   const [bootstrapForm, setBootstrapForm] = useState({ email: "", password: "", name: "" });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [planSubmitError, setPlanSubmitError] = useState<string | null>(null);
   const [userForm, setUserForm] = useState({ email: "", password: "", name: "", role: "user" });
   const [tokenForm, setTokenForm] = useState({ name: "", scopes: ["plans:claim", "plans:complete"] });
+  const [newPlanDraft, setNewPlanDraft] = useState("");
+  const [newPlanApprovalRequired, setNewPlanApprovalRequired] = useState(true);
+  const [isSubmittingPlan, setIsSubmittingPlan] = useState(false);
   const [opened, modal] = useDisclosure(false);
   const buckets = useMemo(() => bucketPlans(plans), [plans]);
   const isAdmin = session?.user.roles.includes("admin") ?? false;
@@ -169,6 +174,22 @@ function LiveApp() {
     await refresh();
   }
 
+  async function submitManualPlan() {
+    setIsSubmittingPlan(true);
+    setPlanSubmitError(null);
+    try {
+      const body: SubmitPlanRequest = parseManualPlanSubmission(newPlanDraft, newPlanApprovalRequired);
+      await api("/api/v1/plans", { method: "POST", body });
+      setNewPlanDraft("");
+      setActiveTab(body.approvalRequired ? "pending" : "claimable");
+      await refresh();
+    } catch (error) {
+      setPlanSubmitError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setIsSubmittingPlan(false);
+    }
+  }
+
   if (!setupStatus) {
     return (
       <AuthShell>
@@ -218,6 +239,12 @@ function LiveApp() {
         setUserForm={setUserForm}
         tokenForm={tokenForm}
         setTokenForm={setTokenForm}
+        newPlanDraft={newPlanDraft}
+        setNewPlanDraft={setNewPlanDraft}
+        newPlanApprovalRequired={newPlanApprovalRequired}
+        setNewPlanApprovalRequired={setNewPlanApprovalRequired}
+        planSubmitError={planSubmitError}
+        isSubmittingPlan={isSubmittingPlan}
         onRefresh={refresh}
         onSignOut={signOut}
         onDetail={showDetail}
@@ -226,6 +253,7 @@ function LiveApp() {
         onRequestReview={requestReview}
         onCreateUser={createUser}
         onCreateToken={createToken}
+        onSubmitPlan={submitManualPlan}
       />
       <PlanDetailModal opened={opened} onClose={modal.close} detail={detail} />
     </>

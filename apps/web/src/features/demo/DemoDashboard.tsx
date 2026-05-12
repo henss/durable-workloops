@@ -29,6 +29,8 @@ export function DemoDashboard({
     name: "Temporary executor",
     scopes: ["plans:claim", "plans:complete"],
   });
+  const [newPlanDraft, setNewPlanDraft] = useState("");
+  const [newPlanApprovalRequired, setNewPlanApprovalRequired] = useState(true);
 
   function showDetail(planId: string) {
     const nextDetail = createDemoDetail(planId);
@@ -58,6 +60,12 @@ export function DemoDashboard({
         setUserForm={setUserForm}
         tokenForm={tokenForm}
         setTokenForm={setTokenForm}
+        newPlanDraft={newPlanDraft}
+        setNewPlanDraft={setNewPlanDraft}
+        newPlanApprovalRequired={newPlanApprovalRequired}
+        setNewPlanApprovalRequired={setNewPlanApprovalRequired}
+        planSubmitError={null}
+        isSubmittingPlan={false}
         onRefresh={() => undefined}
         onSignOut={() => undefined}
         onDetail={showDetail}
@@ -66,6 +74,7 @@ export function DemoDashboard({
         onRequestReview={() => undefined}
         onCreateUser={() => undefined}
         onCreateToken={() => undefined}
+        onSubmitPlan={() => undefined}
       />
       <PlanDetailModal opened={opened} onClose={modal.close} detail={detail} initialTab={initialDetailTab} />
     </>

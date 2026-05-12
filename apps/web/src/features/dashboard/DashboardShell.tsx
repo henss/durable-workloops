@@ -24,6 +24,7 @@ import { MetricCard } from "../../components/MetricCard.js";
 import { PageSection } from "../../components/PageSection.js";
 import { appBackground, appCssVariables, shellPanelBackground, subtleBorder, themeTokens } from "../../components/themeSurfaces.js";
 import { PlanTable } from "../plans/PlanTable.js";
+import { NewPlanPanel } from "../plans/NewPlanPanel.js";
 import { TokensPanel } from "../tokens/TokensPanel.js";
 import { UsersPanel } from "../users/UsersPanel.js";
 import { getDashboardTabs } from "./dashboardTabs.js";
@@ -46,6 +47,12 @@ export function DashboardShell(props: {
   setUserForm: (form: { email: string; password: string; name: string; role: string }) => void;
   tokenForm: { name: string; scopes: string[] };
   setTokenForm: (form: { name: string; scopes: string[] }) => void;
+  newPlanDraft: string;
+  setNewPlanDraft: (draft: string) => void;
+  newPlanApprovalRequired: boolean;
+  setNewPlanApprovalRequired: (value: boolean) => void;
+  planSubmitError: string | null;
+  isSubmittingPlan: boolean;
   onRefresh: () => void;
   onSignOut: () => void;
   onDetail: (planId: string) => void;
@@ -54,6 +61,7 @@ export function DashboardShell(props: {
   onRequestReview: (planId: string) => void;
   onCreateUser: () => void;
   onCreateToken: () => void;
+  onSubmitPlan: () => void;
 }) {
   const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
   const tokens = themeTokens(computedColorScheme);
@@ -62,6 +70,7 @@ export function DashboardShell(props: {
     claimable: props.buckets.claimable.length,
     locked: props.buckets.locked.length,
     archive: props.archive.length,
+    "new-plan": 0,
     users: props.users.length,
     tokens: props.tokens.length,
   });
@@ -141,8 +150,13 @@ export function DashboardShell(props: {
                 <DashboardNavLink key={tab.value} tab={tab} activeTab={props.activeTab} onSelect={props.setActiveTab} />
               ))}
             </SidebarGroup>
+            <SidebarGroup label="Authoring">
+              {tabs.filter((tab) => tab.value === "new-plan").map((tab) => (
+                <DashboardNavLink key={tab.value} tab={tab} activeTab={props.activeTab} onSelect={props.setActiveTab} />
+              ))}
+            </SidebarGroup>
             <SidebarGroup label="Administration">
-              {tabs.filter((tab) => !isQueueTab(tab.value)).map((tab) => (
+              {tabs.filter((tab) => !isQueueTab(tab.value) && tab.value !== "new-plan").map((tab) => (
                 <DashboardNavLink
                   key={tab.value}
                   tab={tab}
@@ -297,6 +311,19 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           onRefresh={props.onRefresh}
         />
       </PageSection>
+    );
+  }
+  if (props.activeTab === "new-plan") {
+    return (
+      <NewPlanPanel
+        draft={props.newPlanDraft}
+        approvalRequired={props.newPlanApprovalRequired}
+        errorMessage={props.planSubmitError}
+        isSubmitting={props.isSubmittingPlan}
+        onDraftChange={props.setNewPlanDraft}
+        onApprovalRequiredChange={props.setNewPlanApprovalRequired}
+        onSubmit={props.onSubmitPlan}
+      />
     );
   }
   if (props.activeTab === "users") {

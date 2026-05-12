@@ -7,7 +7,7 @@ export interface DemoRouteState {
   detailTab?: "overview" | "slices" | "policies" | "raw";
 }
 
-const dashboardTabs: DashboardTab[] = ["pending", "claimable", "locked", "archive", "users", "tokens"];
+const dashboardTabs: DashboardTab[] = ["pending", "claimable", "locked", "archive", "new-plan", "users", "tokens"];
 const detailTabs = ["overview", "slices", "policies", "raw"];
 
 export function readDemoRoute(search = globalThis.location?.search ?? ""): DemoRouteState {

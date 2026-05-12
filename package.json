@@ -39,6 +39,10 @@
       "types": "./dist/launcher.d.ts",
       "import": "./dist/launcher.js"
     },
+    "./planning": {
+      "types": "./dist/planning.d.ts",
+      "import": "./dist/planning.js"
+    },
     "./ai-quality-loops": {
       "types": "./dist/ai-quality-loops.d.ts",
       "import": "./dist/ai-quality-loops.js"

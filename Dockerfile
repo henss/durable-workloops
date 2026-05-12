@@ -3,13 +3,13 @@ FROM node:22-bookworm-slim AS build
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json tsconfig.build.json ./
+COPY package.json pnpm-workspace.yaml tsconfig.json tsconfig.build.json ./
 COPY apps/web/package.json apps/web/package.json
 COPY packages/api/package.json packages/api/package.json
 COPY packages/cli/package.json packages/cli/package.json
 COPY packages/server/package.json packages/server/package.json
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 COPY . .
 RUN pnpm build:all
@@ -24,11 +24,11 @@ ENV AWL_WEB_DIST_DIR=/app/apps/web/dist
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml ./
 COPY packages/api/package.json packages/api/package.json
 COPY packages/server/package.json packages/server/package.json
 
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN pnpm install --prod --no-frozen-lockfile --ignore-scripts
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/packages/api/dist ./packages/api/dist

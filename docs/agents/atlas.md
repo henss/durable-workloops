@@ -65,10 +65,10 @@ Profile: `public`
 - `component:package.agent-workloops-server.dependencies` (component) - @agent-workloops/server dependency surface: Workspace dependency relations for @agent-workloops/server.
 - `component:package.agent-workloops-web` (component) - @agent-workloops/web: Package manifest at apps/web/package.json.
 - `component:package.agent-workloops-web.dependencies` (component) - @agent-workloops/web dependency surface: Workspace dependency relations for @agent-workloops/web.
+- `component:workloop-review` (component) - WorkLoop Review: Provider-agnostic helpers for resolving review policy and evaluating final WorkLoop closeout from latest slice-review evidence.
 - `document:agent-instructions` (document) - Agent Instructions: Repo-local instructions for agents working in agent-workloops.
 - `document:generated.agents` (document) - AGENTS.md: Markdown document at AGENTS.md.
 - `document:generated.codex-portfolio-guidance` (document) - Local Agent Guidance: Markdown document at .codex/portfolio-guidance.md.
 - `document:generated.contributing` (document) - Contributing To agent-workloops: Markdown document at CONTRIBUTING.md.
 - `document:generated.docs-index` (document) - Agent Workloops: Markdown document at docs/index.md.
 - `document:generated.examples-readme` (document) - Synthetic Examples For agent-workloops: Markdown document at examples/README.md.
-- `document:generated.github-copilot-instructions` (document) - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md.

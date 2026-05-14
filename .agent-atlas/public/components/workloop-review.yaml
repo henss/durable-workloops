@@ -1,0 +1,15 @@
+id: component:workloop-review
+kind: component
+title: WorkLoop Review
+summary: Provider-agnostic helpers for resolving review policy and evaluating final WorkLoop closeout from latest slice-review evidence.
+visibility: public
+code:
+  paths:
+    - src/review.ts
+  entrypoints:
+    - src/review.ts
+relations:
+  - type: uses
+    target: component:workloop-schema
+  - type: tested-by
+    target: test-scope:review-tests

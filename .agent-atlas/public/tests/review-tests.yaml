@@ -1,0 +1,12 @@
+id: test-scope:review-tests
+kind: test-scope
+title: Review Tests
+summary: Verifies review-policy resolution, slice-review identity, and final-review closeout semantics.
+visibility: public
+commands:
+  - command: pnpm exec vitest run src/review.test.ts
+    cwd: .
+    purpose: Verify provider-agnostic WorkLoop review helpers.
+relations:
+  - type: verifies
+    target: component:workloop-review

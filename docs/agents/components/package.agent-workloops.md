@@ -19,7 +19,7 @@ Portable durable work-loop schemas and state transitions for agent workflows.
 
 - root: `.`
 - manifest: `package.json`
-- exports: `.`, `./adjudication`, `./ai-quality-loops`, `./launcher`, `./planning`, `./schema`, `./selection`
+- exports: `.`, `./adjudication`, `./ai-quality-loops`, `./launcher`, `./planning`, `./review`, `./schema`, `./selection`
 
 ### Scripts
 

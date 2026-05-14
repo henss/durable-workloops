@@ -22,5 +22,6 @@ Generated index of visible `component` entities.
 - [@agent-workloops/web dependency surface](package.agent-workloops-web.dependencies.md) - `component:package.agent-workloops-web.dependencies`: Workspace dependency relations for @agent-workloops/web.
 - [WorkLoop Adjudication](workloop-adjudication.md) - `component:workloop-adjudication`: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
 - [WorkLoop Codex Launcher](workloop-codex-launcher.md) - `component:workloop-codex-launcher`: Generic Codex execution envelope for durable WorkLoop slices, including bounded prompts, fresh or same-session launch records, and required outcome paths.
+- [WorkLoop Review](workloop-review.md) - `component:workloop-review`: Provider-agnostic helpers for resolving review policy and evaluating final WorkLoop closeout from latest slice-review evidence.
 - [WorkLoop Schema](workloop-schema.md) - `component:workloop-schema`: Zod schemas and TypeScript types for durable loops, slices, policies, decisions, and current-state envelopes.
 - [WorkLoop Selection](workloop-selection.md) - `component:workloop-selection`: Pure helpers for choosing the next executable slice, finding active work, and incrementing slice attempts.

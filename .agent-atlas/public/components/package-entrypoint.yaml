@@ -16,3 +16,5 @@ relations:
     target: component:workloop-selection
   - type: uses
     target: component:workloop-adjudication
+  - type: uses
+    target: component:workloop-review

@@ -23,5 +23,6 @@ Aggregate public exports for the agent-workloops package.
 ### `uses`
 
 - `component:workloop-adjudication`
+- `component:workloop-review`
 - `component:workloop-schema`
 - `component:workloop-selection`

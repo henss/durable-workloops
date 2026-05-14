@@ -43,6 +43,10 @@
       "types": "./dist/planning.d.ts",
       "import": "./dist/planning.js"
     },
+    "./review": {
+      "types": "./dist/review.d.ts",
+      "import": "./dist/review.js"
+    },
     "./ai-quality-loops": {
       "types": "./dist/ai-quality-loops.d.ts",
       "import": "./dist/ai-quality-loops.js"

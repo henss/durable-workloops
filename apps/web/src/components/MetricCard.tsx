@@ -15,6 +15,8 @@ export function MetricCard(props: {
   icon: React.ReactNode;
   color: keyof typeof statusColors;
   active?: boolean;
+  ariaLabel?: string;
+  dataTestId?: string;
   onClick?: () => void;
 }) {
   const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: false });
@@ -24,7 +26,8 @@ export function MetricCard(props: {
     <UnstyledButton
       className="aw-status-card-button"
       data-active={props.active}
-      aria-label={`Show ${props.label.toLowerCase()} queue`}
+      data-testid={props.dataTestId}
+      aria-label={props.ariaLabel ?? `Show ${props.label.toLowerCase()} queue`}
       onClick={props.onClick}
     >
       <Paper

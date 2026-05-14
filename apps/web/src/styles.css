@@ -53,8 +53,120 @@
   border: 1px solid color-mix(in srgb, var(--aw-accent) 20%, var(--aw-border));
 }
 
+.aw-lifecycle-panel {
+  position: relative;
+  overflow: visible;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--aw-accent-muted) 28%, transparent), transparent 42%),
+    linear-gradient(180deg, var(--aw-surface-elevated), var(--aw-surface));
+}
+
+.aw-lifecycle-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--aw-accent), var(--aw-accent-2));
+  pointer-events: none;
+}
+
+.aw-lifecycle-header {
+  position: relative;
+  padding: 2px 4px 0;
+}
+
+.aw-lifecycle-details {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 auto;
+}
+
+.aw-lifecycle-summary {
+  display: block;
+  color: var(--aw-accent);
+  cursor: pointer;
+  list-style: none;
+}
+
+.aw-lifecycle-summary::-webkit-details-marker {
+  display: none;
+}
+
+.aw-lifecycle-summary:hover {
+  color: var(--aw-accent-2);
+}
+
+.aw-lifecycle-popover {
+  position: absolute;
+  top: 26px;
+  right: 0;
+  width: min(700px, calc(100vw - 72px));
+  border: 1px solid var(--aw-border);
+  border-radius: 8px;
+  background: var(--aw-surface-elevated);
+  box-shadow: var(--aw-shadow-hover);
+}
+
+.aw-lifecycle-strip {
+  width: 100%;
+  padding: 2px;
+  overflow-x: auto;
+}
+
+.aw-lifecycle-step-wrap {
+  flex: 0 0 auto;
+}
+
+.aw-lifecycle-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--aw-border-subtle);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--aw-surface-elevated) 80%, transparent);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  white-space: nowrap;
+}
+
+.aw-lifecycle-step[data-active="true"] {
+  border-color: color-mix(in srgb, var(--aw-accent) 48%, var(--aw-border));
+  background: color-mix(in srgb, var(--aw-accent-muted) 52%, var(--aw-surface-elevated));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aw-accent) 18%, transparent);
+}
+
+.aw-lifecycle-step-label {
+  line-height: 1;
+}
+
+.aw-lifecycle-current-badge {
+  border: 1px solid color-mix(in srgb, var(--aw-accent) 24%, var(--aw-border));
+}
+
+.aw-lifecycle-arrow {
+  margin: 0 5px;
+  color: var(--aw-text-muted);
+  flex: 0 0 auto;
+}
+
+.aw-concept-item {
+  min-width: 0;
+}
+
 .aw-plan-table {
   table-layout: fixed;
+}
+
+.aw-column-header {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aw-column-header[data-align="right"] {
+  align-items: flex-end;
 }
 
 .aw-actions-header {
@@ -62,11 +174,11 @@
 }
 
 .aw-actions-cell {
-  width: 154px;
+  width: 164px;
 }
 
 .aw-actions-group {
-  min-width: 132px;
+  min-width: 146px;
 }
 
 .aw-nowrap {
@@ -95,6 +207,18 @@
   max-height: 220px;
   overflow: auto;
   white-space: pre-wrap;
+}
+
+.aw-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .aw-plan-detail-modal-content {

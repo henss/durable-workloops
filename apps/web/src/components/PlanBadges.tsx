@@ -1,34 +1,35 @@
 import { Badge } from "@mantine/core";
 import type { PlanRecord } from "@agent-workloops/api";
+import { getApprovalPresentation, getPlanStatusPresentation } from "../features/dashboard/productCopy.js";
 
 export function StatusBadge({ plan }: { plan: PlanRecord }) {
-  const color =
-    plan.status === "completed"
-      ? "teal"
-      : plan.status === "locked"
-        ? "blue"
-        : plan.status === "canceled"
-          ? "red"
-          : "gray";
+  const presentation = getPlanStatusPresentation(plan);
   return (
-    <Badge color={color} variant="light" styles={badgeStyles}>
-      {plan.status}
+    <Badge
+      color={presentation.color}
+      variant="light"
+      styles={badgeStyles}
+      title={presentation.description}
+      aria-label={`Execution status: ${presentation.label}. ${presentation.description}`}
+      data-testid={`status-badge-${plan.status}`}
+    >
+      {presentation.label}
     </Badge>
   );
 }
 
 export function ApprovalBadge({ plan }: { plan: PlanRecord }) {
-  const color =
-    plan.approvalStatus === "approved"
-      ? "green"
-      : plan.approvalStatus === "pending"
-        ? "orange"
-        : plan.approvalStatus === "rejected"
-          ? "red"
-          : "gray";
+  const presentation = getApprovalPresentation(plan.approvalStatus);
   return (
-    <Badge color={color} variant="light" styles={badgeStyles}>
-      {plan.approvalStatus.replace("_", " ")}
+    <Badge
+      color={presentation.color}
+      variant="light"
+      styles={badgeStyles}
+      title={presentation.description}
+      aria-label={`Approval status: ${presentation.label}. ${presentation.description}`}
+      data-testid={`approval-badge-${plan.approvalStatus.replaceAll("_", "-")}`}
+    >
+      {presentation.label}
     </Badge>
   );
 }

@@ -3,6 +3,7 @@ import { RadioTower } from "lucide-react";
 import { subtleBorder, themeTokens } from "./themeSurfaces.js";
 
 export function EmptyState(props: {
+  dataTestId?: string;
   title: string;
   description: string;
   checkedAt?: Date | null;
@@ -14,7 +15,14 @@ export function EmptyState(props: {
   const tokens = themeTokens(computedColorScheme);
   return (
     <Center p="lg">
-      <Box className="aw-empty-panel" p="xl" w="100%" maw={620} style={{ border: subtleBorder(computedColorScheme), borderRadius: "var(--mantine-radius-lg)", boxShadow: tokens.shadowSoft }}>
+      <Box
+        className="aw-empty-panel"
+        p="xl"
+        w="100%"
+        maw={620}
+        style={{ border: subtleBorder(computedColorScheme), borderRadius: "var(--mantine-radius-lg)", boxShadow: tokens.shadowSoft }}
+        data-testid={props.dataTestId}
+      >
         <Stack gap="xs" align="center" pos="relative">
           <ThemeIcon className="aw-idle-orb" variant="gradient" gradient={{ from: "brand.6", to: "aqua.5", deg: 135 }} radius="xl" size={42}>
             <RadioTower size={19} />

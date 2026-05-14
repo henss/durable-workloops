@@ -15,10 +15,10 @@ export function TokensPanel(props: {
 
   return (
     <Stack>
-      <Alert icon={<Info size={16} />} title="Using tokens with the CLI" variant="light">
+      <Alert icon={<Info size={16} />} title="Client tokens authenticate executors and API clients" variant="light">
         <Stack gap="xs">
           <Text size="sm">
-            Mint a token, save the shown-once value, then put it in a local .env file or pass it with --token.
+            Mint a token, save the shown-once value, then put it in a local .env file or pass it with --token. Treat tokens like passwords; a leaked token can submit, claim, or complete plans according to its scopes.
           </Text>
           <Code block>
             # .env{"\n"}
@@ -29,15 +29,21 @@ export function TokensPanel(props: {
             agent-workloops submit --server {serverUrl} --token awl_client_... --file examples/workloop.json
           </Code>
           <Text size="sm" c="dimmed">
-            Use plans:submit for submitting plans. Use plans:claim and plans:complete for executor clients that claim, heartbeat, and complete plans.
+            Use plans:submit for clients that create plans. Use plans:claim and plans:complete for executor clients that claim, heartbeat, release, and complete plans.
           </Text>
         </Stack>
       </Alert>
-      <Paper withBorder radius="md" p="md">
+      <Paper withBorder radius="md" p="md" data-testid="create-token-form">
         <Group align="end" grow>
-          <TextInput label="Name" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
-          <MultiSelect label="Scopes" data={["plans:submit", "plans:claim", "plans:complete"]} value={props.form.scopes} onChange={(scopes) => props.setForm({ ...props.form, scopes })} />
-          <Button variant="gradient" leftSection={<KeyRound size={16} />} onClick={props.onCreate}>Mint token</Button>
+          <TextInput label="Token name" placeholder="Local CLI executor" value={props.form.name} onChange={(event) => props.setForm({ ...props.form, name: event.target.value })} />
+          <MultiSelect
+            label="Token scopes"
+            description="Executor tokens usually need plans:claim and plans:complete."
+            data={["plans:submit", "plans:claim", "plans:complete"]}
+            value={props.form.scopes}
+            onChange={(scopes) => props.setForm({ ...props.form, scopes })}
+          />
+          <Button variant="gradient" leftSection={<KeyRound size={16} />} aria-label="Mint client token" onClick={props.onCreate}>Mint client token</Button>
         </Group>
       </Paper>
       {props.createdToken ? (
@@ -54,8 +60,8 @@ export function TokensPanel(props: {
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Token</Table.Th>
-                  <Table.Th>Scopes</Table.Th>
+                  <Table.Th>Client token</Table.Th>
+                  <Table.Th>Allowed API scopes</Table.Th>
                   <Table.Th>Status</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -70,11 +76,16 @@ export function TokensPanel(props: {
                     </Table.Td>
                     <Table.Td>
                       <Group gap={4}>
-                        {token.scopes.map((scope) => <Badge key={scope} size="sm" variant="light">{scope}</Badge>)}
+                        {token.scopes.map((scope) => <Badge key={scope} size="sm" variant="light" title={scopeDescription(scope)}>{scope}</Badge>)}
                       </Group>
                     </Table.Td>
                     <Table.Td>
-                      <Badge color={token.revokedAt ? "red" : "green"} variant="light">
+                      <Badge
+                        color={token.revokedAt ? "red" : "green"}
+                        variant="light"
+                        aria-label={`Token status: ${token.revokedAt ? "revoked" : "active"}`}
+                        title={token.revokedAt ? "This token has been revoked." : "This token can authenticate with its listed scopes."}
+                      >
                         {token.revokedAt ? "revoked" : "active"}
                       </Badge>
                     </Table.Td>
@@ -87,4 +98,14 @@ export function TokensPanel(props: {
       </PageSection>
     </Stack>
   );
+}
+
+function scopeDescription(scope: string): string {
+  if (scope === "plans:submit") {
+    return "plans:submit: allows a client to create new plans.";
+  }
+  if (scope === "plans:claim") {
+    return "plans:claim: allows an executor to claim ready plans.";
+  }
+  return "plans:complete: allows an executor to heartbeat, release, or complete claimed plans.";
 }

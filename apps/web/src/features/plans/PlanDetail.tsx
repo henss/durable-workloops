@@ -47,8 +47,13 @@ export function PlanDetail({ detail, initialTab = "overview" }: { detail: PlanDe
             <Group className="aw-plan-detail-badges" gap="xs" wrap="wrap" justify="flex-end">
               <StatusBadge plan={plan} />
               <ApprovalBadge plan={plan} />
-              <Badge color={workLoop.status === "done" ? "green" : workLoop.status === "blocked" ? "red" : "blue"} variant="light">
-                {workLoop.status}
+              <Badge
+                color={workLoop.status === "done" ? "green" : workLoop.status === "blocked" ? "red" : "blue"}
+                variant="light"
+                title={`WorkLoop status: ${workLoop.status.replace("_", " ")}`}
+                aria-label={`WorkLoop status: ${workLoop.status.replace("_", " ")}`}
+              >
+                WorkLoop: {workLoop.status.replace("_", " ")}
               </Badge>
             </Group>
           </Group>

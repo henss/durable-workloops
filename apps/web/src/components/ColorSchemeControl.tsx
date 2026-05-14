@@ -1,4 +1,4 @@
-import { Group, SegmentedControl, Text, Tooltip, useMantineColorScheme } from "@mantine/core";
+import { Group, SegmentedControl, Text, Tooltip, VisuallyHidden, useMantineColorScheme } from "@mantine/core";
 import { Monitor, Moon, Sun } from "lucide-react";
 import type { ColorSchemePreference } from "../types.js";
 
@@ -11,6 +11,7 @@ export function ColorSchemeControl({ fullWidth = false, compact = false }: { ful
   ];
   return (
     <SegmentedControl
+      aria-label="Color scheme"
       value={colorScheme}
       onChange={(value) => setColorScheme(value as ColorSchemePreference)}
       fullWidth={fullWidth}
@@ -18,7 +19,10 @@ export function ColorSchemeControl({ fullWidth = false, compact = false }: { ful
         value: option.value,
         label: compact ? (
           <Tooltip label={option.label}>
-            <Group gap={0} wrap="nowrap">{option.icon}</Group>
+            <Group gap={0} wrap="nowrap">
+              {option.icon}
+              <VisuallyHidden>{option.label}</VisuallyHidden>
+            </Group>
           </Tooltip>
         ) : (
           <Group gap={6} wrap="nowrap">

@@ -23,6 +23,7 @@ import { ColorSchemeControl } from "../../components/ColorSchemeControl.js";
 import { MetricCard } from "../../components/MetricCard.js";
 import { PageSection } from "../../components/PageSection.js";
 import { appBackground, appCssVariables, shellPanelBackground, subtleBorder, themeTokens } from "../../components/themeSurfaces.js";
+import { PlanLifecycleHelp } from "./PlanLifecycleHelp.js";
 import { PlanTable } from "../plans/PlanTable.js";
 import { NewPlanPanel } from "../plans/NewPlanPanel.js";
 import { TokensPanel } from "../tokens/TokensPanel.js";
@@ -74,6 +75,7 @@ export function DashboardShell(props: {
     users: props.users.length,
     tokens: props.tokens.length,
   });
+  const activeTabInfo = tabs.find((tab) => tab.value === props.activeTab);
 
   return (
     <AppShell
@@ -96,7 +98,7 @@ export function DashboardShell(props: {
             </ThemeIcon>
             <Box>
                 <Title order={1} size="h3" fw={780}>Agent Workloops</Title>
-              <Text size="xs" c={tokens.textMuted} opacity={0.78}>Hosted approval and execution queue</Text>
+              <Text size="xs" c={tokens.textMuted} opacity={0.78}>Manage agent plans from approval through execution and archive.</Text>
             </Box>
           </Group>
           <Group gap="xs">
@@ -108,6 +110,7 @@ export function DashboardShell(props: {
               leftSection={<RefreshCw className="aw-refresh-icon" data-refreshing={props.isRefreshing} size={16} />}
               disabled={props.isRefreshing}
               onClick={props.onRefresh}
+              aria-label="Refresh plans, users, and tokens"
             >
               Refresh
             </Button>
@@ -171,45 +174,54 @@ export function DashboardShell(props: {
       </AppShell.Navbar>
 
       <AppShell.Main className="aw-main">
-        <Container size={1440} px={{ base: "md", sm: "xl" }} py="lg">
-          <Stack gap="lg">
+        <Container size={1680} px={{ base: "md", sm: "xl" }} py="md">
+          <Stack gap="md">
             <Group justify="space-between" align="flex-end">
               <Box>
-                <Title order={2} size="30px" fw={760} lh={1.12}>{tabs.find((tab) => tab.value === props.activeTab)?.heading}</Title>
-                <Text size="sm" c={tokens.textMuted}>{tabs.find((tab) => tab.value === props.activeTab)?.description}</Text>
+                <Title order={2} size="30px" fw={760} lh={1.12}>{activeTabInfo?.heading}</Title>
+                <Text size="sm" c={tokens.textMuted}>{activeTabInfo?.description}</Text>
               </Box>
             </Group>
 
             {isQueueTab(props.activeTab) ? (
-              <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-                <MetricCard
-                  label="Pending approval"
-                  value={props.buckets.pending.length}
-                  microcopy={props.buckets.pending.length === 0 ? "No plans waiting" : "Review required"}
-                  icon={<Clock3 size={18} />}
-                  color="yellow"
-                  active={props.activeTab === "pending"}
-                  onClick={() => props.setActiveTab("pending")}
-                />
-                <MetricCard
-                  label="Claimable"
-                  value={props.buckets.claimable.length}
-                  microcopy={props.buckets.claimable.length === 0 ? "No executor work" : "Ready to lease"}
-                  icon={<CheckCircle2 size={18} />}
-                  color="aqua"
-                  active={props.activeTab === "claimable"}
-                  onClick={() => props.setActiveTab("claimable")}
-                />
-                <MetricCard
-                  label="Locked"
-                  value={props.buckets.locked.length}
-                  microcopy={props.buckets.locked.length === 0 ? "No active leases" : "Executors running"}
-                  icon={<Lock size={18} />}
-                  color="brand"
-                  active={props.activeTab === "locked"}
-                  onClick={() => props.setActiveTab("locked")}
-                />
-              </SimpleGrid>
+              <>
+                <PlanLifecycleHelp activeTab={props.activeTab} />
+                <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+                  <MetricCard
+                    label="Pending approval"
+                    value={props.buckets.pending.length}
+                    microcopy={props.buckets.pending.length === 0 ? "No plans waiting for review" : "Needs human review"}
+                    icon={<Clock3 size={18} />}
+                    color="yellow"
+                    active={props.activeTab === "pending"}
+                    ariaLabel="Show pending approval queue: plans waiting for human review"
+                    dataTestId="queue-metric-pending"
+                    onClick={() => props.setActiveTab("pending")}
+                  />
+                  <MetricCard
+                    label="Ready to Claim"
+                    value={props.buckets.claimable.length}
+                    microcopy={props.buckets.claimable.length === 0 ? "No executor work ready" : "Available to executors"}
+                    icon={<CheckCircle2 size={18} />}
+                    color="aqua"
+                    active={props.activeTab === "claimable"}
+                    ariaLabel="Show ready to claim queue: approved or approval-free plans available to executors"
+                    dataTestId="queue-metric-claimable"
+                    onClick={() => props.setActiveTab("claimable")}
+                  />
+                  <MetricCard
+                    label="Locked / running"
+                    value={props.buckets.locked.length}
+                    microcopy={props.buckets.locked.length === 0 ? "No executor leases" : "Executor lease held"}
+                    icon={<Lock size={18} />}
+                    color="brand"
+                    active={props.activeTab === "locked"}
+                    ariaLabel="Show locked and running queue: plans claimed by executors"
+                    dataTestId="queue-metric-locked"
+                    onClick={() => props.setActiveTab("locked")}
+                  />
+                </SimpleGrid>
+              </>
             ) : null}
 
             {renderDashboardContent(props)}
@@ -241,11 +253,19 @@ function DashboardNavLink(props: {
     <NavLink
       className="aw-nav-link"
       data-active={props.activeTab === props.tab.value}
+      data-testid={`nav-${props.tab.value}`}
       active={props.activeTab === props.tab.value}
       disabled={props.disabled}
-      label={props.tab.label}
+      label={
+        <Box>
+          <Text size="sm" fw={720}>{props.tab.label}</Text>
+          <Text size="xs" c="dimmed">{props.tab.sidebarHelp}</Text>
+        </Box>
+      }
       leftSection={props.tab.icon}
-      rightSection={<Badge className="aw-count-badge" size="xs" variant="light">{props.tab.count}</Badge>}
+      rightSection={props.tab.showCount ? <Badge className="aw-count-badge" size="xs" variant="light">{props.tab.count}</Badge> : undefined}
+      aria-label={props.tab.ariaLabel}
+      title={props.tab.ariaLabel}
       onClick={() => props.onSelect(props.tab.value)}
       variant="light"
     />
@@ -257,13 +277,16 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
     return (
       <PageSection>
         <PlanTable
+          queueLabel="Pending approval plans"
+          dataTestId="queue-pending-plans"
           plans={props.buckets.pending}
           onDetail={props.onDetail}
           onApprove={props.isReviewer ? props.onApprove : undefined}
           onReject={props.isReviewer ? props.onReject : undefined}
-          emptyTitle="System idle"
-          emptyDescription="No approval workloops are waiting for review."
+          emptyTitle="No plans are waiting for approval"
+          emptyDescription="Plans that require human review appear here before executors can claim them."
           emptyCheckedAt={props.lastRefreshedAt}
+          emptyLinks={[{ label: "Create a new plan", onClick: () => props.setActiveTab("new-plan") }]}
           onRefresh={props.onRefresh}
         />
       </PageSection>
@@ -273,13 +296,16 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
     return (
       <PageSection>
         <PlanTable
+          queueLabel="Ready to Claim plans"
+          dataTestId="queue-claimable-plans"
           plans={props.buckets.claimable}
           onDetail={props.onDetail}
           onReject={props.isReviewer ? props.onReject : undefined}
           onRequestReview={props.isReviewer ? props.onRequestReview : undefined}
-          emptyTitle="No claimable plans"
-          emptyDescription="Approved or ungated plans ready for executors will appear here."
+          emptyTitle="No Ready to Claim plans"
+          emptyDescription="Approved or approval-free plans appear here when executors can claim them."
           emptyCheckedAt={props.lastRefreshedAt}
+          emptyLinks={[{ label: "Create a new plan", onClick: () => props.setActiveTab("new-plan") }]}
           onRefresh={props.onRefresh}
         />
       </PageSection>
@@ -289,10 +315,12 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
     return (
       <PageSection>
         <PlanTable
+          queueLabel="Locked and running plans"
+          dataTestId="queue-locked-plans"
           plans={props.buckets.locked}
           onDetail={props.onDetail}
-          emptyTitle="No locked plans"
-          emptyDescription="Plans currently leased by executors will appear here."
+          emptyTitle="No executors are currently running plans"
+          emptyDescription="When a client executor claims a plan, its lease appears here until release or completion."
           emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
         />
@@ -303,10 +331,12 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
     return (
       <PageSection>
         <PlanTable
+          queueLabel="Completed archived plans"
+          dataTestId="queue-archive-plans"
           plans={props.archive}
           onDetail={props.onDetail}
-          emptyTitle="No completed plans"
-          emptyDescription="Executor completions are archived here."
+          emptyTitle="No completed plans yet"
+          emptyDescription="Plans move here after an executor completes a WorkLoop whose status is done."
           emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
         />

@@ -71,7 +71,10 @@ function makeWorkLoop(): WorkLoop {
     },
     reviewPolicy: {
       required: true,
+      sliceReview: "required",
+      finalReview: "required",
       repairOnReviewFailure: true,
+      providers: [],
     },
     runawayGuard: {
       maxConsecutiveAgentRuns: 5,

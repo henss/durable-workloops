@@ -15,6 +15,7 @@ import {
   type User,
   type UserRole,
   type WorkLoop,
+  type WorkLoopDecision,
 } from "@agent-workloops/api";
 import {
   emptyAuthState,
@@ -152,6 +153,7 @@ export class FilesystemPlanStore implements PlanStore {
   async claimNextPlan(input: {
     clientTokenId: string;
     leaseTimeoutMs: number;
+    planId?: string;
     projectId?: string;
   }): Promise<{ plan: PlanRecord; leaseId: string } | undefined> {
     return this.withLock(async () => {
@@ -163,7 +165,13 @@ export class FilesystemPlanStore implements PlanStore {
           if (input.projectId && plan.workLoop.projectId !== input.projectId) {
             return false;
           }
+          if (input.planId && plan.id !== input.planId) {
+            return false;
+          }
           if (plan.approvalStatus !== "approved" && plan.approvalStatus !== "not_required") {
+            return false;
+          }
+          if (plan.workLoop.status !== "active") {
             return false;
           }
           if (plan.status === "queued") {
@@ -234,14 +242,19 @@ export class FilesystemPlanStore implements PlanStore {
     planId: string;
     leaseId: string;
     clientTokenId: string;
+    workLoop?: WorkLoop;
+    decision?: WorkLoopDecision;
     metadata: JsonValue;
   }): Promise<PlanRecord> {
     return this.withLock(async () => {
       const plan = await this.requirePlan(input.planId);
       assertLease(plan, input.leaseId, input.clientTokenId);
+      const workLoop = input.workLoop ?? plan.workLoop;
+      assertTerminalWorkLoop(workLoop);
       const now = new Date().toISOString();
       const updated = {
         ...plan,
+        workLoop,
         status: "completed" as const,
         lock: undefined,
         completion: {
@@ -256,7 +269,70 @@ export class FilesystemPlanStore implements PlanStore {
         planId: input.planId,
         actorTokenId: input.clientTokenId,
         type: "complete",
-        metadata: input.metadata,
+        metadata: transitionMetadata(input.metadata, input.decision),
+      });
+      return updated;
+    });
+  }
+
+  async progressPlan(input: {
+    planId: string;
+    leaseId: string;
+    clientTokenId: string;
+    workLoop: WorkLoop;
+    decision?: WorkLoopDecision;
+    metadata: JsonValue;
+  }): Promise<PlanRecord> {
+    return this.withLock(async () => {
+      const plan = await this.requirePlan(input.planId);
+      assertLease(plan, input.leaseId, input.clientTokenId);
+      const now = new Date().toISOString();
+      const updated = {
+        ...plan,
+        workLoop: input.workLoop,
+        status: "locked" as const,
+        updatedAt: now,
+      };
+      await this.writePlan(updated);
+      await this.appendAuditUnlocked({
+        planId: input.planId,
+        actorTokenId: input.clientTokenId,
+        type: "progress",
+        metadata: transitionMetadata(input.metadata, input.decision),
+      });
+      return updated;
+    });
+  }
+
+  async releasePlan(input: {
+    planId: string;
+    leaseId: string;
+    clientTokenId: string;
+    workLoop: WorkLoop;
+    decision?: WorkLoopDecision;
+    reason: string;
+    metadata: JsonValue;
+  }): Promise<PlanRecord> {
+    return this.withLock(async () => {
+      const plan = await this.requirePlan(input.planId);
+      assertLease(plan, input.leaseId, input.clientTokenId);
+      const now = new Date().toISOString();
+      const updated = {
+        ...plan,
+        ...releaseStatus(input.workLoop, input.reason),
+        workLoop: input.workLoop,
+        lock: undefined,
+        updatedAt: now,
+      };
+      await this.writePlan(updated);
+      await this.appendAuditUnlocked({
+        planId: input.planId,
+        actorTokenId: input.clientTokenId,
+        type: "release",
+        metadata: {
+          ...transitionMetadata(input.metadata, input.decision),
+          reason: input.reason,
+        },
       });
       return updated;
     });
@@ -598,5 +674,37 @@ function assertLease(plan: PlanRecord, leaseId: string, clientTokenId: string): 
   ) {
     throw new Error("Plan lease is not active for this client token.");
   }
+}
+
+function assertTerminalWorkLoop(workLoop: WorkLoop): void {
+  if (workLoop.status !== "done") {
+    throw new Error("Plan cannot be completed until the submitted WorkLoop status is done.");
+  }
+}
+
+function releaseStatus(
+  workLoop: WorkLoop,
+  reason: string,
+): Pick<PlanRecord, "approvalRequired" | "approvalStatus" | "status"> {
+  if (reason === "review_needed") {
+    return { approvalRequired: true, approvalStatus: "pending", status: "queued" };
+  }
+  if (workLoop.status === "canceled" || reason === "canceled") {
+    return { approvalRequired: false, approvalStatus: "not_required", status: "canceled" };
+  }
+  if (workLoop.status === "active" && (reason === "ready" || reason === "max_slices")) {
+    return { approvalRequired: false, approvalStatus: "not_required", status: "queued" };
+  }
+  return { approvalRequired: true, approvalStatus: "pending", status: "blocked" };
+}
+
+function transitionMetadata(
+  metadata: JsonValue,
+  decision?: WorkLoopDecision,
+): { metadata: JsonValue; decision: JsonValue } {
+  return {
+    metadata,
+    decision: decision ? (JSON.parse(JSON.stringify(decision)) as JsonValue) : null,
+  };
 }
 

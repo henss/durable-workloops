@@ -9,6 +9,7 @@ import type {
   User,
   UserRole,
   WorkLoop,
+  WorkLoopDecision,
 } from "@agent-workloops/api";
 import {
   AuditEventSchema,
@@ -152,14 +153,17 @@ export class MongoPlanStore implements PlanStore {
   async claimNextPlan(input: {
     clientTokenId: string;
     leaseTimeoutMs: number;
+    planId?: string;
     projectId?: string;
   }): Promise<{ plan: PlanRecord; leaseId: string } | undefined> {
     const now = new Date();
     const leaseId = crypto.randomUUID();
     const lockedAt = now.toISOString();
     const filter = {
+      ...(input.planId ? { _id: input.planId } : {}),
       ...(input.projectId ? { "record.workLoop.projectId": input.projectId } : {}),
       "record.approvalStatus": { $in: ["approved", "not_required"] },
+      "record.workLoop.status": "active",
       $or: [
         { "record.status": "queued" },
         { "record.status": "locked", "record.lock.expiresAt": { $lte: lockedAt } },
@@ -230,18 +234,23 @@ export class MongoPlanStore implements PlanStore {
     planId: string;
     leaseId: string;
     clientTokenId: string;
+    workLoop?: WorkLoop;
+    decision?: WorkLoopDecision;
     metadata: JsonValue;
   }): Promise<PlanRecord> {
     return this.updatePlan(
       input.planId,
       { tokenId: input.clientTokenId },
       "complete",
-      input.metadata,
+      transitionMetadata(input.metadata, input.decision),
       (plan) => {
         assertLease(plan, input.leaseId, input.clientTokenId);
+        const workLoop = input.workLoop ?? plan.workLoop;
+        assertTerminalWorkLoop(workLoop);
         const now = new Date().toISOString();
         return {
           ...plan,
+          workLoop,
           status: "completed",
           lock: undefined,
           completion: {
@@ -250,6 +259,61 @@ export class MongoPlanStore implements PlanStore {
             metadata: input.metadata,
           },
           updatedAt: now,
+        };
+      },
+    );
+  }
+
+  async progressPlan(input: {
+    planId: string;
+    leaseId: string;
+    clientTokenId: string;
+    workLoop: WorkLoop;
+    decision?: WorkLoopDecision;
+    metadata: JsonValue;
+  }): Promise<PlanRecord> {
+    return this.updatePlan(
+      input.planId,
+      { tokenId: input.clientTokenId },
+      "progress",
+      transitionMetadata(input.metadata, input.decision),
+      (plan) => {
+        assertLease(plan, input.leaseId, input.clientTokenId);
+        return {
+          ...plan,
+          workLoop: input.workLoop,
+          status: "locked",
+          updatedAt: new Date().toISOString(),
+        };
+      },
+    );
+  }
+
+  async releasePlan(input: {
+    planId: string;
+    leaseId: string;
+    clientTokenId: string;
+    workLoop: WorkLoop;
+    decision?: WorkLoopDecision;
+    reason: string;
+    metadata: JsonValue;
+  }): Promise<PlanRecord> {
+    return this.updatePlan(
+      input.planId,
+      { tokenId: input.clientTokenId },
+      "release",
+      {
+        ...transitionMetadata(input.metadata, input.decision),
+        reason: input.reason,
+      },
+      (plan) => {
+        assertLease(plan, input.leaseId, input.clientTokenId);
+        return {
+          ...plan,
+          ...releaseStatus(input.workLoop, input.reason),
+          workLoop: input.workLoop,
+          lock: undefined,
+          updatedAt: new Date().toISOString(),
         };
       },
     );
@@ -520,4 +584,36 @@ function assertLease(plan: PlanRecord, leaseId: string, clientTokenId: string): 
   ) {
     throw new Error("Plan lease is not active for this client token.");
   }
+}
+
+function assertTerminalWorkLoop(workLoop: WorkLoop): void {
+  if (workLoop.status !== "done") {
+    throw new Error("Plan cannot be completed until the submitted WorkLoop status is done.");
+  }
+}
+
+function releaseStatus(
+  workLoop: WorkLoop,
+  reason: string,
+): Pick<PlanRecord, "approvalRequired" | "approvalStatus" | "status"> {
+  if (reason === "review_needed") {
+    return { approvalRequired: true, approvalStatus: "pending", status: "queued" };
+  }
+  if (workLoop.status === "canceled" || reason === "canceled") {
+    return { approvalRequired: false, approvalStatus: "not_required", status: "canceled" };
+  }
+  if (workLoop.status === "active" && (reason === "ready" || reason === "max_slices")) {
+    return { approvalRequired: false, approvalStatus: "not_required", status: "queued" };
+  }
+  return { approvalRequired: true, approvalStatus: "pending", status: "blocked" };
+}
+
+function transitionMetadata(
+  metadata: JsonValue,
+  decision?: WorkLoopDecision,
+): { metadata: JsonValue; decision: JsonValue } {
+  return {
+    metadata,
+    decision: decision ? (JSON.parse(JSON.stringify(decision)) as JsonValue) : null,
+  };
 }

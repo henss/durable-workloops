@@ -8,8 +8,10 @@ import {
   CreateClientTokenRequestSchema,
   CreateUserRequestSchema,
   LoginRequestSchema,
+  ProgressPlanRequestSchema,
   RejectPlanRequestSchema,
   RequestReviewPlanRequestSchema,
+  ReleasePlanRequestSchema,
   SubmitPlanRequestSchema,
   type ClientTokenScope,
   type User,
@@ -261,6 +263,7 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
       (await planStore.claimNextPlan({
         clientTokenId: auth.tokenId,
         leaseTimeoutMs: options.config.locks.timeoutMs,
+        planId: body.planId,
         projectId: body.projectId,
       })) ?? {}
     );
@@ -281,6 +284,41 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     });
   });
 
+  app.post("/api/v1/plans/:planId/progress", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "plans:complete");
+    if (!auth || !auth.tokenId) {
+      return;
+    }
+    const params = z.object({ planId: z.string().min(1) }).parse(request.params);
+    const body = ProgressPlanRequestSchema.parse(request.body);
+    return planStore.progressPlan({
+      planId: params.planId,
+      leaseId: body.leaseId,
+      clientTokenId: auth.tokenId,
+      workLoop: body.workLoop,
+      decision: body.decision,
+      metadata: body.metadata,
+    });
+  });
+
+  app.post("/api/v1/plans/:planId/release", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "plans:complete");
+    if (!auth || !auth.tokenId) {
+      return;
+    }
+    const params = z.object({ planId: z.string().min(1) }).parse(request.params);
+    const body = ReleasePlanRequestSchema.parse(request.body);
+    return planStore.releasePlan({
+      planId: params.planId,
+      leaseId: body.leaseId,
+      clientTokenId: auth.tokenId,
+      workLoop: body.workLoop,
+      decision: body.decision,
+      reason: body.reason,
+      metadata: body.metadata,
+    });
+  });
+
   app.post("/api/v1/plans/:planId/complete", async (request, reply) => {
     const auth = await requireTokenScope(request, reply, authStore, "plans:complete");
     if (!auth || !auth.tokenId) {
@@ -292,6 +330,8 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
       planId: params.planId,
       leaseId: body.leaseId,
       clientTokenId: auth.tokenId,
+      workLoop: body.workLoop,
+      decision: body.decision,
       metadata: body.metadata,
     });
   });

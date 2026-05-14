@@ -19,6 +19,26 @@ export const WorkLoopStatusSchema = z.enum([
   "canceled",
 ]);
 
+export const WorkLoopDecisionActionSchema = z.enum([
+  "continue",
+  "repair",
+  "blocked",
+  "needs_stefan",
+  "done",
+  "canceled",
+]);
+
+export const WorkLoopReviewModeSchema = z.enum([
+  "disabled",
+  "optional",
+  "required",
+]);
+
+export const WorkLoopReviewProviderSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+});
+
 export const WorkLoopSliceSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -45,13 +65,29 @@ export const WorkLoopSchema = z.object({
     stopOnlyFor: z.array(z.string().min(1)).min(1),
   }),
   reviewPolicy: z
-    .object({
-      required: z.boolean().default(true),
-      repairOnReviewFailure: z.boolean().default(true),
-    })
+    .preprocess(
+      normalizeReviewPolicyInput,
+      z
+        .object({
+          sliceReview: WorkLoopReviewModeSchema.default("required"),
+          finalReview: WorkLoopReviewModeSchema.default("required"),
+          repairOnReviewFailure: z.boolean().default(true),
+          providers: z.array(WorkLoopReviewProviderSchema).default([]),
+          required: z.boolean().optional(),
+        })
+        .transform((policy) => ({
+          ...policy,
+          required:
+            policy.required ??
+            (policy.sliceReview === "required" || policy.finalReview === "required"),
+        })),
+    )
     .default({
       required: true,
+      sliceReview: "required",
+      finalReview: "required",
       repairOnReviewFailure: true,
+      providers: [],
     }),
   runawayGuard: z
     .object({
@@ -60,7 +96,16 @@ export const WorkLoopSchema = z.object({
     })
     .default({
       maxConsecutiveAgentRuns: 5,
-    }),
+  }),
+});
+
+export const WorkLoopDecisionSchema = z.object({
+  action: WorkLoopDecisionActionSchema,
+  reason: z.string().min(1),
+  evidencePaths: z.array(z.string().min(1)).default([]),
+  nextOwner: z.enum(["agent", "stefan", "external"]).optional(),
+  workLoopId: z.string().min(1),
+  sliceId: z.string().min(1).optional(),
 });
 
 export const PlanApprovalStatusSchema = z.enum([
@@ -70,7 +115,13 @@ export const PlanApprovalStatusSchema = z.enum([
   "rejected",
 ]);
 
-export const PlanStatusSchema = z.enum(["queued", "locked", "completed", "canceled"]);
+export const PlanStatusSchema = z.enum([
+  "queued",
+  "locked",
+  "blocked",
+  "completed",
+  "canceled",
+]);
 
 export const ClientTokenScopeSchema = z.enum([
   "plans:submit",
@@ -119,6 +170,8 @@ export const AuditEventTypeSchema = z.enum([
   "request_review",
   "claim",
   "heartbeat",
+  "progress",
+  "release",
   "complete",
   "cancel",
   "token-created",
@@ -159,6 +212,7 @@ export const SubmitPlanResponseSchema = z.object({
 });
 
 export const ClaimPlanRequestSchema = z.object({
+  planId: z.string().min(1).optional(),
   projectId: z.string().min(1).optional(),
 });
 
@@ -171,8 +225,35 @@ export const HeartbeatPlanRequestSchema = z.object({
   leaseId: z.string().min(1),
 });
 
+export const ProgressPlanRequestSchema = z.object({
+  leaseId: z.string().min(1),
+  workLoop: WorkLoopSchema,
+  decision: WorkLoopDecisionSchema.optional(),
+  metadata: JsonValueSchema.default({}),
+});
+
+export const ReleasePlanReasonSchema = z.enum([
+  "ready",
+  "review_needed",
+  "blocked",
+  "needs_stefan",
+  "failed",
+  "canceled",
+  "max_slices",
+]);
+
+export const ReleasePlanRequestSchema = z.object({
+  leaseId: z.string().min(1),
+  workLoop: WorkLoopSchema,
+  decision: WorkLoopDecisionSchema.optional(),
+  reason: ReleasePlanReasonSchema,
+  metadata: JsonValueSchema.default({}),
+});
+
 export const CompletePlanRequestSchema = z.object({
   leaseId: z.string().min(1),
+  workLoop: WorkLoopSchema.optional(),
+  decision: WorkLoopDecisionSchema.optional(),
   metadata: JsonValueSchema.default({}),
 });
 
@@ -247,9 +328,15 @@ export type PlanLock = z.infer<typeof PlanLockSchema>;
 export type PlanCompletion = z.infer<typeof PlanCompletionSchema>;
 export type AuditEvent = z.infer<typeof AuditEventSchema>;
 export type PlanRecord = z.infer<typeof PlanRecordSchema>;
+export type WorkLoopDecision = z.infer<typeof WorkLoopDecisionSchema>;
+export type WorkLoopReviewMode = z.infer<typeof WorkLoopReviewModeSchema>;
+export type WorkLoopReviewProvider = z.infer<typeof WorkLoopReviewProviderSchema>;
 export type SubmitPlanRequest = z.infer<typeof SubmitPlanRequestSchema>;
 export type ClaimPlanRequest = z.infer<typeof ClaimPlanRequestSchema>;
 export type ClaimPlanResponse = z.infer<typeof ClaimPlanResponseSchema>;
+export type ProgressPlanRequest = z.infer<typeof ProgressPlanRequestSchema>;
+export type ReleasePlanReason = z.infer<typeof ReleasePlanReasonSchema>;
+export type ReleasePlanRequest = z.infer<typeof ReleasePlanRequestSchema>;
 export type CompletePlanRequest = z.infer<typeof CompletePlanRequestSchema>;
 export type CreatedClientToken = z.infer<typeof CreatedClientTokenSchema>;
 export type PublicClientToken = z.infer<typeof PublicClientTokenSchema>;
@@ -283,10 +370,35 @@ export class AgentWorkloopsApiClient {
     return ClaimPlanResponseSchema.parse(await response.json());
   }
 
+  async getPlan(planId: string): Promise<{ plan: PlanRecord; audit: AuditEvent[] }> {
+    const response = await this.request(`/api/v1/plans/${encodeURIComponent(planId)}`, {
+      method: "GET",
+    });
+    return z
+      .object({ plan: PlanRecordSchema, audit: z.array(AuditEventSchema) })
+      .parse(await response.json());
+  }
+
   async heartbeatPlan(planId: string, leaseId: string): Promise<PlanRecord> {
     const response = await this.request(`/api/v1/plans/${encodeURIComponent(planId)}/heartbeat`, {
       method: "POST",
       body: JSON.stringify(HeartbeatPlanRequestSchema.parse({ leaseId })),
+    });
+    return PlanRecordSchema.parse(await response.json());
+  }
+
+  async progressPlan(planId: string, input: ProgressPlanRequest): Promise<PlanRecord> {
+    const response = await this.request(`/api/v1/plans/${encodeURIComponent(planId)}/progress`, {
+      method: "POST",
+      body: JSON.stringify(ProgressPlanRequestSchema.parse(input)),
+    });
+    return PlanRecordSchema.parse(await response.json());
+  }
+
+  async releasePlan(planId: string, input: ReleasePlanRequest): Promise<PlanRecord> {
+    const response = await this.request(`/api/v1/plans/${encodeURIComponent(planId)}/release`, {
+      method: "POST",
+      body: JSON.stringify(ReleasePlanRequestSchema.parse(input)),
     });
     return PlanRecordSchema.parse(await response.json());
   }
@@ -299,8 +411,9 @@ export class AgentWorkloopsApiClient {
     return PlanRecordSchema.parse(await response.json());
   }
 
-  async listPlans(): Promise<PlanRecord[]> {
-    const response = await this.request("/api/v1/plans", { method: "GET" });
+  async listPlans(input: { includeCompleted?: boolean } = {}): Promise<PlanRecord[]> {
+    const query = input.includeCompleted ? "?includeCompleted=true" : "";
+    const response = await this.request(`/api/v1/plans${query}`, { method: "GET" });
     return z.array(PlanRecordSchema).parse(await response.json());
   }
 
@@ -346,3 +459,28 @@ export class AgentWorkloopsApiClient {
 }
 
 export const DurableWorkloopsApiClient = AgentWorkloopsApiClient;
+
+function normalizeReviewPolicyInput(value: unknown): unknown {
+  if (value === undefined) {
+    return {
+      required: true,
+      sliceReview: "required",
+      finalReview: "required",
+      repairOnReviewFailure: true,
+      providers: [],
+    };
+  }
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return value;
+  }
+  const record = value as Record<string, unknown>;
+  const legacyRequired = typeof record.required === "boolean" ? record.required : undefined;
+  const legacyMode = legacyRequired === false ? "disabled" : "required";
+  return {
+    ...record,
+    sliceReview: record.sliceReview ?? legacyMode,
+    finalReview: record.finalReview ?? legacyMode,
+    repairOnReviewFailure: record.repairOnReviewFailure ?? true,
+    providers: record.providers ?? [],
+  };
+}

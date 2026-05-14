@@ -4,7 +4,9 @@ import {
   CompletePlanRequestSchema,
   CreateClientTokenRequestSchema,
   PlanRecordSchema,
+  ProgressPlanRequestSchema,
   RequestReviewPlanRequestSchema,
+  ReleasePlanRequestSchema,
   SubmitPlanRequestSchema,
 } from "./index.js";
 
@@ -18,6 +20,12 @@ const workLoop = {
   completionPolicy: { defaultAction: "continue", stopOnlyFor: ["done"] },
 };
 
+const doneWorkLoop = {
+  ...workLoop,
+  status: "done",
+  slices: [{ id: "slice-1", title: "Do the work", status: "done" }],
+};
+
 describe("Agent Workloops API schemas", () => {
   it("parses plan submission requests", () => {
     expect(SubmitPlanRequestSchema.parse({ workLoop })).toMatchObject({
@@ -27,14 +35,61 @@ describe("Agent Workloops API schemas", () => {
   });
 
   it("parses claim and completion requests", () => {
-    expect(ClaimPlanRequestSchema.parse({ projectId: "project-1" })).toEqual({
+    expect(ClaimPlanRequestSchema.parse({ planId: "plan-1", projectId: "project-1" })).toEqual({
+      planId: "plan-1",
       projectId: "project-1",
     });
     expect(
-      CompletePlanRequestSchema.parse({ leaseId: "lease-1", metadata: { ok: true } }),
+      CompletePlanRequestSchema.parse({
+        leaseId: "lease-1",
+        workLoop: doneWorkLoop,
+        metadata: { ok: true },
+      }),
     ).toMatchObject({ metadata: { ok: true } });
+    expect(
+      ProgressPlanRequestSchema.parse({
+        leaseId: "lease-1",
+        workLoop,
+        decision: { action: "continue", reason: "keep going", workLoopId: "loop-1" },
+      }),
+    ).toMatchObject({ decision: { action: "continue" } });
+    expect(
+      ReleasePlanRequestSchema.parse({
+        leaseId: "lease-1",
+        workLoop,
+        reason: "review_needed",
+      }),
+    ).toMatchObject({ reason: "review_needed" });
     expect(RequestReviewPlanRequestSchema.parse({ reason: "Needs another look" })).toEqual({
       reason: "Needs another look",
+    });
+  });
+
+  it("normalizes legacy and explicit review policy shape", () => {
+    expect(SubmitPlanRequestSchema.parse({ workLoop }).workLoop.reviewPolicy).toMatchObject({
+      sliceReview: "required",
+      finalReview: "required",
+      repairOnReviewFailure: true,
+      required: true,
+    });
+    expect(
+      SubmitPlanRequestSchema.parse({
+        workLoop: {
+          ...workLoop,
+          reviewPolicy: {
+            sliceReview: "optional",
+            finalReview: "disabled",
+            providers: [{ id: "codex", label: "Codex" }],
+            repairOnReviewFailure: false,
+          },
+        },
+      }).workLoop.reviewPolicy,
+    ).toMatchObject({
+      sliceReview: "optional",
+      finalReview: "disabled",
+      providers: [{ id: "codex", label: "Codex" }],
+      repairOnReviewFailure: false,
+      required: false,
     });
   });
 

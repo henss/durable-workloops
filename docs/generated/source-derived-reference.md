@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 97
+Generated entities: 99
 
 ## Commander
 
@@ -59,8 +59,8 @@ Generated entities: 97
 - `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
 - `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
 - `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 2 discovered test files under packages/server.
-- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 3 discovered test files under apps/web.
-- `test-scope:generated.src` - src tests: 4 discovered test files under src.
+- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 4 discovered test files under apps/web.
+- `test-scope:generated.src` - src tests: 5 discovered test files under src.
 
 ## Agent Skills
 
@@ -119,7 +119,9 @@ Generated entities: 97
 - `interface:route.post.api-v1-plans-planid-approve` - POST /api/v1/plans/:planId/approve: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-complete` - POST /api/v1/plans/:planId/complete: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-heartbeat` - POST /api/v1/plans/:planId/heartbeat: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-plans-planid-progress` - POST /api/v1/plans/:planId/progress: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-reject` - POST /api/v1/plans/:planId/reject: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-plans-planid-release` - POST /api/v1/plans/:planId/release: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-request-review` - POST /api/v1/plans/:planId/request-review: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-tokens` - POST /api/v1/tokens: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-users` - POST /api/v1/users: Discovered POST route in packages/server/src/app.ts.

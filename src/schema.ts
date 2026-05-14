@@ -28,6 +28,17 @@ export const WorkLoopDecisionActionSchema = z.enum([
   "canceled",
 ]);
 
+export const WorkLoopReviewModeSchema = z.enum([
+  "disabled",
+  "optional",
+  "required",
+]);
+
+export const WorkLoopReviewProviderSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+});
+
 export const WorkLoopSliceSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -45,10 +56,23 @@ export const WorkLoopCompletionPolicySchema = z.object({
   stopOnlyFor: z.array(z.string().min(1)).min(1),
 });
 
-export const WorkLoopReviewPolicySchema = z.object({
-  required: z.boolean().default(true),
-  repairOnReviewFailure: z.boolean().default(true),
-});
+export const WorkLoopReviewPolicySchema = z.preprocess(
+  normalizeReviewPolicyInput,
+  z
+    .object({
+      sliceReview: WorkLoopReviewModeSchema.default("required"),
+      finalReview: WorkLoopReviewModeSchema.default("required"),
+      repairOnReviewFailure: z.boolean().default(true),
+      providers: z.array(WorkLoopReviewProviderSchema).default([]),
+      required: z.boolean().optional(),
+    })
+    .transform((policy) => ({
+      ...policy,
+      required:
+        policy.required ??
+        (policy.sliceReview === "required" || policy.finalReview === "required"),
+    })),
+);
 
 export const WorkLoopRunawayGuardSchema = z.object({
   maxConsecutiveAgentRuns: z.number().int().min(1).default(5),
@@ -67,7 +91,10 @@ export const WorkLoopSchema = z.object({
   completionPolicy: WorkLoopCompletionPolicySchema,
   reviewPolicy: WorkLoopReviewPolicySchema.default({
     required: true,
+    sliceReview: "required",
+    finalReview: "required",
     repairOnReviewFailure: true,
+    providers: [],
   }),
   runawayGuard: WorkLoopRunawayGuardSchema.default({
     maxConsecutiveAgentRuns: 5,
@@ -93,6 +120,32 @@ export type WorkLoop = z.infer<typeof WorkLoopSchema>;
 export type WorkLoopSlice = z.infer<typeof WorkLoopSliceSchema>;
 export type WorkLoopStatus = z.infer<typeof WorkLoopStatusSchema>;
 export type WorkLoopSliceStatus = z.infer<typeof WorkLoopSliceStatusSchema>;
+export type WorkLoopReviewMode = z.infer<typeof WorkLoopReviewModeSchema>;
+export type WorkLoopReviewProvider = z.infer<typeof WorkLoopReviewProviderSchema>;
 export type WorkLoopDecision = z.infer<typeof WorkLoopDecisionSchema>;
 export type WorkLoopDecisionAction = z.infer<typeof WorkLoopDecisionActionSchema>;
 export type WorkLoopCurrentState = z.infer<typeof WorkLoopCurrentStateSchema>;
+
+function normalizeReviewPolicyInput(value: unknown): unknown {
+  if (value === undefined) {
+    return {
+      sliceReview: "required",
+      finalReview: "required",
+      repairOnReviewFailure: true,
+      providers: [],
+    };
+  }
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return value;
+  }
+  const record = value as Record<string, unknown>;
+  const legacyRequired = typeof record.required === "boolean" ? record.required : undefined;
+  const legacyMode = legacyRequired === false ? "disabled" : "required";
+  return {
+    ...record,
+    sliceReview: record.sliceReview ?? legacyMode,
+    finalReview: record.finalReview ?? legacyMode,
+    repairOnReviewFailure: record.repairOnReviewFailure ?? true,
+    providers: record.providers ?? [],
+  };
+}

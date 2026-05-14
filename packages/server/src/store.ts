@@ -7,6 +7,7 @@ import type {
   User,
   UserRole,
   WorkLoop,
+  WorkLoopDecision,
 } from "@agent-workloops/api";
 
 export interface PlanActor {
@@ -31,6 +32,7 @@ export interface PlanStore {
   claimNextPlan(input: {
     clientTokenId: string;
     leaseTimeoutMs: number;
+    planId?: string;
     projectId?: string;
   }): Promise<{ plan: PlanRecord; leaseId: string } | undefined>;
   extendLease(input: {
@@ -39,10 +41,29 @@ export interface PlanStore {
     clientTokenId: string;
     leaseTimeoutMs: number;
   }): Promise<PlanRecord>;
+  progressPlan(input: {
+    planId: string;
+    leaseId: string;
+    clientTokenId: string;
+    workLoop: WorkLoop;
+    decision?: WorkLoopDecision;
+    metadata: JsonValue;
+  }): Promise<PlanRecord>;
+  releasePlan(input: {
+    planId: string;
+    leaseId: string;
+    clientTokenId: string;
+    workLoop: WorkLoop;
+    decision?: WorkLoopDecision;
+    reason: string;
+    metadata: JsonValue;
+  }): Promise<PlanRecord>;
   completePlan(input: {
     planId: string;
     leaseId: string;
     clientTokenId: string;
+    workLoop?: WorkLoop;
+    decision?: WorkLoopDecision;
     metadata: JsonValue;
   }): Promise<PlanRecord>;
   appendAudit(event: Omit<AuditEvent, "id" | "createdAt">): Promise<AuditEvent>;

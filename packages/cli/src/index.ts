@@ -4,9 +4,13 @@ import path from "node:path";
 import process from "node:process";
 import {
   AgentWorkloopsApiClient,
+  ProgressPlanRequestSchema,
+  ReleasePlanRequestSchema,
   SubmitPlanRequestSchema,
   type ClaimPlanResponse,
   type JsonValue,
+  type PlanRecord,
+  type WorkLoop,
 } from "@agent-workloops/api";
 import { prepareWorkLoopCodexLaunch, runPreparedWorkLoopCodexLaunch } from "agent-workloops/launcher";
 import { selectNextWorkLoopSlice } from "agent-workloops/selection";
@@ -26,7 +30,18 @@ export async function runCli(argv: string[], io: CliIo = defaultIo): Promise<voi
     return;
   }
 
-  if (!["submit", "claim", "poll", "complete", "run-codex"].includes(command)) {
+  if (
+    ![
+      "submit",
+      "claim",
+      "poll",
+      "status",
+      "progress",
+      "release",
+      "complete",
+      "run-codex",
+    ].includes(command)
+  ) {
     io.stderr.write(`Unknown command: ${command}\n`);
     printHelp(io.stderr);
     io.exit(2);
@@ -48,14 +63,14 @@ export async function runCli(argv: string[], io: CliIo = defaultIo): Promise<voi
   }
 
   if (command === "claim") {
-    writeJson(io.stdout, await client.claimPlan(projectFilter(flags)));
+    writeJson(io.stdout, await client.claimPlan(claimFilter(flags)));
     return;
   }
 
   if (command === "poll") {
     const intervalMs = parseDuration(flags.interval ?? "30s");
     while (true) {
-      const claimed = await client.claimPlan(projectFilter(flags));
+      const claimed = await client.claimPlan(claimFilter(flags));
       if (claimed.plan) {
         writeJson(io.stdout, claimed);
         return;
@@ -64,19 +79,42 @@ export async function runCli(argv: string[], io: CliIo = defaultIo): Promise<voi
     }
   }
 
+  if (command === "status") {
+    const planId = requireFlag(flags, "plan", env);
+    writeJson(io.stdout, await client.getPlan(planId));
+    return;
+  }
+
+  if (command === "progress") {
+    const planId = requireFlag(flags, "plan", env);
+    const body = ProgressPlanRequestSchema.parse(JSON.parse(await fs.readFile(requireFlag(flags, "file", env), "utf8")));
+    writeJson(io.stdout, await client.progressPlan(planId, body));
+    return;
+  }
+
+  if (command === "release") {
+    const planId = requireFlag(flags, "plan", env);
+    const body = ReleasePlanRequestSchema.parse(JSON.parse(await fs.readFile(requireFlag(flags, "file", env), "utf8")));
+    writeJson(io.stdout, await client.releasePlan(planId, body));
+    return;
+  }
+
   if (command === "complete") {
     const planId = requireFlag(flags, "plan", env);
     const leaseId = requireFlag(flags, "lease", env);
+    const workLoop = flags["work-loop"]
+      ? (JSON.parse(await fs.readFile(flags["work-loop"], "utf8")) as WorkLoop)
+      : undefined;
     const metadata = flags.metadata
       ? (JSON.parse(await fs.readFile(flags.metadata, "utf8")) as JsonValue)
       : {};
-    writeJson(io.stdout, await client.completePlan(planId, { leaseId, metadata }));
+    writeJson(io.stdout, await client.completePlan(planId, { leaseId, workLoop, metadata }));
     return;
   }
 
   if (command === "run-codex") {
     const workspace = requireFlag(flags, "workspace", env);
-    const claimed = await client.claimPlan(projectFilter(flags));
+    const claimed = await client.claimPlan(claimFilter(flags));
     if (!claimed.plan || !claimed.leaseId) {
       writeJson(io.stdout, { status: "idle" });
       return;
@@ -108,9 +146,11 @@ export async function runClaimedCodexPlan(input: {
   }
   const slice = selectNextWorkLoopSlice(plan.workLoop) ?? plan.workLoop.slices[0];
   if (!slice) {
-    return input.client.completePlan(plan.id, {
+    return input.client.releasePlan(plan.id, {
       leaseId,
-      metadata: { status: "completed", reason: "Plan has no executable slices." },
+      workLoop: { ...plan.workLoop, status: "blocked" },
+      reason: "blocked",
+      metadata: { status: "blocked", reason: "Plan has no executable slices." },
     });
   }
   const heartbeat = setInterval(() => {
@@ -125,9 +165,8 @@ export async function runClaimedCodexPlan(input: {
       codexCommand: input.codexCommand,
     });
     const result = runPreparedWorkLoopCodexLaunch(launch);
-    return input.client.completePlan(plan.id, {
-      leaseId,
-      metadata: {
+    const updatedWorkLoop = updateWorkLoopAfterCodexRun(plan, slice.id, result.status, launch.outcomePath);
+    const metadata = {
         executor: "codex",
         status: result.status,
         exitCode: result.exitCode,
@@ -135,11 +174,51 @@ export async function runClaimedCodexPlan(input: {
         outcomePath: launch.outcomePath,
         promptPath: launch.promptPath,
         launchRecordPath: launch.launchRecordPath,
-      },
+    };
+    if (updatedWorkLoop.status === "done") {
+      return input.client.completePlan(plan.id, {
+        leaseId,
+        workLoop: updatedWorkLoop,
+        metadata,
+      });
+    }
+    return input.client.releasePlan(plan.id, {
+      leaseId,
+      workLoop: updatedWorkLoop,
+      reason: updatedWorkLoop.status === "active" ? "ready" : "failed",
+      metadata,
     });
   } finally {
     clearInterval(heartbeat);
   }
+}
+
+function updateWorkLoopAfterCodexRun(
+  plan: PlanRecord,
+  sliceId: string,
+  status: "completed" | "failed",
+  outcomePath: string,
+): WorkLoop {
+  const slices = plan.workLoop.slices.map((slice) => {
+    if (slice.id !== sliceId) {
+      return slice;
+    }
+    return {
+      ...slice,
+      status: status === "completed" ? ("done" as const) : ("blocked" as const),
+      lastOutcomePath: outcomePath,
+    };
+  });
+  return {
+    ...plan.workLoop,
+    status:
+      status === "failed"
+        ? "blocked"
+        : slices.every((slice) => slice.status === "done")
+          ? "done"
+          : "active",
+    slices,
+  };
 }
 
 function makeClient(
@@ -152,8 +231,11 @@ function makeClient(
   });
 }
 
-function projectFilter(flags: Record<string, string | undefined>): { projectId?: string } {
-  return flags.project ? { projectId: flags.project } : {};
+function claimFilter(flags: Record<string, string | undefined>): { planId?: string; projectId?: string } {
+  return {
+    ...(flags.plan ? { planId: flags.plan } : {}),
+    ...(flags.project ? { projectId: flags.project } : {}),
+  };
 }
 
 export function parseFlags(args: string[]): Record<string, string | undefined> {
@@ -261,10 +343,13 @@ function printHelp(stdout: Pick<NodeJS.WriteStream, "write">): void {
 
 Commands:
   submit --server <url> --token <token> --file <workloop.json> [--approval-required]
-  claim --server <url> --token <token> [--project <id>]
-  poll --server <url> --token <token> [--interval 30s] [--project <id>]
-  run-codex --server <url> --token <token> --workspace <path> [--model <model>]
-  complete --server <url> --token <token> --plan <id> --lease <id> [--metadata <json-file>]
+  claim --server <url> --token <token> [--plan <id>] [--project <id>]
+  poll --server <url> --token <token> [--interval 30s] [--plan <id>] [--project <id>]
+  status --server <url> --token <token> --plan <id>
+  progress --server <url> --token <token> --plan <id> --file <progress.json>
+  release --server <url> --token <token> --plan <id> --file <release.json>
+  run-codex --server <url> --token <token> --workspace <path> [--plan <id>] [--model <model>]
+  complete --server <url> --token <token> --plan <id> --lease <id> [--work-loop <json-file>] [--metadata <json-file>]
 
 Credentials:
   --server and --token can also be provided by AWL_SERVER and AWL_TOKEN in the

@@ -155,7 +155,11 @@ describe("Agent Workloops server", () => {
       method: "POST",
       url: `/api/v1/plans/${planId}/complete`,
       headers: { authorization: `Bearer ${token}` },
-      payload: { leaseId, metadata: { exitCode: 0 } },
+      payload: {
+        leaseId,
+        workLoop: completeWorkLoop(workLoop),
+        metadata: { exitCode: 0 },
+      },
     });
     expect(completed.statusCode).toBe(200);
     expect(completed.json<{ status: string }>().status).toBe("completed");
@@ -194,6 +198,102 @@ describe("Agent Workloops server", () => {
     expect(secondClaim.statusCode).toBe(200);
     expect(secondClaim.json<{ leaseId: string }>().leaseId).not.toBe(
       firstClaim.json<{ leaseId: string }>().leaseId,
+    );
+  });
+
+  it("claims exact plans, records progress, releases non-terminal state, and guards completion", async () => {
+    const app = await buildServer({ config: config() });
+    const token = await createToken(app);
+    const first = await app.inject({
+      method: "POST",
+      url: "/api/v1/plans",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { workLoop: { ...workLoop, id: "loop-first" }, approvalRequired: false },
+    });
+    const second = await app.inject({
+      method: "POST",
+      url: "/api/v1/plans",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { workLoop: { ...workLoop, id: "loop-second" }, approvalRequired: false },
+    });
+    const firstPlanId = first.json<{ plan: { id: string } }>().plan.id;
+    const secondPlanId = second.json<{ plan: { id: string } }>().plan.id;
+
+    const claim = await app.inject({
+      method: "POST",
+      url: "/api/v1/plans/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { planId: secondPlanId },
+    });
+    expect(claim.statusCode).toBe(200);
+    expect(claim.json<{ plan: { id: string } }>().plan.id).toBe(secondPlanId);
+    const leaseId = claim.json<{ leaseId: string }>().leaseId;
+
+    const activeWorkLoop = {
+      ...workLoop,
+      id: "loop-second",
+      slices: [{ id: "slice-1", title: "Execute", status: "running" }],
+    };
+    const prematureComplete = await app.inject({
+      method: "POST",
+      url: `/api/v1/plans/${secondPlanId}/complete`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: { leaseId, workLoop: activeWorkLoop, metadata: { phase: "premature" } },
+    });
+    expect(prematureComplete.statusCode).toBe(400);
+
+    const progress = await app.inject({
+      method: "POST",
+      url: `/api/v1/plans/${secondPlanId}/progress`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: {
+        leaseId,
+        workLoop: activeWorkLoop,
+        decision: {
+          action: "continue",
+          reason: "Slice is running.",
+          workLoopId: "loop-second",
+          sliceId: "slice-1",
+        },
+        metadata: { phase: "slice-started" },
+      },
+    });
+    expect(progress.statusCode).toBe(200);
+    expect(progress.json<{ workLoop: { slices: Array<{ status: string }> } }>().workLoop.slices[0]?.status).toBe(
+      "running",
+    );
+
+    const release = await app.inject({
+      method: "POST",
+      url: `/api/v1/plans/${secondPlanId}/release`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: {
+        leaseId,
+        workLoop: { ...activeWorkLoop, status: "blocked", slices: [{ id: "slice-1", title: "Execute", status: "blocked" }] },
+        reason: "blocked",
+        metadata: { phase: "blocked" },
+      },
+    });
+    expect(release.statusCode).toBe(200);
+    expect(release.json<{ status: string; lock?: unknown }>().status).toBe("blocked");
+    expect(release.json<{ lock?: unknown }>().lock).toBeUndefined();
+
+    const exactFirstClaim = await app.inject({
+      method: "POST",
+      url: "/api/v1/plans/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { planId: firstPlanId },
+    });
+    expect(exactFirstClaim.statusCode).toBe(200);
+    expect(exactFirstClaim.json<{ plan: { id: string } }>().plan.id).toBe(firstPlanId);
+
+    const detail = await app.inject({
+      method: "GET",
+      url: `/api/v1/plans/${secondPlanId}`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(detail.json<{ audit: Array<{ type: string }> }>().audit.map((event) => event.type)).toEqual(
+      expect.arrayContaining(["claim", "progress", "release"]),
     );
   });
 
@@ -280,4 +380,12 @@ async function createToken(app: Awaited<ReturnType<typeof buildServer>>): Promis
     },
   });
   return tokenResponse.json<{ token: string }>().token;
+}
+
+function completeWorkLoop(input: typeof workLoop): typeof workLoop & { status: "done" } {
+  return {
+    ...input,
+    status: "done",
+    slices: input.slices.map((slice) => ({ ...slice, status: "done" })),
+  };
 }

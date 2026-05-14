@@ -14,7 +14,13 @@ const workLoop: WorkLoop = {
     { id: "b", title: "Second slice", status: "ready", dependsOn: ["a", "external"], attemptCount: 0 },
   ],
   completionPolicy: { defaultAction: "continue", stopOnlyFor: ["done"] },
-  reviewPolicy: { required: true, repairOnReviewFailure: true },
+  reviewPolicy: {
+    required: true,
+    sliceReview: "required",
+    finalReview: "required",
+    repairOnReviewFailure: true,
+    providers: [],
+  },
   runawayGuard: { maxConsecutiveAgentRuns: 5 },
 };
 

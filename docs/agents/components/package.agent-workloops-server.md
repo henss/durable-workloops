@@ -51,7 +51,9 @@ Package manifest at packages/server/package.json.
 - `interface:route.post.api-v1-plans-planid-approve`
 - `interface:route.post.api-v1-plans-planid-complete`
 - `interface:route.post.api-v1-plans-planid-heartbeat`
+- `interface:route.post.api-v1-plans-planid-progress`
 - `interface:route.post.api-v1-plans-planid-reject`
+- `interface:route.post.api-v1-plans-planid-release`
 - `interface:route.post.api-v1-plans-planid-request-review`
 - `interface:route.post.api-v1-tokens`
 - `interface:route.post.api-v1-users`
@@ -107,7 +109,9 @@ Package manifest at packages/server/package.json.
 - `interface:route.post.api-v1-plans-planid-approve` _(generated)_
 - `interface:route.post.api-v1-plans-planid-complete` _(generated)_
 - `interface:route.post.api-v1-plans-planid-heartbeat` _(generated)_
+- `interface:route.post.api-v1-plans-planid-progress` _(generated)_
 - `interface:route.post.api-v1-plans-planid-reject` _(generated)_
+- `interface:route.post.api-v1-plans-planid-release` _(generated)_
 - `interface:route.post.api-v1-plans-planid-request-review` _(generated)_
 - `interface:route.post.api-v1-tokens` _(generated)_
 - `interface:route.post.api-v1-users` _(generated)_

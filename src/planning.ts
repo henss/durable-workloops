@@ -84,8 +84,10 @@ The JSON object must match this shape:
       "stopOnlyFor": ["blocked", "needs_stefan", "done"]
     },
     "reviewPolicy": {
-      "required": true,
-      "repairOnReviewFailure": true
+      "sliceReview": "required",
+      "finalReview": "required",
+      "repairOnReviewFailure": true,
+      "providers": []
     },
     "runawayGuard": {
       "maxConsecutiveAgentRuns": 3,

@@ -70,12 +70,13 @@ Linear/Jira implementation logic, or repository-specific policy.
 - Ready to Claim / Claimable: `status: "queued"` plus `approvalStatus:
   "approved"` or `"not_required"`. These plans are available to executors.
 - Locked / Running: `status: "locked"`. These plans have an executor lease.
-- Completed Archive: `/api/v1/plans/archive` returns completed plans only.
+- Archived: `/api/v1/plans/archive` returns completed plans only.
 - Other API statuses exist: `blocked`, `canceled`, and `rejected` approval are
   valid records but are not separate top-level dashboard queues today.
 - UI labels intentionally translate raw values: the internal `claimable` bucket
   is shown as "Ready to Claim"; `queued` plus approved/not-required approval is
-  also badged as "Ready to Claim"; `locked` is shown as "Locked / Running".
+  badged as "Ready"; `locked` is shown as "Locked / Running"; completed plans
+  are shown as "Archived".
 
 ## Frontend Map
 
@@ -83,6 +84,9 @@ Linear/Jira implementation logic, or repository-specific policy.
   API mutations.
 - `apps/web/src/features/dashboard/DashboardShell.tsx`: dashboard shell,
   sidebar navigation, queue metrics, and tab content.
+- `apps/web/src/components/PageContent.tsx`: shared page-width shell. Use
+  `wide` for queue/table dashboards, `standard` for administration pages, and
+  `narrow` for focused forms such as New Plan.
 - `apps/web/src/features/dashboard/productCopy.ts`: canonical UI copy for
   concepts, queues, lifecycle steps, approval badges, execution-status badges,
   and plan action labels.
@@ -131,6 +135,13 @@ Linear/Jira implementation logic, or repository-specific policy.
 
 - Prefer plain operational labels over jargon. Use "Ready to Claim" in UI copy
   when explaining the `claimable` bucket.
+- The hosted UI uses Mantine components and theme tokens. Prefer Mantine
+  layout and interaction primitives (`AppShell`, `Box`, `Stack`, `Group`,
+  `SimpleGrid`, `Paper`, `Button`, `Menu`, `Modal`, `Popover`, `Table`,
+  `Badge`, and `Tooltip`) before adding custom CSS.
+- Keep page width decisions in `PageContent`. Queue pages should be wide and
+  centered within `AppShell.Main`; form and admin pages should use narrower
+  modes so text and controls stay readable.
 - Keep the queue pages operational. The compact lifecycle strip may stay
   visible, but the full product explanation should stay in progressive
   disclosure by default.

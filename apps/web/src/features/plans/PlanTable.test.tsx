@@ -50,10 +50,31 @@ describe("PlanTable", () => {
     );
 
     expect(html).toContain("Ready to Claim plans");
-    expect(html).toContain("Reject plan so executors cannot claim it: Review the action labels");
-    expect(html).toContain("Move plan back to Pending Approval before execution: Review the action labels");
+    expect(html).toContain("More actions for plan: Review the action labels");
     expect(html).toContain("View plan details: Review the action labels");
+    expect(html).toContain("Ready");
     expect(html).toContain(">View<");
   });
-});
 
+  it("can render the pending approval primary action as Review", () => {
+    const html = renderToStaticMarkup(
+      <MantineProvider theme={appTheme}>
+        <PlanTable
+          queueLabel="Pending approval plans"
+          dataTestId="queue-pending-plans"
+          plans={[{ ...plan, approvalStatus: "pending" }]}
+          onDetail={() => undefined}
+          detailAction="review"
+          onApprove={() => undefined}
+          onReject={() => undefined}
+          emptyTitle="No plans"
+          emptyDescription="Nothing to show"
+        />
+      </MantineProvider>,
+    );
+
+    expect(html).toContain("Open plan details for approval review: Review the action labels");
+    expect(html).toContain(">Review<");
+    expect(html).toContain("More actions for plan: Review the action labels");
+  });
+});

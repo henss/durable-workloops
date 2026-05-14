@@ -5,7 +5,6 @@ import {
   Badge,
   Box,
   Button,
-  Container,
   Divider,
   Group,
   Menu,
@@ -21,6 +20,7 @@ import { CheckCircle2, ChevronDown, Clock3, ListChecks, Lock, LogOut, RefreshCw 
 import type { CreatedClientToken, PlanRecord, PublicClientToken, User } from "@agent-workloops/api";
 import { ColorSchemeControl } from "../../components/ColorSchemeControl.js";
 import { MetricCard } from "../../components/MetricCard.js";
+import { PageContent, type PageContentMode } from "../../components/PageContent.js";
 import { PageSection } from "../../components/PageSection.js";
 import { appBackground, appCssVariables, shellPanelBackground, subtleBorder, themeTokens } from "../../components/themeSurfaces.js";
 import { PlanLifecycleHelp } from "./PlanLifecycleHelp.js";
@@ -76,6 +76,7 @@ export function DashboardShell(props: {
     tokens: props.tokens.length,
   });
   const activeTabInfo = tabs.find((tab) => tab.value === props.activeTab);
+  const pageContentMode = getPageContentMode(props.activeTab);
 
   return (
     <AppShell
@@ -91,17 +92,17 @@ export function DashboardShell(props: {
         bg={shellPanelBackground(computedColorScheme)}
         style={{ borderBottom: `1px solid ${tokens.borderSubtle}` }}
       >
-        <Group h="100%" justify="space-between">
-          <Group gap="sm">
+        <Group h="100%" justify="space-between" wrap="nowrap">
+          <Group gap="sm" wrap="nowrap" miw={0}>
             <ThemeIcon className="aw-app-icon" size={42} radius="lg" variant="gradient" gradient={{ from: "brand.6", to: "aqua.5", deg: 135 }}>
               <ListChecks size={20} />
             </ThemeIcon>
-            <Box>
-                <Title order={1} size="h3" fw={780}>Agent Workloops</Title>
-              <Text size="xs" c={tokens.textMuted} opacity={0.78}>Manage agent plans from approval through execution and archive.</Text>
+            <Box miw={0}>
+              <Title order={1} size="h3" fw={780}>Agent Workloops</Title>
+              <Text size="xs" c={tokens.textMuted} opacity={0.86} truncate>Manage agent plans from approval through execution and archive.</Text>
             </Box>
           </Group>
-          <Group gap="xs">
+          <Group gap="xs" wrap="nowrap">
             <ColorSchemeControl compact />
             <Text size="xs" c={tokens.textMuted}>Last refreshed: {formatLastRefreshed(props.lastRefreshedAt)}</Text>
             <Button
@@ -174,7 +175,7 @@ export function DashboardShell(props: {
       </AppShell.Navbar>
 
       <AppShell.Main className="aw-main">
-        <Container size={1680} px={{ base: "md", sm: "xl" }} py="md">
+        <PageContent mode={pageContentMode} dataTestId={`page-content-${props.activeTab}`}>
           <Stack gap="md">
             <Group justify="space-between" align="flex-end">
               <Box>
@@ -188,9 +189,9 @@ export function DashboardShell(props: {
                 <PlanLifecycleHelp activeTab={props.activeTab} />
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
                   <MetricCard
-                    label="Pending approval"
+                    label="Pending Approval"
                     value={props.buckets.pending.length}
-                    microcopy={props.buckets.pending.length === 0 ? "No plans waiting for review" : "Needs human review"}
+                    microcopy="Needs human review"
                     icon={<Clock3 size={18} />}
                     color="yellow"
                     active={props.activeTab === "pending"}
@@ -201,7 +202,7 @@ export function DashboardShell(props: {
                   <MetricCard
                     label="Ready to Claim"
                     value={props.buckets.claimable.length}
-                    microcopy={props.buckets.claimable.length === 0 ? "No executor work ready" : "Available to executors"}
+                    microcopy="Available to executors"
                     icon={<CheckCircle2 size={18} />}
                     color="aqua"
                     active={props.activeTab === "claimable"}
@@ -210,9 +211,9 @@ export function DashboardShell(props: {
                     onClick={() => props.setActiveTab("claimable")}
                   />
                   <MetricCard
-                    label="Locked / running"
+                    label="Locked / Running"
                     value={props.buckets.locked.length}
-                    microcopy={props.buckets.locked.length === 0 ? "No executor leases" : "Executor lease held"}
+                    microcopy="Executor leases"
                     icon={<Lock size={18} />}
                     color="brand"
                     active={props.activeTab === "locked"}
@@ -226,7 +227,7 @@ export function DashboardShell(props: {
 
             {renderDashboardContent(props)}
           </Stack>
-        </Container>
+        </PageContent>
       </AppShell.Main>
     </AppShell>
   );
@@ -281,9 +282,10 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           dataTestId="queue-pending-plans"
           plans={props.buckets.pending}
           onDetail={props.onDetail}
+          detailAction="review"
           onApprove={props.isReviewer ? props.onApprove : undefined}
           onReject={props.isReviewer ? props.onReject : undefined}
-          emptyTitle="No plans are waiting for approval"
+          emptyTitle="No plans need approval"
           emptyDescription="Plans that require human review appear here before executors can claim them."
           emptyCheckedAt={props.lastRefreshedAt}
           emptyLinks={[{ label: "Create a new plan", onClick: () => props.setActiveTab("new-plan") }]}
@@ -302,7 +304,7 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
           onDetail={props.onDetail}
           onReject={props.isReviewer ? props.onReject : undefined}
           onRequestReview={props.isReviewer ? props.onRequestReview : undefined}
-          emptyTitle="No Ready to Claim plans"
+          emptyTitle="No plans are ready for executors"
           emptyDescription="Approved or approval-free plans appear here when executors can claim them."
           emptyCheckedAt={props.lastRefreshedAt}
           emptyLinks={[{ label: "Create a new plan", onClick: () => props.setActiveTab("new-plan") }]}
@@ -331,11 +333,11 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
     return (
       <PageSection>
         <PlanTable
-          queueLabel="Completed archived plans"
+          queueLabel="Archived plans"
           dataTestId="queue-archive-plans"
           plans={props.archive}
           onDetail={props.onDetail}
-          emptyTitle="No completed plans yet"
+          emptyTitle="No archived plans yet"
           emptyDescription="Plans move here after an executor completes a WorkLoop whose status is done."
           emptyCheckedAt={props.lastRefreshedAt}
           onRefresh={props.onRefresh}
@@ -364,6 +366,16 @@ function renderDashboardContent(props: Parameters<typeof DashboardShell>[0]) {
 
 function isQueueTab(tab: DashboardTab): boolean {
   return tab === "pending" || tab === "claimable" || tab === "locked" || tab === "archive";
+}
+
+function getPageContentMode(tab: DashboardTab): PageContentMode {
+  if (isQueueTab(tab)) {
+    return "wide";
+  }
+  if (tab === "new-plan") {
+    return "narrow";
+  }
+  return "standard";
 }
 
 function formatLastRefreshed(value: Date | null): string {

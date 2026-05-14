@@ -59,7 +59,7 @@ Generated entities: 99
 - `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
 - `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
 - `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 2 discovered test files under packages/server.
-- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 4 discovered test files under apps/web.
+- `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 7 discovered test files under apps/web.
 - `test-scope:generated.src` - src tests: 5 discovered test files under src.
 
 ## Agent Skills

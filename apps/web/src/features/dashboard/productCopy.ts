@@ -1,7 +1,7 @@
 import type { PlanApprovalStatus, PlanRecord, PlanStatus } from "@agent-workloops/api";
 import type { DashboardTab } from "../../types.js";
 
-export type PlanAction = "approve" | "reject" | "request-review" | "view";
+export type PlanAction = "approve" | "reject" | "request-review" | "view" | "review";
 
 export const productSummary =
   "Agent Workloops coordinates agent execution plans through approval, executors claiming work, locked running leases, and completion into the archive.";
@@ -32,7 +32,7 @@ export const dashboardTabCopy: Record<
   }
 > = {
   pending: {
-    label: "Pending",
+    label: "Pending Approval",
     heading: "Pending Approval",
     description: "Plans waiting for human review before they can run.",
     sidebarHelp: "Needs review",
@@ -46,18 +46,18 @@ export const dashboardTabCopy: Record<
     ariaLabel: "Ready to Claim queue: plans available for executors",
   },
   locked: {
-    label: "Locked",
+    label: "Locked / Running",
     heading: "Locked / Running Plans",
     description: "Plans claimed by an executor and protected from duplicate execution.",
-    sidebarHelp: "Currently running",
+    sidebarHelp: "Executor leases",
     ariaLabel: "Locked plans queue: plans currently claimed by an executor",
   },
   archive: {
-    label: "Archive",
-    heading: "Completed Archive",
+    label: "Archived",
+    heading: "Archived Plans",
     description: "Completed plans that are no longer active.",
-    sidebarHelp: "Completed history",
-    ariaLabel: "Completed archive: plans no longer active after executor completion",
+    sidebarHelp: "Inactive history",
+    ariaLabel: "Archived plans queue: plans no longer active after executor completion",
   },
   "new-plan": {
     label: "New Plan",
@@ -126,8 +126,8 @@ export interface BadgePresentation {
 export function getApprovalPresentation(status: PlanApprovalStatus): BadgePresentation {
   const presentations: Record<PlanApprovalStatus, BadgePresentation> = {
     not_required: {
-      label: "Approval not required",
-      description: "This plan can be claimed without a human approval step.",
+      label: "Not required",
+      description: "Approval not required. This plan can be claimed without human review.",
       color: "gray",
     },
     pending: {
@@ -156,7 +156,7 @@ export function getPlanStatusPresentation(
   if (plan.status === "queued") {
     if (plan.approvalStatus === "pending") {
       return {
-        label: "Waiting review",
+        label: "Pending",
         description: "The plan is queued but cannot run until a reviewer approves it.",
         color: "orange",
       };
@@ -169,7 +169,7 @@ export function getPlanStatusPresentation(
       };
     }
     return {
-      label: "Ready to Claim",
+      label: "Ready",
       description: "The plan is queued and available for an executor to claim.",
       color: "aqua",
     };
@@ -178,13 +178,13 @@ export function getPlanStatusPresentation(
   if (plan.status === "locked") {
     if (plan.lock && new Date(plan.lock.expiresAt) <= now) {
       return {
-        label: "Lease expired",
+        label: "Expired",
         description: "The plan is locked by a lease that has expired and can be reclaimed by an executor.",
         color: "yellow",
       };
     }
     return {
-      label: "Locked / running",
+      label: "Running",
       description: "An executor has claimed this plan and holds the current lease.",
       color: "blue",
     };
@@ -197,8 +197,8 @@ export function getPlanStatusPresentation(
       color: "red",
     },
     completed: {
-      label: "Completed",
-      description: "The executor completed the plan after the WorkLoop reached done.",
+      label: "Archived",
+      description: "The executor completed the plan after the WorkLoop reached done; it now appears in the archive.",
       color: "teal",
     },
     canceled: {
@@ -212,34 +212,54 @@ export function getPlanStatusPresentation(
 
 export function getPlanActionPresentation(action: PlanAction, planObjective: string): {
   label: string;
+  menuLabel: string;
   tooltip: string;
   ariaLabel: string;
+  confirmTitle?: string;
   confirmMessage?: string;
+  confirmButtonLabel?: string;
 } {
-  const presentations: Record<PlanAction, { label: string; tooltip: string; consequence?: string }> = {
+  const presentations: Record<
+    PlanAction,
+    { label: string; menuLabel: string; tooltip: string; confirmTitle?: string; consequence?: string; confirmButtonLabel?: string }
+  > = {
     approve: {
       label: "Approve",
+      menuLabel: "Approve for execution",
       tooltip: "Approve plan for executor work",
     },
     reject: {
       label: "Reject",
+      menuLabel: "Reject plan",
       tooltip: "Reject plan so executors cannot claim it",
+      confirmTitle: "Reject plan?",
       consequence: "Reject this plan? Executors will not be able to claim it unless a reviewer changes it later.",
+      confirmButtonLabel: "Reject plan",
     },
     "request-review": {
       label: "Request review",
+      menuLabel: "Request human review",
       tooltip: "Move plan back to Pending Approval before execution",
     },
     view: {
       label: "View",
+      menuLabel: "View details",
       tooltip: "View plan details",
+    },
+    review: {
+      label: "Review",
+      menuLabel: "Review plan",
+      tooltip: "Open plan details for approval review",
     },
   };
   const presentation = presentations[action];
   return {
     label: presentation.label,
+    menuLabel: presentation.menuLabel,
     tooltip: presentation.tooltip,
     ariaLabel: `${presentation.tooltip}: ${planObjective}`,
+    confirmTitle: presentation.confirmTitle,
     confirmMessage: presentation.consequence,
+    confirmButtonLabel: presentation.confirmButtonLabel,
   };
 }

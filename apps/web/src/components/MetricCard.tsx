@@ -1,5 +1,5 @@
 import type React from "react";
-import { Box, Group, Paper, Text, ThemeIcon, UnstyledButton, useComputedColorScheme } from "@mantine/core";
+import { Badge, Box, Group, Paper, Text, ThemeIcon, UnstyledButton, useComputedColorScheme } from "@mantine/core";
 import { themeTokens } from "./themeSurfaces.js";
 
 const statusColors = {
@@ -28,20 +28,24 @@ export function MetricCard(props: {
       data-active={props.active}
       data-testid={props.dataTestId}
       aria-label={props.ariaLabel ?? `Show ${props.label.toLowerCase()} queue`}
+      aria-current={props.active ? "page" : undefined}
       onClick={props.onClick}
     >
       <Paper
-        p="md"
+        p="sm"
         className="aw-status-card"
         style={{
           "--status-accent": accent,
         }}
       >
-        <Group justify="space-between">
+        <Group justify="space-between" align="center" wrap="nowrap">
           <Box>
-            <Text size="xs" tt="uppercase" fw={800} c={tokens.textMuted} style={{ letterSpacing: "0.06em" }}>{props.label}</Text>
-            <Text size="32px" fw={850} lh={1.05} ff="Geist Mono, IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, monospace">{props.value}</Text>
-            <Text size="xs" c={tokens.textMuted} mt={4}>{props.microcopy}</Text>
+            <Group gap="xs" wrap="nowrap">
+              <Text size="xs" tt="uppercase" fw={800} c={tokens.textMuted} style={{ letterSpacing: "0.06em" }}>{props.label}</Text>
+              {props.active ? <Badge size="xs" variant="light">Current</Badge> : null}
+            </Group>
+            <Text size="28px" fw={850} lh={1.02} ff="Geist Mono, IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, monospace">{props.value}</Text>
+            <Text size="xs" c={tokens.textMuted} mt={2}>{props.microcopy}</Text>
           </Box>
           <ThemeIcon
             variant="light"

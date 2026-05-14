@@ -36,5 +36,5 @@ export function ApprovalBadge({ plan }: { plan: PlanRecord }) {
 
 const badgeStyles = {
   root: { minWidth: "max-content" },
-  label: { overflow: "visible" },
+  label: { overflow: "visible", textTransform: "none" },
 };

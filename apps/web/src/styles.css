@@ -55,7 +55,6 @@
 
 .aw-lifecycle-panel {
   position: relative;
-  overflow: visible;
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--aw-accent-muted) 28%, transparent), transparent 42%),
     linear-gradient(180deg, var(--aw-surface-elevated), var(--aw-surface));
@@ -75,42 +74,15 @@
   padding: 2px 4px 0;
 }
 
-.aw-lifecycle-details {
-  position: relative;
-  z-index: 4;
-  flex: 0 0 auto;
-}
-
-.aw-lifecycle-summary {
-  display: block;
-  color: var(--aw-accent);
-  cursor: pointer;
-  list-style: none;
-}
-
-.aw-lifecycle-summary::-webkit-details-marker {
-  display: none;
-}
-
-.aw-lifecycle-summary:hover {
-  color: var(--aw-accent-2);
-}
-
 .aw-lifecycle-popover {
-  position: absolute;
-  top: 26px;
-  right: 0;
-  width: min(700px, calc(100vw - 72px));
   border: 1px solid var(--aw-border);
   border-radius: 8px;
   background: var(--aw-surface-elevated);
-  box-shadow: var(--aw-shadow-hover);
 }
 
 .aw-lifecycle-strip {
-  width: 100%;
-  padding: 2px;
-  overflow-x: auto;
+  min-width: max-content;
+  padding: 2px 2px 4px;
 }
 
 .aw-lifecycle-step-wrap {
@@ -120,9 +92,9 @@
 .aw-lifecycle-step {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 34px;
-  padding: 6px 8px;
+  gap: 6px;
+  min-height: 32px;
+  padding: 5px 8px;
   border: 1px solid var(--aw-border-subtle);
   border-radius: 8px;
   background: color-mix(in srgb, var(--aw-surface-elevated) 80%, transparent);
@@ -145,7 +117,7 @@
 }
 
 .aw-lifecycle-arrow {
-  margin: 0 5px;
+  margin: 0 4px;
   color: var(--aw-text-muted);
   flex: 0 0 auto;
 }
@@ -174,11 +146,11 @@
 }
 
 .aw-actions-cell {
-  width: 164px;
+  width: 168px;
 }
 
 .aw-actions-group {
-  min-width: 146px;
+  min-width: 142px;
 }
 
 .aw-nowrap {
@@ -328,6 +300,7 @@
 
 .aw-status-card-button {
   display: block;
+  height: 100%;
   width: 100%;
   text-align: left;
 }
@@ -335,6 +308,7 @@
 .aw-status-card {
   position: relative;
   overflow: hidden;
+  height: 100%;
   border: 1px solid var(--aw-border);
   background: linear-gradient(180deg, var(--aw-surface-elevated), var(--aw-surface));
   box-shadow: var(--aw-shadow-soft);

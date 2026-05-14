@@ -21,8 +21,11 @@ describe("productCopy", () => {
       "Archived",
     ]);
     expect(dashboardTabCopy.pending.description).toBe("Plans waiting for human review before they can run.");
+    expect(dashboardTabCopy.pending.label).toBe("Pending Approval");
     expect(dashboardTabCopy.claimable.label).toBe("Ready to Claim");
     expect(dashboardTabCopy.claimable.sidebarHelp).toBe("Available to executors");
+    expect(dashboardTabCopy.locked.label).toBe("Locked / Running");
+    expect(dashboardTabCopy.archive.label).toBe("Archived");
   });
 
   it("announces the current lifecycle step", () => {
@@ -33,14 +36,14 @@ describe("productCopy", () => {
   });
 
   it("labels approval states with user-facing meaning", () => {
-    expect(getApprovalPresentation("not_required").label).toBe("Approval not required");
+    expect(getApprovalPresentation("not_required").label).toBe("Not required");
     expect(getApprovalPresentation("pending").description).toContain("reviewer must approve");
     expect(getApprovalPresentation("rejected").label).toBe("Rejected");
   });
 
   it("labels execution statuses with queue behavior", () => {
-    expect(getPlanStatusPresentation({ status: "queued", approvalStatus: "approved" }).label).toBe("Ready to Claim");
-    expect(getPlanStatusPresentation({ status: "queued", approvalStatus: "pending" }).label).toBe("Waiting review");
+    expect(getPlanStatusPresentation({ status: "queued", approvalStatus: "approved" }).label).toBe("Ready");
+    expect(getPlanStatusPresentation({ status: "queued", approvalStatus: "pending" }).label).toBe("Pending");
     expect(getPlanStatusPresentation({ status: "blocked", approvalStatus: "pending" }).description).toContain("blocked");
     expect(
       getPlanStatusPresentation(
@@ -56,12 +59,16 @@ describe("productCopy", () => {
         },
         new Date("2026-05-14T10:11:00.000Z"),
       ).label,
-    ).toBe("Lease expired");
+    ).toBe("Expired");
   });
 
   it("labels plan table actions by actual handler behavior", () => {
     expect(getPlanActionPresentation("view", "Inspect").ariaLabel).toBe("View plan details: Inspect");
+    expect(getPlanActionPresentation("review", "Inspect").label).toBe("Review");
+    expect(getPlanActionPresentation("review", "Inspect").ariaLabel).toBe("Open plan details for approval review: Inspect");
+    expect(getPlanActionPresentation("view", "Inspect").menuLabel).toBe("View details");
     expect(getPlanActionPresentation("reject", "Unsafe work").tooltip).toContain("executors cannot claim");
+    expect(getPlanActionPresentation("reject", "Unsafe work").menuLabel).toBe("Reject plan");
     expect(getPlanActionPresentation("reject", "Unsafe work").confirmMessage).toContain("Reject this plan?");
     expect(getPlanActionPresentation("request-review", "Needs review").tooltip).toContain("Pending Approval");
   });

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-workloops.local/schemas/work-item.v1.json",
+  "title": "Agent Workloops Shared Work Item v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "target_repo",
+    "title",
+    "objective",
+    "status",
+    "priority",
+    "trust_zone",
+    "job_class",
+    "authority_class",
+    "required_capabilities",
+    "redaction_policy",
+    "idempotency_key"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string", "minLength": 1 },
+    "target_repo": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "ready",
+        "claimed",
+        "running",
+        "blocked",
+        "needs_approval",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "urgent"]
+    },
+    "trust_zone": {
+      "type": "string",
+      "enum": [
+        "A_local_only",
+        "B_cloud_private",
+        "C_public_saas_candidate",
+        "split_required",
+        "unknown"
+      ]
+    },
+    "job_class": {
+      "type": "string",
+      "enum": [
+        "planning_only",
+        "read_only_sanitized",
+        "approval_required_write_action",
+        "forbidden"
+      ]
+    },
+    "authority_class": { "type": "string", "minLength": 1 },
+    "required_capabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "payload_ref": { "type": ["string", "null"] },
+    "artifact_refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reference" }
+    },
+    "approval_ref": { "anyOf": [{ "$ref": "#/$defs/reference" }, { "type": "null" }] },
+    "lease": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lease_id", "claimed_by", "claimed_at", "expires_at"],
+          "properties": {
+            "lease_id": { "type": "string", "minLength": 1 },
+            "claimed_by": { "type": "string", "minLength": 1 },
+            "claimed_at": { "type": "string", "format": "date-time" },
+            "expires_at": { "type": "string", "format": "date-time" },
+            "last_heartbeat_at": { "type": ["string", "null"], "format": "date-time" }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "sanitized_outcome_ref": { "anyOf": [{ "$ref": "#/$defs/reference" }, { "type": "null" }] },
+    "no_output_reason": { "type": ["string", "null"] },
+    "audit_refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reference" }
+    },
+    "redaction_policy": { "type": "string", "minLength": 1 },
+    "idempotency_key": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "ref": { "type": "string", "minLength": 1 },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-fA-F0-9]{64}$" },
+        "classification": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 export * from "./adjudication.js";
 export * from "./ai-quality-loops.js";
+export * from "./coordination.js";
+export * from "./coordination-fixtures.js";
 export * from "./launcher.js";
 export * from "./outcome.js";
 export * from "./planning.js";

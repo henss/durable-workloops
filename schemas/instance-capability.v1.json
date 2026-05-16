@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-workloops.local/schemas/instance-capability.v1.json",
+  "title": "Agent Workloops Instance Capability v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "instance_id",
+    "instance_type",
+    "hostname_alias",
+    "trust_boundary",
+    "capabilities",
+    "forbidden_capabilities",
+    "max_job_class",
+    "authority_classes",
+    "can_execute_local_shell",
+    "can_access_sensitive_local_adapters",
+    "can_access_private_account_sessions",
+    "can_access_credentials",
+    "can_access_private_network",
+    "can_deploy",
+    "heartbeat",
+    "redaction_policy"
+  ],
+  "properties": {
+    "instance_id": { "type": "string", "minLength": 1 },
+    "instance_type": {
+      "type": "string",
+      "enum": [
+        "desktop_orchestrator",
+        "laptop_orchestrator",
+        "cloud_orchestrator",
+        "local_runner",
+        "cloud_worker",
+        "human_operator"
+      ]
+    },
+    "hostname_alias": { "type": "string", "minLength": 1 },
+    "trust_boundary": { "type": "string", "minLength": 1 },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "forbidden_capabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "max_job_class": {
+      "type": "string",
+      "enum": [
+        "planning_only",
+        "read_only_sanitized",
+        "approval_required_write_action",
+        "forbidden"
+      ]
+    },
+    "authority_classes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "can_execute_local_shell": { "type": "boolean" },
+    "can_access_sensitive_local_adapters": { "type": "boolean" },
+    "can_access_private_account_sessions": { "type": "boolean" },
+    "can_access_credentials": { "type": "boolean" },
+    "can_access_private_network": { "type": "boolean" },
+    "can_deploy": { "type": "boolean" },
+    "heartbeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["last_seen_at", "interval_seconds", "stale_after_seconds"],
+      "properties": {
+        "last_seen_at": { "type": "string", "format": "date-time" },
+        "interval_seconds": { "type": "integer", "minimum": 1 },
+        "stale_after_seconds": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "redaction_policy": { "type": "string", "minLength": 1 },
+    "public_key_ref": { "type": "string", "minLength": 1 },
+    "identity_ref": { "type": "string", "minLength": 1 }
+  },
+  "anyOf": [{ "required": ["public_key_ref"] }, { "required": ["identity_ref"] }]
+}

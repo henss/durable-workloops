@@ -1,0 +1,68 @@
+import { describe, expect, it } from "vitest";
+import { validateHostedRuntimeSafety } from "./hosted-runtime-guard.js";
+
+describe("hosted runtime guard", () => {
+  it("fails closed when hosted mode omits safety flags", () => {
+    const result = validateHostedRuntimeSafety({ AWL_HOSTED_MODE: "true" });
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain("AWL_ENABLE_LOCAL_COMMAND_EXECUTION must be false in hosted mode");
+    expect(result.errors).toContain("AWL_MAX_JOB_CLASS is required in hosted mode");
+    expect(result.errors).toContain("AWL_WORK_ITEM_STORE is required in hosted mode");
+  });
+
+  it("rejects unsafe hosted execution settings", () => {
+    const result = validateHostedRuntimeSafety({
+      AWL_HOSTED_MODE: "true",
+      AWL_ENABLE_LOCAL_COMMAND_EXECUTION: "true",
+      AWL_ENABLE_WORKSPACE_PATH_EXECUTION: "false",
+      AWL_ALLOW_RAW_PRIVATE_LOG_UPLOAD: "false",
+      AWL_ALLOW_BROAD_PERSONAL_TOKENS: "false",
+      AWL_MAX_JOB_CLASS: "approval_required_write_action",
+      AWL_WORK_ITEM_STORE: "memory",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain("AWL_ENABLE_LOCAL_COMMAND_EXECUTION must be false in hosted mode");
+    expect(result.errors).toContain("AWL_MAX_JOB_CLASS exceeds hosted coordination limits without a policy layer");
+    expect(result.errors).toContain(
+      "AWL_WORK_ITEM_STORE must not be memory in hosted mode without an explicit ephemeral-store override",
+    );
+  });
+
+  it("accepts safe hosted coordination settings with a configured file store", () => {
+    const result = validateHostedRuntimeSafety({
+      AWL_HOSTED_MODE: "true",
+      AWL_ENABLE_LOCAL_COMMAND_EXECUTION: "false",
+      AWL_ENABLE_WORKSPACE_PATH_EXECUTION: "false",
+      AWL_ALLOW_RAW_PRIVATE_LOG_UPLOAD: "false",
+      AWL_ALLOW_BROAD_PERSONAL_TOKENS: "false",
+      AWL_MAX_JOB_CLASS: "planning_only",
+      AWL_WORK_ITEM_STORE: "file",
+      AWL_WORK_ITEM_STORE_FILE: "/tmp/agent-workloops-test/work-items.json",
+    });
+
+    expect(result).toEqual({ ok: true, errors: [] });
+  });
+
+  it("rejects unknown and incompletely configured store settings in hosted mode", () => {
+    const base = {
+      AWL_HOSTED_MODE: "true",
+      AWL_ENABLE_LOCAL_COMMAND_EXECUTION: "false",
+      AWL_ENABLE_WORKSPACE_PATH_EXECUTION: "false",
+      AWL_ALLOW_RAW_PRIVATE_LOG_UPLOAD: "false",
+      AWL_ALLOW_BROAD_PERSONAL_TOKENS: "false",
+      AWL_MAX_JOB_CLASS: "planning_only",
+    };
+
+    expect(validateHostedRuntimeSafety({ ...base, AWL_WORK_ITEM_STORE: "unknown" }).errors).toContain(
+      "AWL_WORK_ITEM_STORE is not recognized",
+    );
+    expect(validateHostedRuntimeSafety({ ...base, AWL_WORK_ITEM_STORE: "file" }).errors).toContain(
+      "AWL_WORK_ITEM_STORE_FILE is required when AWL_WORK_ITEM_STORE is file",
+    );
+    expect(validateHostedRuntimeSafety({ ...base, AWL_WORK_ITEM_STORE: "database" }).errors).toContain(
+      "AWL_WORK_ITEM_STORE_DATABASE_URL is required when AWL_WORK_ITEM_STORE is database",
+    );
+  });
+});

@@ -4,9 +4,13 @@ import fastifyStatic from "@fastify/static";
 import {
   ApprovePlanRequestSchema,
   ClaimPlanRequestSchema,
+  ClaimWorkItemRequestSchema,
   CompletePlanRequestSchema,
+  CompleteWorkItemRequestSchema,
+  CreateWorkItemRequestSchema,
   CreateClientTokenRequestSchema,
   CreateUserRequestSchema,
+  FailWorkItemRequestSchema,
   LoginRequestSchema,
   ProgressPlanRequestSchema,
   RejectPlanRequestSchema,
@@ -28,6 +32,7 @@ import { FilesystemAuthStore, FilesystemPlanStore } from "./filesystem-store.js"
 import { createMongoAuthStore, createMongoPlanStore } from "./mongodb-store.js";
 import { createSqlPlanStore } from "./sql-store.js";
 import type { AuthStore, PlanStore } from "./store.js";
+import { createConfiguredWorkItemStore, type WorkItemStore } from "./work-item-store.js";
 
 export interface AuthContext {
   user: User;
@@ -40,12 +45,14 @@ export interface BuildServerOptions {
   config: ServerConfig;
   planStore?: PlanStore;
   authStore?: AuthStore;
+  workItemStore?: WorkItemStore;
 }
 
 export async function buildServer(options: BuildServerOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: false, trustProxy: options.config.trustProxy });
   const planStore = options.planStore ?? (await createPlanStore(options.config));
   const authStore = options.authStore ?? (await createAuthStore(options.config));
+  const workItemStore = options.workItemStore ?? createConfiguredWorkItemStore(options.config);
 
   if (options.config.bootstrapAdmin) {
     await authStore.ensureBootstrapAdmin(options.config.bootstrapAdmin);
@@ -174,6 +181,143 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     }
     const query = z.object({ includeCompleted: z.coerce.boolean().optional() }).parse(request.query);
     return planStore.listPlans({ includeCompleted: query.includeCompleted });
+  });
+
+  app.get("/api/v1/work-items", async (request, reply) => {
+    const auth = await requireAuth(request, reply, authStore);
+    if (!auth) {
+      return;
+    }
+    requireScopeForToken(auth, "work_items:read", reply);
+    if (reply.sent) {
+      return;
+    }
+    return { work_items: await workItemStore.list() };
+  });
+
+  app.post("/api/v1/work-items", async (request, reply) => {
+    const auth = await requireAuth(request, reply, authStore);
+    if (!auth || rejectUnsafePayload(request.body, reply)) {
+      return;
+    }
+    requireScopeForToken(auth, "work_items:create", reply);
+    if (reply.sent) {
+      return;
+    }
+    const body = CreateWorkItemRequestSchema.parse(request.body);
+    const workItem = await workItemStore.create(body);
+    return reply.code(201).send({ work_item: workItem });
+  });
+
+  app.get("/api/v1/work-items/:workItemId", async (request, reply) => {
+    const auth = await requireAuth(request, reply, authStore);
+    if (!auth) {
+      return;
+    }
+    requireScopeForToken(auth, "work_items:read", reply);
+    if (reply.sent) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    const workItem = await workItemStore.get(params.workItemId);
+    if (!workItem) {
+      return reply.code(404).send({ error: "work item not found" });
+    }
+    return { work_item: workItem };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/ready", async (request, reply) => {
+    const auth = await requireAuth(request, reply, authStore);
+    if (!auth) {
+      return;
+    }
+    requireScopeForToken(auth, "work_items:transition", reply);
+    if (reply.sent) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    return { work_item: await workItemStore.markReady(params.workItemId) };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/claim", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "work_items:claim");
+    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    const body = ClaimWorkItemRequestSchema.parse(request.body ?? {});
+    return {
+      work_item: await workItemStore.claim(params.workItemId, {
+        ...body,
+        leaseTimeoutMs: options.config.locks.timeoutMs,
+      }),
+    };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/heartbeat", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "work_items:heartbeat");
+    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    const body = z.object({ lease_id: z.string().min(1) }).parse(request.body);
+    return {
+      work_item: await workItemStore.heartbeat(params.workItemId, {
+        lease_id: body.lease_id,
+        leaseTimeoutMs: options.config.locks.timeoutMs,
+      }),
+    };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/release-stale", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "work_items:transition");
+    if (!auth || !auth.tokenId) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    return { work_item: await workItemStore.releaseStale(params.workItemId) };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/needs-approval", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "work_items:transition");
+    if (!auth || !auth.tokenId) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    return { work_item: await workItemStore.moveToNeedsApproval(params.workItemId) };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/complete", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "work_items:complete");
+    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    const body = CompleteWorkItemRequestSchema.parse(request.body);
+    return { work_item: await workItemStore.complete(params.workItemId, body) };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/fail", async (request, reply) => {
+    const auth = await requireTokenScope(request, reply, authStore, "work_items:transition");
+    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    const body = FailWorkItemRequestSchema.parse(request.body);
+    return { work_item: await workItemStore.fail(params.workItemId, body.reason) };
+  });
+
+  app.post("/api/v1/work-items/:workItemId/cancel", async (request, reply) => {
+    const auth = await requireAuth(request, reply, authStore);
+    if (!auth) {
+      return;
+    }
+    requireScopeForToken(auth, "work_items:cancel", reply);
+    if (reply.sent) {
+      return;
+    }
+    const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
+    return { work_item: await workItemStore.cancel(params.workItemId) };
   });
 
   app.get("/api/v1/plans/archive", async (request, reply) => {
@@ -439,6 +583,12 @@ function requireScope(auth: AuthContext, scope: ClientTokenScope, reply: Fastify
   }
 }
 
+function requireScopeForToken(auth: AuthContext, scope: ClientTokenScope, reply: FastifyReply): void {
+  if (auth.tokenId) {
+    requireScope(auth, scope, reply);
+  }
+}
+
 function hasRole(user: User, role: UserRole): boolean {
   return user.roles.includes(role);
 }
@@ -470,4 +620,39 @@ async function closeStore(store: unknown): Promise<void> {
   ) {
     await store.close();
   }
+}
+
+function rejectUnsafePayload(value: unknown, reply: FastifyReply): boolean {
+  if (containsUnsafeString(value)) {
+    reply.code(400).send({ error: "Request contains unsupported sensitive-looking data." });
+    return true;
+  }
+  return false;
+}
+
+function containsUnsafeString(value: unknown): boolean {
+  if (typeof value === "string") {
+    return looksSensitive(value);
+  }
+  if (Array.isArray(value)) {
+    return value.some((entry) => containsUnsafeString(entry));
+  }
+  if (typeof value === "object" && value !== null) {
+    return Object.values(value).some((entry) => containsUnsafeString(entry));
+  }
+  return false;
+}
+
+function looksSensitive(value: string): boolean {
+  const tokenPrefixes = ["gh" + "p_", "gh" + "o_", "xo" + "xb-", "xo" + "xa-", "xo" + "xp-", "xo" + "xr-", "xo" + "xs-"];
+  if (tokenPrefixes.some((prefix) => value.includes(prefix))) {
+    return true;
+  }
+  if (value.includes("AK" + "IA") || value.includes("-----" + "BEGIN")) {
+    return true;
+  }
+  if (new RegExp(`${"sk"}-[A-Za-z0-9]{20,}`).test(value)) {
+    return true;
+  }
+  return new RegExp(`(${"postgresql"}|${"mongodb"}):\\/\\/`).test(value);
 }

@@ -29,6 +29,14 @@ export const ServerConfigSchema = z.object({
       database: z.string().min(1).default("agent_workloops"),
     }),
   ]),
+  workItems: z.object({
+    store: z.discriminatedUnion("kind", [
+      z.object({ kind: z.literal("memory") }),
+      z.object({ kind: z.literal("file"), filePath: z.string().min(1) }),
+      z.object({ kind: z.literal("database"), databaseUrl: z.string().min(1) }),
+    ]),
+    allowEphemeral: z.boolean().default(false),
+  }),
   bootstrapAdmin: z
     .object({
       email: z.string().email(),
@@ -43,6 +51,7 @@ export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 
 export function loadServerConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const persistenceKind = env.AWL_PERSISTENCE_KIND ?? env.DWL_PERSISTENCE_KIND ?? "filesystem";
+  const workItemStoreKind = env.AWL_WORK_ITEM_STORE ?? "memory";
   const dataDir = env.AWL_DATA_DIR ?? env.DWL_DATA_DIR ?? path.join(process.cwd(), ".agent-workloops");
   const port = env.AWL_PORT ?? env.DWL_PORT;
   const lockTimeoutMs = env.AWL_LOCK_TIMEOUT_MS ?? env.DWL_LOCK_TIMEOUT_MS;
@@ -76,6 +85,17 @@ export function loadServerConfig(env: NodeJS.ProcessEnv = process.env): ServerCo
               database: env.AWL_MONGODB_DATABASE ?? env.DWL_MONGODB_DATABASE,
             }
           : { kind: "filesystem" },
+    workItems: {
+      store:
+        workItemStoreKind === "file"
+          ? { kind: "file", filePath: env.AWL_WORK_ITEM_STORE_FILE }
+          : workItemStoreKind === "database"
+            ? { kind: "database", databaseUrl: env.AWL_WORK_ITEM_STORE_DATABASE_URL }
+            : workItemStoreKind === "memory"
+              ? { kind: "memory" }
+              : { kind: workItemStoreKind },
+      allowEphemeral: parseBoolean(env.AWL_ALLOW_EPHEMERAL_WORK_ITEM_STORE),
+    },
     bootstrapAdmin:
       (env.AWL_BOOTSTRAP_ADMIN_EMAIL ?? env.DWL_BOOTSTRAP_ADMIN_EMAIL) &&
       (env.AWL_BOOTSTRAP_ADMIN_PASSWORD ?? env.DWL_BOOTSTRAP_ADMIN_PASSWORD)

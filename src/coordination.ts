@@ -235,6 +235,7 @@ export function markWorkItemReady(item: WorkItem, now = new Date()): WorkItem {
 
 export function claimWorkItem(item: WorkItem, input: ClaimWorkItemInput): WorkItem {
   const now = input.now ?? new Date();
+  assertNoActiveLease(item, now);
   assertStatus(item, ["ready"]);
   assertExecutableJobClass(item);
   assertNoLease(item);

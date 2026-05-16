@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export * from "./work-items.js";
+
 export const WorkLoopSliceStatusSchema = z.enum([
   "ready",
   "running",
@@ -127,6 +129,13 @@ export const ClientTokenScopeSchema = z.enum([
   "plans:submit",
   "plans:claim",
   "plans:complete",
+  "work_items:read",
+  "work_items:create",
+  "work_items:transition",
+  "work_items:claim",
+  "work_items:heartbeat",
+  "work_items:complete",
+  "work_items:cancel",
 ]);
 
 export const UserRoleSchema = z.enum(["admin", "user", "reviewer"]);

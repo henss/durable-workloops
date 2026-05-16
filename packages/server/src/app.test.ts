@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildServer } from "./app.js";
 import type { ServerConfig } from "./config.js";
+import type { ClientTokenScope } from "@agent-workloops/api";
 
 const workLoop = {
   id: "loop-1",
@@ -335,6 +336,257 @@ describe("Agent Workloops server", () => {
     expect(me.statusCode).toBe(401);
   });
 
+  it("requires auth for work item mutation routes", async () => {
+    const app = await buildServer({ config: config() });
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items",
+      payload: workItemInput(),
+    });
+
+    expect(created.statusCode).toBe(401);
+  });
+
+  it("creates, lists, gets, claims, heartbeats, and completes a planning work item", async () => {
+    const app = await buildServer({ config: config() });
+    const token = await createWorkItemToken(app);
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: workItemInput(),
+    });
+    expect(created.statusCode).toBe(201);
+    expect(created.json<{ work_item: { status: string } }>().work_item.status).toBe("proposed");
+
+    const listed = await app.inject({
+      method: "GET",
+      url: "/api/v1/work-items",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(listed.json<{ work_items: unknown[] }>().work_items).toHaveLength(1);
+
+    const detail = await app.inject({
+      method: "GET",
+      url: "/api/v1/work-items/wi-example-1",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(detail.statusCode).toBe(200);
+
+    const ready = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-example-1/ready",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(ready.json<{ work_item: { status: string } }>().work_item.status).toBe("ready");
+
+    const claimed = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-example-1/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { claimant: "runner-example", lease_id: "lease-example-1" },
+    });
+    expect(claimed.statusCode).toBe(200);
+    expect(claimed.json<{ work_item: { status: string } }>().work_item.status).toBe("claimed");
+
+    const secondClaim = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-example-1/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { claimant: "runner-other", lease_id: "lease-example-2" },
+    });
+    expect(secondClaim.statusCode).toBe(409);
+
+    const heartbeat = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-example-1/heartbeat",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { lease_id: "lease-example-1" },
+    });
+    expect(heartbeat.statusCode).toBe(200);
+
+    const completed = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-example-1/complete",
+      headers: { authorization: `Bearer ${token}` },
+      payload: {
+        lease_id: "lease-example-1",
+        outcome: {
+          summary: "Synthetic planning completed.",
+          completed_at: new Date("2026-01-01T00:00:00.000Z").toISOString(),
+          artifact_refs: [],
+          metadata: {},
+        },
+      },
+    });
+    expect(completed.statusCode).toBe(200);
+    expect(completed.json<{ work_item: { status: string } }>().work_item.status).toBe("completed");
+  });
+
+  it("releases stale work item leases", async () => {
+    const app = await buildServer({ config: config({ lockTimeoutMs: 1 }) });
+    const token = await createWorkItemToken(app);
+    await createReadyWorkItem(app, token, "wi-stale");
+    const claimed = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-stale/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { claimant: "runner-example", lease_id: "lease-stale" },
+    });
+    expect(claimed.statusCode).toBe(200);
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    const released = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-stale/release-stale",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(released.statusCode).toBe(200);
+    expect(released.json<{ work_item: { status: string; lease: unknown } }>().work_item).toMatchObject({
+      status: "ready",
+      lease: null,
+    });
+  });
+
+  it("requires completion output for work items", async () => {
+    const app = await buildServer({ config: config() });
+    const token = await createWorkItemToken(app);
+    await createReadyWorkItem(app, token, "wi-output");
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-output/claim",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { claimant: "runner-example", lease_id: "lease-output" },
+    });
+
+    const completed = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-output/complete",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { lease_id: "lease-output" },
+    });
+
+    expect(completed.statusCode).toBe(400);
+  });
+
+  it("rejects forbidden and approval-required work item classes", async () => {
+    const app = await buildServer({ config: config() });
+    const token = await createWorkItemToken(app);
+
+    for (const jobClass of ["forbidden", "approval_required_write_action"]) {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/work-items",
+        headers: { authorization: `Bearer ${token}` },
+        payload: workItemInput(`wi-${jobClass}`, jobClass),
+      });
+      expect(response.statusCode).toBe(400);
+    }
+  });
+
+  it("does not echo sensitive-looking request values in work item errors", async () => {
+    const app = await buildServer({ config: config() });
+    const token = await createWorkItemToken(app);
+    const sensitiveLookingValue = `${"sk"}-${"a".repeat(24)}`;
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { ...workItemInput("wi-sensitive-looking"), payload_ref: sensitiveLookingValue },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).not.toContain(sensitiveLookingValue);
+  });
+
+  it("requires work item read scope for client token list and detail reads", async () => {
+    const app = await buildServer({ config: config() });
+    const writer = await createWorkItemToken(app);
+    const legacyToken = await createToken(app);
+    await createReadyWorkItem(app, writer, "wi-read-scope");
+
+    const listed = await app.inject({
+      method: "GET",
+      url: "/api/v1/work-items",
+      headers: { authorization: `Bearer ${legacyToken}` },
+    });
+    expect(listed.statusCode).toBe(403);
+
+    const detail = await app.inject({
+      method: "GET",
+      url: "/api/v1/work-items/wi-read-scope",
+      headers: { authorization: `Bearer ${legacyToken}` },
+    });
+    expect(detail.statusCode).toBe(403);
+  });
+
+  it("requires work item create scope for client token creation", async () => {
+    const app = await buildServer({ config: config() });
+    const readOnlyToken = await createWorkItemToken(app, ["work_items:read"]);
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items",
+      headers: { authorization: `Bearer ${readOnlyToken}` },
+      payload: workItemInput("wi-create-scope"),
+    });
+
+    expect(created.statusCode).toBe(403);
+  });
+
+  it("requires work item claim, heartbeat, and complete scopes for lease lifecycle", async () => {
+    const app = await buildServer({ config: config() });
+    const writer = await createWorkItemToken(app);
+    const readCreateOnly = await createWorkItemToken(app, ["work_items:read", "work_items:create", "work_items:transition"]);
+    await createReadyWorkItem(app, writer, "wi-scope-lifecycle");
+
+    const rejectedClaim = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-scope-lifecycle/claim",
+      headers: { authorization: `Bearer ${readCreateOnly}` },
+      payload: { claimant: "runner-example", lease_id: "lease-scope" },
+    });
+    expect(rejectedClaim.statusCode).toBe(403);
+
+    const claimToken = await createWorkItemToken(app, ["work_items:claim"]);
+    const claim = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-scope-lifecycle/claim",
+      headers: { authorization: `Bearer ${claimToken}` },
+      payload: { claimant: "runner-example", lease_id: "lease-scope" },
+    });
+    expect(claim.statusCode).toBe(200);
+
+    const rejectedHeartbeat = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-scope-lifecycle/heartbeat",
+      headers: { authorization: `Bearer ${claimToken}` },
+      payload: { lease_id: "lease-scope" },
+    });
+    expect(rejectedHeartbeat.statusCode).toBe(403);
+
+    const heartbeatToken = await createWorkItemToken(app, ["work_items:heartbeat"]);
+    const heartbeat = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-scope-lifecycle/heartbeat",
+      headers: { authorization: `Bearer ${heartbeatToken}` },
+      payload: { lease_id: "lease-scope" },
+    });
+    expect(heartbeat.statusCode).toBe(200);
+
+    const rejectedComplete = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-scope-lifecycle/complete",
+      headers: { authorization: `Bearer ${heartbeatToken}` },
+      payload: { lease_id: "lease-scope", no_output_reason: "Synthetic test ended without output." },
+    });
+    expect(rejectedComplete.statusCode).toBe(403);
+  });
+
   function config(
     input: {
       forceApprovalRequired?: boolean;
@@ -355,6 +607,7 @@ describe("Agent Workloops server", () => {
       cookies: { secure: input.cookieSecure ?? false, sameSite: "lax" },
       session: { ttlMs: input.sessionTtlMs },
       persistence: { kind: "filesystem" },
+      workItems: { store: { kind: "memory" }, allowEphemeral: true },
       bootstrapAdmin: {
         email: "admin@example.com",
         password: "password123",
@@ -362,6 +615,26 @@ describe("Agent Workloops server", () => {
     };
   }
 });
+
+async function createReadyWorkItem(
+  app: Awaited<ReturnType<typeof buildServer>>,
+  token: string,
+  id: string,
+): Promise<void> {
+  const created = await app.inject({
+    method: "POST",
+    url: "/api/v1/work-items",
+    headers: { authorization: `Bearer ${token}` },
+    payload: workItemInput(id),
+  });
+  expect(created.statusCode).toBe(201);
+  const ready = await app.inject({
+    method: "POST",
+    url: `/api/v1/work-items/${id}/ready`,
+    headers: { authorization: `Bearer ${token}` },
+  });
+  expect(ready.statusCode).toBe(200);
+}
 
 async function createToken(app: Awaited<ReturnType<typeof buildServer>>): Promise<string> {
   const login = await app.inject({
@@ -382,10 +655,58 @@ async function createToken(app: Awaited<ReturnType<typeof buildServer>>): Promis
   return tokenResponse.json<{ token: string }>().token;
 }
 
+async function createWorkItemToken(
+  app: Awaited<ReturnType<typeof buildServer>>,
+  scopes: ClientTokenScope[] = [
+    "work_items:read",
+    "work_items:create",
+    "work_items:transition",
+    "work_items:claim",
+    "work_items:heartbeat",
+    "work_items:complete",
+    "work_items:cancel",
+  ],
+): Promise<string> {
+  const login = await app.inject({
+    method: "POST",
+    url: "/api/v1/auth/login",
+    payload: { email: "admin@example.com", password: "password123" },
+  });
+  const cookie = login.cookies[0]?.value;
+  const tokenResponse = await app.inject({
+    method: "POST",
+    url: "/api/v1/tokens",
+    cookies: { awl_session: cookie ?? "" },
+    payload: {
+      name: "work-item-client",
+      scopes,
+    },
+  });
+  return tokenResponse.json<{ token: string }>().token;
+}
+
 function completeWorkLoop(input: typeof workLoop): typeof workLoop & { status: "done" } {
   return {
     ...input,
     status: "done",
     slices: input.slices.map((slice) => ({ ...slice, status: "done" })),
+  };
+}
+
+function workItemInput(id = "wi-example-1", jobClass = "planning_only"): Record<string, unknown> {
+  return {
+    id,
+    created_by: "human-operator-example",
+    target_repo: "example-service",
+    title: "Draft a coordination plan",
+    objective: "Create a public-safe synthetic planning artifact.",
+    priority: "normal",
+    trust_zone: "B_cloud_private",
+    job_class: jobClass,
+    authority_class: "planning_only",
+    required_capabilities: ["planning_packet"],
+    payload_ref: "artifact://example/input",
+    redaction_policy: "public_safe_no_sensitive_payloads",
+    idempotency_key: `${id}-key`,
   };
 }

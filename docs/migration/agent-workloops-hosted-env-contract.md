@@ -83,11 +83,11 @@ Store profile rules:
 
 `AWL_WORK_ITEM_STORE_DATABASE_KIND` declares the database engine family for the cloud-grade adapter:
 
-- `postgres`
-- `mongodb`
-- `unknown`
+- `postgres` — Phase 1E adapter is implemented (parameterized SQL, compare-and-set, append-only audit stream).
+- `mongodb` — intentionally not implemented. Selecting it fails fast.
+- `unknown` — fails closed in hosted mode.
 
-Unknown engine families fail closed in hosted mode.
+`AWL_WORK_ITEM_STORE_DATABASE_URL` is the connection string passed directly to the Postgres client at runtime. It is read by the driver and is never logged by the work item store or the audit store. Adapter errors are normalized to opaque messages so connection strings and query parameter values cannot leak via stack traces.
 
 Hosted mode must fail closed when:
 
@@ -108,7 +108,7 @@ Configuration values must not be logged. Error messages may name missing or inva
 
 ## Audit Stream Config
 
-A `WorkItemAuditStore` interface exists for append-oriented work item audit events. The in-memory implementation is for tests only.
+A `WorkItemAuditStore` interface exists for append-oriented work item audit events. The in-memory implementation is for tests only. A `PostgresWorkItemAuditStore` implementation is wired automatically when `AWL_WORK_ITEM_STORE=database` and `AWL_WORK_ITEM_STORE_DATABASE_KIND=postgres`.
 
 Cloud-grade hosted deployments must wire a cloud-grade audit persistence backing before rollout. The audit stream MUST:
 
@@ -117,7 +117,11 @@ Cloud-grade hosted deployments must wire a cloud-grade audit persistence backing
 - carry status before/after, job class, trust zone, authority class, redaction policy, sanitized reasons, and reference-only artifact metadata;
 - never carry secret values, raw private logs, or full request bodies.
 
-A persistent audit backing is out of scope for this phase. Audit values must not be logged.
+`auth_rejected` events are emitted by work-item routes when authentication is missing or a presented client token lacks the required scope. The event carries only the URL-derived `work_item_id` (when present) and a short sanitized reason; the request body, token value, and any caller-supplied identifier are never echoed.
+
+`config_rejected` events remain explicitly future work. The hosted-runtime guard runs before the audit store exists, so emitting `config_rejected` from that path would require contorting startup ordering. Until that wiring lands, hosted startup failures surface only as fatal process errors and are not echoed to the audit stream.
+
+Audit values must not be logged. The Postgres audit adapter normalizes driver errors to opaque messages so audit record payloads cannot escape via stack traces.
 
 ## Auth And Session Config
 

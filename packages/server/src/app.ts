@@ -34,8 +34,10 @@ import { createSqlPlanStore } from "./sql-store.js";
 import type { AuthStore, PlanStore } from "./store.js";
 import { createConfiguredWorkItemStore, type WorkItemStore } from "./work-item-store.js";
 import {
+  createConfiguredWorkItemAuditStore,
   InMemoryWorkItemAuditStore,
   RecordingWorkItemStore,
+  sanitizedReason,
   type WorkItemAuditStore,
 } from "./work-item-audit-store.js";
 
@@ -60,7 +62,7 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   const authStore = options.authStore ?? (await createAuthStore(options.config));
   const baseWorkItemStore = options.workItemStore ?? createConfiguredWorkItemStore(options.config);
   const workItemAuditStore: WorkItemAuditStore =
-    options.workItemAuditStore ?? new InMemoryWorkItemAuditStore();
+    options.workItemAuditStore ?? createDefaultWorkItemAuditStore(options.config);
   const workItemStore: WorkItemStore = new RecordingWorkItemStore(
     baseWorkItemStore,
     workItemAuditStore,
@@ -196,24 +198,22 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.get("/api/v1/work-items", async (request, reply) => {
-    const auth = await requireAuth(request, reply, authStore);
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:read",
+      enforceTokenScopeOnly: false,
+    });
     if (!auth) {
-      return;
-    }
-    requireScopeForToken(auth, "work_items:read", reply);
-    if (reply.sent) {
       return;
     }
     return { work_items: await workItemStore.list() };
   });
 
   app.post("/api/v1/work-items", async (request, reply) => {
-    const auth = await requireAuth(request, reply, authStore);
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:create",
+      enforceTokenScopeOnly: false,
+    });
     if (!auth || rejectUnsafePayload(request.body, reply)) {
-      return;
-    }
-    requireScopeForToken(auth, "work_items:create", reply);
-    if (reply.sent) {
       return;
     }
     const body = CreateWorkItemRequestSchema.parse(request.body);
@@ -222,12 +222,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.get("/api/v1/work-items/:workItemId", async (request, reply) => {
-    const auth = await requireAuth(request, reply, authStore);
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:read",
+      enforceTokenScopeOnly: false,
+    });
     if (!auth) {
-      return;
-    }
-    requireScopeForToken(auth, "work_items:read", reply);
-    if (reply.sent) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -239,12 +238,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/ready", async (request, reply) => {
-    const auth = await requireAuth(request, reply, authStore);
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:transition",
+      enforceTokenScopeOnly: false,
+    });
     if (!auth) {
-      return;
-    }
-    requireScopeForToken(auth, "work_items:transition", reply);
-    if (reply.sent) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -252,8 +250,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/claim", async (request, reply) => {
-    const auth = await requireTokenScope(request, reply, authStore, "work_items:claim");
-    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:claim",
+      enforceTokenScopeOnly: true,
+    });
+    if (!auth || rejectUnsafePayload(request.body, reply)) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -267,8 +268,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/heartbeat", async (request, reply) => {
-    const auth = await requireTokenScope(request, reply, authStore, "work_items:heartbeat");
-    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:heartbeat",
+      enforceTokenScopeOnly: true,
+    });
+    if (!auth || rejectUnsafePayload(request.body, reply)) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -282,8 +286,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/release-stale", async (request, reply) => {
-    const auth = await requireTokenScope(request, reply, authStore, "work_items:transition");
-    if (!auth || !auth.tokenId) {
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:transition",
+      enforceTokenScopeOnly: true,
+    });
+    if (!auth) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -291,8 +298,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/needs-approval", async (request, reply) => {
-    const auth = await requireTokenScope(request, reply, authStore, "work_items:transition");
-    if (!auth || !auth.tokenId) {
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:transition",
+      enforceTokenScopeOnly: true,
+    });
+    if (!auth) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -300,8 +310,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/complete", async (request, reply) => {
-    const auth = await requireTokenScope(request, reply, authStore, "work_items:complete");
-    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:complete",
+      enforceTokenScopeOnly: true,
+    });
+    if (!auth || rejectUnsafePayload(request.body, reply)) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -310,8 +323,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/fail", async (request, reply) => {
-    const auth = await requireTokenScope(request, reply, authStore, "work_items:transition");
-    if (!auth || !auth.tokenId || rejectUnsafePayload(request.body, reply)) {
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:transition",
+      enforceTokenScopeOnly: true,
+    });
+    if (!auth || rejectUnsafePayload(request.body, reply)) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -320,12 +336,11 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   });
 
   app.post("/api/v1/work-items/:workItemId/cancel", async (request, reply) => {
-    const auth = await requireAuth(request, reply, authStore);
+    const auth = await requireWorkItemAuth(request, reply, authStore, workItemAuditStore, {
+      scope: "work_items:cancel",
+      enforceTokenScopeOnly: false,
+    });
     if (!auth) {
-      return;
-    }
-    requireScopeForToken(auth, "work_items:cancel", reply);
-    if (reply.sent) {
       return;
     }
     const params = z.object({ workItemId: z.string().min(1) }).parse(request.params);
@@ -504,6 +519,14 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
   return app;
 }
 
+function createDefaultWorkItemAuditStore(config: ServerConfig): WorkItemAuditStore {
+  const store = config.workItems.store;
+  if (store.kind === "memory" || store.kind === "file") {
+    return new InMemoryWorkItemAuditStore();
+  }
+  return createConfiguredWorkItemAuditStore(config);
+}
+
 async function createPlanStore(config: ServerConfig): Promise<PlanStore> {
   if (config.persistence.kind === "filesystem") {
     return new FilesystemPlanStore(config.dataDir);
@@ -598,6 +621,99 @@ function requireScope(auth: AuthContext, scope: ClientTokenScope, reply: Fastify
 function requireScopeForToken(auth: AuthContext, scope: ClientTokenScope, reply: FastifyReply): void {
   if (auth.tokenId) {
     requireScope(auth, scope, reply);
+  }
+}
+
+/**
+ * Auth wrapper used by the work-item routes. Behaviour matches the existing
+ * `requireAuth` + scope helpers, with one addition: every auth failure
+ * records an `auth_rejected` audit event. The audit payload contains only
+ * the URL-derived `workItemId` (if any) and a short sanitized reason
+ * naming the missing scope or the absence of credentials. The audit event
+ * never includes the request body, headers, token id, or any caller-supplied
+ * value.
+ *
+ * `enforceTokenScopeOnly: true` matches the previous `requireTokenScope`
+ * semantics — only a client token can satisfy these endpoints (claim,
+ * heartbeat, complete, etc.). `false` matches `requireScopeForToken` —
+ * cookie sessions are accepted, and the scope is only enforced when a
+ * client token is presented.
+ */
+async function requireWorkItemAuth(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  authStore: AuthStore,
+  auditStore: WorkItemAuditStore,
+  authOptions: {
+    scope: ClientTokenScope;
+    enforceTokenScopeOnly: boolean;
+  },
+): Promise<AuthContext | undefined> {
+  const workItemId = extractWorkItemIdFromParams(request);
+  const auth = await authenticate(request, authStore);
+  if (!auth) {
+    reply.code(401).send({ error: "Authentication required." });
+    await safeRecordAuthRejected(auditStore, workItemId, "authentication required");
+    return undefined;
+  }
+  if (authOptions.enforceTokenScopeOnly) {
+    if (!auth.tokenId || !auth.scopes.includes(authOptions.scope)) {
+      reply.code(403).send({ error: `Client token requires ${authOptions.scope}.` });
+      await safeRecordAuthRejected(
+        auditStore,
+        workItemId,
+        `missing scope ${authOptions.scope}`,
+      );
+      return undefined;
+    }
+    return auth;
+  }
+  if (auth.tokenId && !auth.scopes.includes(authOptions.scope)) {
+    reply.code(403).send({ error: `Client token requires ${authOptions.scope}.` });
+    await safeRecordAuthRejected(
+      auditStore,
+      workItemId,
+      `missing scope ${authOptions.scope}`,
+    );
+    return undefined;
+  }
+  return auth;
+}
+
+function extractWorkItemIdFromParams(request: FastifyRequest): string | undefined {
+  const params = request.params as { workItemId?: unknown } | undefined;
+  if (params && typeof params.workItemId === "string" && params.workItemId.length > 0) {
+    return params.workItemId;
+  }
+  return undefined;
+}
+
+async function safeRecordAuthRejected(
+  auditStore: WorkItemAuditStore,
+  workItemId: string | undefined,
+  reason: string,
+): Promise<void> {
+  try {
+    await auditStore.record({
+      event_type: "auth_rejected",
+      work_item_id: workItemId ?? null,
+      actor_ref: null,
+      instance_ref: null,
+      status_before: null,
+      status_after: null,
+      job_class: null,
+      trust_zone: null,
+      authority_class: null,
+      redaction_policy: null,
+      artifact_refs: [],
+      approval_ref: null,
+      receipt_ref: null,
+      sanitized_reason: sanitizedReason(reason),
+      metadata_hash: null,
+      payload_hash: null,
+    });
+  } catch {
+    // Audit failures must never cascade into request handling.
   }
 }
 

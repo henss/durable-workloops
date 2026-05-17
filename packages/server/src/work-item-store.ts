@@ -17,7 +17,10 @@ import {
   type WorkItem,
 } from "@agent-workloops/api";
 import type { ServerConfig } from "./config.js";
-import { createDatabaseWorkItemStore } from "./database-work-item-store.js";
+import {
+  createDatabaseWorkItemStore,
+  type CreateDatabaseWorkItemStoreOptions,
+} from "./database-work-item-store.js";
 
 export interface WorkItemStore {
   create(input: CreateWorkItemRequest): Promise<WorkItem>;
@@ -267,7 +270,14 @@ export class FileWorkItemStore implements WorkItemStore {
   }
 }
 
-export function createConfiguredWorkItemStore(config: ServerConfig): WorkItemStore {
+export interface CreateConfiguredWorkItemStoreOptions {
+  databaseOptions?: CreateDatabaseWorkItemStoreOptions;
+}
+
+export function createConfiguredWorkItemStore(
+  config: ServerConfig,
+  options: CreateConfiguredWorkItemStoreOptions = {},
+): WorkItemStore {
   const store = config.workItems.store;
   if (store.kind === "memory") {
     if (config.workItems.requireCloudGrade) {
@@ -286,7 +296,7 @@ export function createConfiguredWorkItemStore(config: ServerConfig): WorkItemSto
     return new FileWorkItemStore(store.filePath);
   }
   if (store.kind === "database") {
-    return createDatabaseWorkItemStore(config);
+    return createDatabaseWorkItemStore(config, options.databaseOptions);
   }
   throw new Error("AWL_WORK_ITEM_STORE is not recognized");
 }

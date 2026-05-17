@@ -16,6 +16,11 @@ import {
 } from "@agent-workloops/api";
 import type { ServerConfig } from "./config.js";
 import type { WorkItemStore } from "./work-item-store.js";
+import {
+  PostgresWorkItemPersistenceAdapter,
+  defaultPostgresExecutorFactory,
+  type PostgresExecutor,
+} from "./postgres-work-item-store.js";
 
 /**
  * `WorkItemPersistenceAdapter` is the small "port" a cloud-grade database
@@ -275,24 +280,57 @@ export class InMemoryWorkItemPersistenceAdapter implements WorkItemPersistenceAd
   }
 }
 
+export interface CreateDatabaseWorkItemStoreOptions {
+  /**
+   * Optional injection point for tests. When provided, the factory uses
+   * this function to build the `PostgresExecutor` instead of opening a real
+   * `postgres` client. Production callers leave this unset so the default
+   * factory in `postgres-work-item-store.ts` runs.
+   */
+  postgresExecutorFactory?: (databaseUrl: string) => PostgresExecutor;
+}
+
 /**
  * Factory invoked by hosted server startup when `AWL_WORK_ITEM_STORE=database`.
- * No real Postgres or MongoDB backing is wired in this phase. Selecting the
- * database store MUST fail fast with a clear error so deployments cannot
- * silently degrade to a non-cloud-grade adapter.
  *
- * The actual cloud-grade driver wiring (collection/table layout, index setup,
- * connection lifecycle) is described in
- * `docs/migration/database-work-item-store-contract.md`.
+ * Dispatch:
+ *   - `databaseKind === "postgres"`: builds the real
+ *     `PostgresWorkItemPersistenceAdapter`. The Postgres executor is
+ *     constructed via the injected factory in tests, or via the default
+ *     factory in production. The database URL is never logged here.
+ *   - `databaseKind === "mongodb"`: fails fast with
+ *     `WorkItemPersistenceAdapterNotImplementedError`. The MongoDB adapter
+ *     is intentionally out of scope and must not silently fall back to a
+ *     non-cloud-grade adapter.
+ *   - Any other value (including `"unknown"`): fails fast with
+ *     `WorkItemPersistenceAdapterNotImplementedError`.
+ *
+ * The detailed table layout, index strategy, and compare-and-set semantics
+ * are documented in `docs/migration/database-work-item-store-contract.md`.
  */
 export function createDatabaseWorkItemStore(
   config: ServerConfig,
+  options: CreateDatabaseWorkItemStoreOptions = {},
 ): DatabaseWorkItemStore {
   if (config.workItems.store.kind !== "database") {
     throw new Error("database work item store requires a database store config");
   }
+  const store = config.workItems.store;
+  if (!store.databaseUrl) {
+    throw new Error("database work item store requires a non-empty database url");
+  }
+  if (store.databaseKind === "postgres") {
+    const factory = options.postgresExecutorFactory ?? defaultPostgresExecutorFactory;
+    const executor = factory(store.databaseUrl);
+    return new DatabaseWorkItemStore(new PostgresWorkItemPersistenceAdapter(executor));
+  }
+  if (store.databaseKind === "mongodb") {
+    throw new WorkItemPersistenceAdapterNotImplementedError(
+      "database work item store adapter for kind 'mongodb' is not implemented",
+    );
+  }
   throw new WorkItemPersistenceAdapterNotImplementedError(
-    "database work item store adapter is not implemented; configure AWL_WORK_ITEM_STORE_DATABASE_KIND once a cloud-grade driver is wired",
+    "database work item store adapter is not implemented; set AWL_WORK_ITEM_STORE_DATABASE_KIND to a supported kind",
   );
 }
 

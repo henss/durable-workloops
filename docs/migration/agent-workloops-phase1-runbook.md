@@ -85,6 +85,26 @@ Phase 1B/1C safety rules still apply:
 - no broad personal tokens in hosted mode
 - max job class limited to planning-only or sanitized read-only unless a policy layer is wired
 
+## Phase 1E Postgres Adapter Status
+
+Phase 1E adds the first concrete cloud-grade backing for hosted coordination, without deploying anything and without connecting to a live database:
+
+- `PostgresWorkItemPersistenceAdapter` implements the persistence port with parameterized SQL and compare-and-set semantics on the version column
+- `PostgresWorkItemAuditStore` implements the audit stream as an append-only `INSERT`/`SELECT` surface over `work_item_audit_events`
+- the database factory now dispatches `AWL_WORK_ITEM_STORE=database` + `AWL_WORK_ITEM_STORE_DATABASE_KIND=postgres` to the real adapter; the database URL is read by the postgres client itself and is never logged here
+- `mongodb` and any other database kind remain fail-fast as not implemented; there is no silent fallback to a non-cloud-grade store
+- the audit store selection mirrors the same dispatch: `memory`/`file` configs get the in-memory audit store; `database`/`postgres` gets the Postgres audit store; `database`/`mongodb` or unknown fail closed
+- a public-safe SQL schema artifact lives at `docs/migration/postgres-work-item-store-schema.sql` for operators to wire into their own migration tooling; the runtime does not auto-apply it
+- work-item routes now emit `auth_rejected` audit events on missing-credentials and missing-scope failures, with only the URL-derived `work_item_id` and a short sanitized reason; the request body, token value, and any caller-supplied identifier are never echoed
+- `config_rejected` audit emission remains explicit future work because the hosted-runtime guard runs before the audit store exists; bending startup ordering to fit it now is not worth the complexity
+
+What remains blocked before hosted rollout:
+
+- the Postgres adapter has only been exercised against an injected SQL executor stub; it has not been validated against a live Postgres instance under realistic concurrency
+- the schema artifact has not been applied to any live database from this repository
+- `config_rejected` audit wiring is still future work
+- the MongoDB adapter remains intentionally unimplemented
+
 ## Required Data Model Concepts
 
 - `instance`: desktop, laptop, cloud orchestrator, local runner, cloud worker, or human operator identity.

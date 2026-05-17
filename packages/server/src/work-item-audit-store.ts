@@ -10,6 +10,12 @@ import {
   type WorkItemReference,
   type WorkItemStatus,
 } from "@agent-workloops/api";
+import type { ServerConfig } from "./config.js";
+import {
+  defaultPostgresExecutorFactory,
+  type PostgresExecutor,
+} from "./postgres-work-item-store.js";
+import { PostgresWorkItemAuditStore } from "./postgres-work-item-audit-store.js";
 import type { WorkItemStore } from "./work-item-store.js";
 
 /**
@@ -32,6 +38,58 @@ export type WorkItemAuditEventInput = Omit<WorkItemAuditEvent, "id" | "created_a
 export interface WorkItemAuditFilter {
   workItemId?: string;
   eventTypes?: WorkItemAuditEventType[];
+}
+
+export interface CreateConfiguredWorkItemAuditStoreOptions {
+  /**
+   * Optional injection point for tests. When provided, the factory uses
+   * this function to build the `PostgresExecutor` for a Postgres-backed
+   * audit store instead of opening a real `postgres` client.
+   */
+  postgresExecutorFactory?: (databaseUrl: string) => PostgresExecutor;
+}
+
+/**
+ * Pick the configured audit store implementation:
+ *   - `memory` and `file` work item stores get the in-memory audit store,
+ *     which is sufficient for local development and tests.
+ *   - `database` + `databaseKind === "postgres"` uses the Postgres-backed
+ *     append-only audit store.
+ *   - `database` + `databaseKind === "mongodb"` is intentionally
+ *     unsupported; this throws rather than silently degrading to an
+ *     in-memory audit store under hosted mode.
+ *   - Any unknown database kind throws for the same reason.
+ *
+ * Callers that want to override the audit store (e.g. tests, custom hosting
+ * with a different durable audit log) can pass `workItemAuditStore` on
+ * `buildServer` and bypass this factory.
+ */
+export function createConfiguredWorkItemAuditStore(
+  config: ServerConfig,
+  options: CreateConfiguredWorkItemAuditStoreOptions = {},
+): WorkItemAuditStore {
+  const store = config.workItems.store;
+  if (store.kind === "memory" || store.kind === "file") {
+    return new InMemoryWorkItemAuditStore();
+  }
+  if (store.kind === "database") {
+    if (!store.databaseUrl) {
+      throw new Error("postgres work item audit store requires a non-empty database url");
+    }
+    if (store.databaseKind === "postgres") {
+      const factory = options.postgresExecutorFactory ?? defaultPostgresExecutorFactory;
+      return new PostgresWorkItemAuditStore(factory(store.databaseUrl));
+    }
+    if (store.databaseKind === "mongodb") {
+      throw new Error(
+        "postgres work item audit store is not implemented for database kind 'mongodb'",
+      );
+    }
+    throw new Error(
+      "postgres work item audit store is not implemented for the configured database kind",
+    );
+  }
+  throw new Error("work item audit store is not configured for the selected store kind");
 }
 
 export class InMemoryWorkItemAuditStore implements WorkItemAuditStore {

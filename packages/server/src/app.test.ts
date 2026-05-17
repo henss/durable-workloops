@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildServer } from "./app.js";
 import type { ServerConfig } from "./config.js";
+import { InMemoryWorkItemAuditStore } from "./work-item-audit-store.js";
 import type { ClientTokenScope } from "@agent-workloops/api";
 
 const workLoop = {
@@ -346,6 +347,53 @@ describe("Agent Workloops server", () => {
     });
 
     expect(created.statusCode).toBe(401);
+  });
+
+  it("records a redacted auth_rejected audit event when work item auth fails", async () => {
+    const auditStore = new InMemoryWorkItemAuditStore();
+    const app = await buildServer({ config: config(), workItemAuditStore: auditStore });
+
+    const noAuth = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-no-auth/claim",
+      payload: { claimant: "runner-x", lease_id: "lease-x" },
+    });
+    expect(noAuth.statusCode).toBe(401);
+
+    const events = await auditStore.list({ eventTypes: ["auth_rejected"] });
+    expect(events.length).toBeGreaterThanOrEqual(1);
+    const event = events[0]!;
+    expect(event.event_type).toBe("auth_rejected");
+    expect(event.work_item_id).toBe("wi-no-auth");
+    expect(event.sanitized_reason).toBe("authentication required");
+
+    // The audit event MUST NOT echo the request body or any caller-supplied
+    // identifiers other than the URL-derived work_item_id.
+    const serialized = JSON.stringify(event);
+    expect(serialized).not.toContain("runner-x");
+    expect(serialized).not.toContain("lease-x");
+  });
+
+  it("records a redacted auth_rejected event when a client token is missing the required scope", async () => {
+    const auditStore = new InMemoryWorkItemAuditStore();
+    const app = await buildServer({ config: config(), workItemAuditStore: auditStore });
+    const readOnlyToken = await createWorkItemToken(app, ["work_items:read"]);
+    await createReadyWorkItem(app, await createWorkItemToken(app), "wi-scope-audit");
+
+    const rejected = await app.inject({
+      method: "POST",
+      url: "/api/v1/work-items/wi-scope-audit/claim",
+      headers: { authorization: `Bearer ${readOnlyToken}` },
+      payload: { claimant: "runner-z", lease_id: "lease-z" },
+    });
+    expect(rejected.statusCode).toBe(403);
+
+    const events = await auditStore.list({ eventTypes: ["auth_rejected"] });
+    const lastEvent = events[events.length - 1]!;
+    expect(lastEvent.event_type).toBe("auth_rejected");
+    expect(lastEvent.work_item_id).toBe("wi-scope-audit");
+    expect(lastEvent.sanitized_reason).toBe("missing scope work_items:claim");
+    expect(JSON.stringify(lastEvent)).not.toContain(readOnlyToken);
   });
 
   it("creates, lists, gets, claims, heartbeats, and completes a planning work item", async () => {

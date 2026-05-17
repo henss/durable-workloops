@@ -22,7 +22,10 @@ Legacy planning scopes are not sufficient for work item routes in hosted mode. A
 
 - `memory`: non-durable process memory. Use only for local development and tests.
 - `file`: JSON file-backed storage with atomic replacement writes where practical. Suitable for reviewed single-node trials, not resilient multi-node hosting.
-- `database`: reserved for a future durable multi-node adapter.
+- `database`: durable multi-node adapter family selected by `AWL_WORK_ITEM_STORE_DATABASE_KIND`.
+  - `postgres`: Phase 1E adapter implemented; parameterized SQL with compare-and-set semantics.
+  - `mongodb`: intentionally not implemented; selecting it fails fast with `WorkItemPersistenceAdapterNotImplementedError`.
+  - anything else: fails fast for the same reason.
 
 The store must validate records on load and fail closed when persisted state is corrupt or has invalid records. Failures must not include persisted payload contents.
 
@@ -115,17 +118,24 @@ Safety requirements:
 - audit events MUST be append-oriented
 - the audit store may be memory or file-backed for tests, but a cloud-grade audit persistence is required before hosted rollout
 
+`auth_rejected` and `config_rejected` status (Phase 1E):
+
+- `auth_rejected` is emitted by work-item routes when authentication is missing or a presented client token lacks the required scope. The event includes only the URL-derived `work_item_id` (when present) and a short `sanitized_reason` (`"authentication required"` or `"missing scope <scope>"`). The event MUST NOT include the request body, the token value, or any caller-supplied identifier.
+- `config_rejected` is reserved for hosted-runtime startup failures. The hosted-runtime guard currently throws at process boot, before any audit store exists; emitting `config_rejected` from that path would require contorting startup ordering and is therefore explicitly future work. Until that wiring lands, hosted startup failures appear only as fatal process errors and are not echoed to the audit stream.
+
 ## Production Readiness Checklist
 
 Before hosted rollout the following MUST be true:
 
-- a cloud-grade adapter is wired for `AWL_WORK_ITEM_STORE=database` (no skeleton-only adapter)
+- a cloud-grade adapter is wired for `AWL_WORK_ITEM_STORE=database` — the Postgres adapter (Phase 1E) satisfies this for `databaseKind=postgres`; other kinds remain unimplemented
 - `AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true` is set so non-cloud-grade stores fail closed
-- the adapter has been tested against the contract tests in this repository
-- a cloud-grade audit persistence backing is wired for the work item audit stream
+- the adapter has been tested against the contract tests in this repository AND against a real Postgres instance under realistic concurrency
+- the Postgres schema artifact (`docs/migration/postgres-work-item-store-schema.sql`) has been applied via the deployment's own migration tooling
+- a cloud-grade audit persistence backing is wired for the work item audit stream — `PostgresWorkItemAuditStore` (Phase 1E) satisfies this when `databaseKind=postgres`
 - backup, restore, retention, and access-control procedures are documented for both stores
 - hosted feature flags continue to refuse local command execution, workspace-path execution, raw private log upload, and broad personal tokens
 - max job class remains limited to planning-only or sanitized read-only unless a policy layer is wired
 - database migrations and cloud resource creation are handled outside this repository and outside this contract
+- `config_rejected` audit wiring is implemented (currently future work — see Audit Stream Requirements above)
 
-This checklist is a hard gate. Phase 1D explicitly does not deploy anything, does not connect to a live database, and does not run migrations.
+This checklist is a hard gate. Phase 1D defined the contract; Phase 1E added the Postgres adapter and the append-only audit adapter. Neither phase deployed anything, connected to a live database, or ran migrations.

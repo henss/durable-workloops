@@ -30,14 +30,24 @@ export {
   createDatabaseWorkItemStore,
 } from "./database-work-item-store.js";
 export type {
+  CreateDatabaseWorkItemStoreOptions,
   PersistedWorkItem,
   WorkItemPersistenceAdapter,
 } from "./database-work-item-store.js";
 export {
+  PostgresWorkItemPersistenceAdapter,
+  defaultPostgresExecutorFactory,
+  postgresExecutorFromClient,
+} from "./postgres-work-item-store.js";
+export type { PostgresExecutor } from "./postgres-work-item-store.js";
+export { PostgresWorkItemAuditStore } from "./postgres-work-item-audit-store.js";
+export {
   InMemoryWorkItemAuditStore,
   RecordingWorkItemStore,
+  createConfiguredWorkItemAuditStore,
 } from "./work-item-audit-store.js";
 export type {
+  CreateConfiguredWorkItemAuditStoreOptions,
   WorkItemAuditEventInput,
   WorkItemAuditFilter,
   WorkItemAuditStore,

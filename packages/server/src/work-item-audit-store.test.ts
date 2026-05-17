@@ -4,10 +4,14 @@ import {
   DatabaseWorkItemStore,
   InMemoryWorkItemPersistenceAdapter,
 } from "./database-work-item-store.js";
+import type { PostgresExecutor } from "./postgres-work-item-store.js";
+import { PostgresWorkItemAuditStore } from "./postgres-work-item-audit-store.js";
 import {
+  createConfiguredWorkItemAuditStore,
   InMemoryWorkItemAuditStore,
   RecordingWorkItemStore,
 } from "./work-item-audit-store.js";
+import type { ServerConfig } from "./config.js";
 
 describe("work item audit store", () => {
   it("records created, ready, claim, heartbeat, complete events for a healthy lifecycle", async () => {
@@ -116,6 +120,82 @@ describe("work item audit store", () => {
     expect(serialized).not.toContain("password");
   });
 });
+
+describe("createConfiguredWorkItemAuditStore selection", () => {
+  it("returns InMemoryWorkItemAuditStore for memory store config", () => {
+    const audit = createConfiguredWorkItemAuditStore(buildAuditConfig({ kind: "memory" }));
+    expect(audit).toBeInstanceOf(InMemoryWorkItemAuditStore);
+  });
+
+  it("returns InMemoryWorkItemAuditStore for file store config", () => {
+    const audit = createConfiguredWorkItemAuditStore(
+      buildAuditConfig({ kind: "file", filePath: "/tmp/awl-audit-test/work-items.json" }),
+    );
+    expect(audit).toBeInstanceOf(InMemoryWorkItemAuditStore);
+  });
+
+  it("returns PostgresWorkItemAuditStore for database/postgres when a factory is supplied", () => {
+    const executor: PostgresExecutor = {
+      async query() {
+        return [];
+      },
+    };
+    const audit = createConfiguredWorkItemAuditStore(
+      buildAuditConfig({
+        kind: "database",
+        databaseUrl: "redacted://example.invalid/awl",
+        databaseKind: "postgres",
+      }),
+      { postgresExecutorFactory: () => executor },
+    );
+    expect(audit).toBeInstanceOf(PostgresWorkItemAuditStore);
+  });
+
+  it("fails fast for database/mongodb without silent fallback", () => {
+    expect(() =>
+      createConfiguredWorkItemAuditStore(
+        buildAuditConfig({
+          kind: "database",
+          databaseUrl: "redacted://example.invalid/awl",
+          databaseKind: "mongodb",
+        }),
+      ),
+    ).toThrow(/not implemented for database kind 'mongodb'/);
+  });
+
+  it("fails fast for database/unknown without silent fallback", () => {
+    expect(() =>
+      createConfiguredWorkItemAuditStore(
+        buildAuditConfig({
+          kind: "database",
+          databaseUrl: "redacted://example.invalid/awl",
+          databaseKind: "unknown",
+        }),
+      ),
+    ).toThrow(/not implemented for the configured database kind/);
+  });
+});
+
+function buildAuditConfig(store: ServerConfig["workItems"]["store"]): ServerConfig {
+  return {
+    host: "127.0.0.1",
+    port: 3210,
+    publicBaseUrl: "http://127.0.0.1:3210",
+    trustProxy: false,
+    dataDir: "/tmp/agent-workloops-test",
+    approval: { forceRequired: false },
+    locks: { timeoutMs: 60_000 },
+    cookies: { secure: false, sameSite: "lax" },
+    session: {},
+    persistence: { kind: "filesystem" },
+    workItems: {
+      store,
+      allowEphemeral: true,
+      allowSingleNodeFile: false,
+      requireCloudGrade: false,
+    },
+  };
+}
 
 function workItemInput(id: string): CreateWorkItemRequest {
   return {

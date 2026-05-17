@@ -9,7 +9,11 @@ import {
   InMemoryWorkItemStore,
   createConfiguredWorkItemStore,
 } from "./work-item-store.js";
-import { WorkItemPersistenceAdapterNotImplementedError } from "./database-work-item-store.js";
+import {
+  DatabaseWorkItemStore,
+  WorkItemPersistenceAdapterNotImplementedError,
+} from "./database-work-item-store.js";
+import type { PostgresExecutor } from "./postgres-work-item-store.js";
 
 describe("work item stores", () => {
   let dataDir: string;
@@ -91,7 +95,7 @@ describe("work item store selection", () => {
     ).toThrow(/cloud-grade/);
   });
 
-  it("fails closed with adapter-not-implemented for database store", () => {
+  it("fails closed with adapter-not-implemented for database store of unknown kind", () => {
     expect(() =>
       createConfiguredWorkItemStore(
         buildConfig(
@@ -104,6 +108,43 @@ describe("work item store selection", () => {
         ),
       ),
     ).toThrow(WorkItemPersistenceAdapterNotImplementedError);
+  });
+
+  it("accepts database/postgres when cloud-grade is required and a postgres factory is supplied", () => {
+    const executor: PostgresExecutor = {
+      async query() {
+        return [];
+      },
+    };
+    const store = createConfiguredWorkItemStore(
+      buildConfig(
+        {
+          kind: "database",
+          databaseUrl: "redacted://example.invalid/awl",
+          databaseKind: "postgres",
+        },
+        { requireCloudGrade: true },
+      ),
+      { databaseOptions: { postgresExecutorFactory: () => executor } },
+    );
+    expect(store).toBeInstanceOf(DatabaseWorkItemStore);
+  });
+
+  it("rejects missing database URL when database store is selected", () => {
+    expect(() =>
+      createConfiguredWorkItemStore(
+        buildConfig(
+          {
+            kind: "database",
+            // intentionally empty databaseUrl
+            databaseUrl: "",
+            databaseKind: "postgres",
+          } as never,
+          { requireCloudGrade: true },
+        ),
+        { databaseOptions: { postgresExecutorFactory: () => ({ async query() { return []; } }) } },
+      ),
+    ).toThrow();
   });
 });
 

@@ -34,4 +34,35 @@ describe("server config", () => {
       webDistDir: "/app/apps/web/dist",
     });
   });
+
+  it("parses the database work item store profile and cloud-grade flags", () => {
+    const config = loadServerConfig({
+      AWL_WORK_ITEM_STORE: "database",
+      AWL_WORK_ITEM_STORE_DATABASE_URL: "redacted://example.invalid/awl",
+      AWL_WORK_ITEM_STORE_DATABASE_KIND: "postgres",
+      AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE: "true",
+      AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE: "false",
+    });
+
+    expect(config.workItems).toMatchObject({
+      store: {
+        kind: "database",
+        databaseUrl: "redacted://example.invalid/awl",
+        databaseKind: "postgres",
+      },
+      requireCloudGrade: true,
+      allowSingleNodeFile: false,
+    });
+  });
+
+  it("defaults cloud-grade flags to false when unset", () => {
+    const config = loadServerConfig({});
+
+    expect(config.workItems).toMatchObject({
+      store: { kind: "memory" },
+      allowEphemeral: false,
+      allowSingleNodeFile: false,
+      requireCloudGrade: false,
+    });
+  });
 });

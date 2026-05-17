@@ -1,6 +1,10 @@
 import path from "node:path";
 import { z } from "zod";
 
+export const DatabaseStoreKindValues = ["postgres", "mongodb", "unknown"] as const;
+export const DatabaseStoreKindSchema = z.enum(DatabaseStoreKindValues);
+export type DatabaseStoreKind = z.infer<typeof DatabaseStoreKindSchema>;
+
 export const ServerConfigSchema = z.object({
   host: z.string().default("127.0.0.1"),
   port: z.number().int().min(1).default(3210),
@@ -33,9 +37,15 @@ export const ServerConfigSchema = z.object({
     store: z.discriminatedUnion("kind", [
       z.object({ kind: z.literal("memory") }),
       z.object({ kind: z.literal("file"), filePath: z.string().min(1) }),
-      z.object({ kind: z.literal("database"), databaseUrl: z.string().min(1) }),
+      z.object({
+        kind: z.literal("database"),
+        databaseUrl: z.string().min(1),
+        databaseKind: DatabaseStoreKindSchema.default("unknown"),
+      }),
     ]),
     allowEphemeral: z.boolean().default(false),
+    allowSingleNodeFile: z.boolean().default(false),
+    requireCloudGrade: z.boolean().default(false),
   }),
   bootstrapAdmin: z
     .object({
@@ -90,11 +100,17 @@ export function loadServerConfig(env: NodeJS.ProcessEnv = process.env): ServerCo
         workItemStoreKind === "file"
           ? { kind: "file", filePath: env.AWL_WORK_ITEM_STORE_FILE }
           : workItemStoreKind === "database"
-            ? { kind: "database", databaseUrl: env.AWL_WORK_ITEM_STORE_DATABASE_URL }
+            ? {
+                kind: "database",
+                databaseUrl: env.AWL_WORK_ITEM_STORE_DATABASE_URL,
+                databaseKind: env.AWL_WORK_ITEM_STORE_DATABASE_KIND,
+              }
             : workItemStoreKind === "memory"
               ? { kind: "memory" }
               : { kind: workItemStoreKind },
       allowEphemeral: parseBoolean(env.AWL_ALLOW_EPHEMERAL_WORK_ITEM_STORE),
+      allowSingleNodeFile: parseBoolean(env.AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE),
+      requireCloudGrade: parseBoolean(env.AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE),
     },
     bootstrapAdmin:
       (env.AWL_BOOTSTRAP_ADMIN_EMAIL ?? env.DWL_BOOTSTRAP_ADMIN_EMAIL) &&

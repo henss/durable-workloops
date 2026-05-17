@@ -3,7 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import type { CreateWorkItemRequest } from "@agent-workloops/api";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { FileWorkItemStore, InMemoryWorkItemStore } from "./work-item-store.js";
+import type { ServerConfig } from "./config.js";
+import {
+  FileWorkItemStore,
+  InMemoryWorkItemStore,
+  createConfiguredWorkItemStore,
+} from "./work-item-store.js";
+import { WorkItemPersistenceAdapterNotImplementedError } from "./database-work-item-store.js";
 
 describe("work item stores", () => {
   let dataDir: string;
@@ -42,6 +48,88 @@ describe("work item stores", () => {
     await expect(store.list()).rejects.toThrow("work item store file is corrupt or invalid");
   });
 });
+
+describe("work item store selection", () => {
+  it("returns the memory store for memory config in non-cloud-grade mode", () => {
+    const store = createConfiguredWorkItemStore(
+      buildConfig({ kind: "memory" }, { requireCloudGrade: false }),
+    );
+    expect(store).toBeInstanceOf(InMemoryWorkItemStore);
+  });
+
+  it("returns the file store for file config in non-cloud-grade mode", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "awl-select-file-"));
+    try {
+      const store = createConfiguredWorkItemStore(
+        buildConfig(
+          { kind: "file", filePath: path.join(dir, "work-items.json") },
+          { requireCloudGrade: false },
+        ),
+      );
+      expect(store).toBeInstanceOf(FileWorkItemStore);
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects memory store when cloud-grade is required", () => {
+    expect(() =>
+      createConfiguredWorkItemStore(
+        buildConfig({ kind: "memory" }, { requireCloudGrade: true }),
+      ),
+    ).toThrow(/cloud-grade/);
+  });
+
+  it("rejects file store when cloud-grade is required", () => {
+    expect(() =>
+      createConfiguredWorkItemStore(
+        buildConfig(
+          { kind: "file", filePath: "/tmp/awl-test/work-items.json" },
+          { requireCloudGrade: true },
+        ),
+      ),
+    ).toThrow(/cloud-grade/);
+  });
+
+  it("fails closed with adapter-not-implemented for database store", () => {
+    expect(() =>
+      createConfiguredWorkItemStore(
+        buildConfig(
+          {
+            kind: "database",
+            databaseUrl: "redacted://example.invalid/awl",
+            databaseKind: "unknown",
+          },
+          { requireCloudGrade: true },
+        ),
+      ),
+    ).toThrow(WorkItemPersistenceAdapterNotImplementedError);
+  });
+});
+
+function buildConfig(
+  store: ServerConfig["workItems"]["store"],
+  flags: { requireCloudGrade?: boolean; allowSingleNodeFile?: boolean; allowEphemeral?: boolean } = {},
+): ServerConfig {
+  return {
+    host: "127.0.0.1",
+    port: 3210,
+    publicBaseUrl: "http://127.0.0.1:3210",
+    trustProxy: false,
+    dataDir: "/tmp/agent-workloops-test",
+    approval: { forceRequired: false },
+    locks: { timeoutMs: 60_000 },
+    cookies: { secure: false, sameSite: "lax" },
+    session: {},
+    persistence: { kind: "filesystem" },
+    workItems: {
+      store,
+      allowEphemeral: flags.allowEphemeral ?? true,
+      allowSingleNodeFile: flags.allowSingleNodeFile ?? false,
+      requireCloudGrade: flags.requireCloudGrade ?? false,
+    },
+  };
+}
 
 function workItemInput(id: string): CreateWorkItemRequest {
   return {

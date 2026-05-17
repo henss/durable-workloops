@@ -56,6 +56,35 @@ Phase 1C makes the synthetic coordination path safer for multi-instance trials:
 
 The file-backed store is a first non-memory adapter, not the final cloud persistence design. A future database adapter should be added before relying on hosted coordination for resilient multi-node use.
 
+## Phase 1D Cloud-Grade Store / Audit Stream Status
+
+Phase 1D prepares hosted coordination for a cloud-grade durable store and an append-oriented audit stream, without deploying anything and without connecting to a live database:
+
+- the work item store has three explicit profiles: `memory`, `file`, `database`
+- `memory` remains dev/test only
+- `file` is JSON-backed single-node persistence and is not cloud-grade multi-node persistence
+- `database` is the cloud-grade profile, gated by a startup-time check that refuses other profiles when cloud-grade is required
+- hosted mode rejects `memory` unless an ephemeral-store override is explicitly set
+- hosted mode rejects `file` unless an explicit single-node override is set, even outside cloud-grade mode
+- when `AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true`, only `database` may pass; `memory` and `file` fail closed at startup
+- selecting `database` without a wired adapter fails fast with an adapter-not-implemented error; the server does not silently degrade
+- the database adapter is defined behind a small persistence-port interface with compare-and-set semantics for claim/lease atomicity
+- an in-memory implementation of the persistence port exists for contract tests only; it is not a deployable store
+- an append-oriented work item audit stream abstraction exists, with an in-memory implementation for tests
+- the audit stream records create, transition, complete/fail/cancel, and rejected-transition events
+- audit events carry status before/after, job class, trust zone, authority class, redaction policy, sanitized reasons, and reference-only artifact metadata
+- audit events never carry secret values, raw private logs, or full request bodies
+
+Cloud-grade multi-node coordination remains blocked until a real database adapter is wired and a cloud-grade audit persistence backing is wired. This is not a deployment.
+
+Phase 1B/1C safety rules still apply:
+
+- no local command execution in hosted mode
+- no workspace-path execution in hosted mode
+- no raw private log upload in hosted mode
+- no broad personal tokens in hosted mode
+- max job class limited to planning-only or sanitized read-only unless a policy layer is wired
+
 ## Required Data Model Concepts
 
 - `instance`: desktop, laptop, cloud orchestrator, local runner, cloud worker, or human operator identity.

@@ -145,6 +145,47 @@ export const WorkItemResponseSchema = z.object({
   work_item: WorkItemSchema,
 });
 
+export const WorkItemAuditEventTypeValues = [
+  "work_item_created",
+  "work_item_ready",
+  "work_item_claimed",
+  "work_item_heartbeat",
+  "work_item_lease_released",
+  "work_item_needs_approval",
+  "work_item_completed",
+  "work_item_failed",
+  "work_item_cancelled",
+  "transition_rejected",
+  "auth_rejected",
+  "config_rejected",
+] as const;
+
+export const WorkItemAuditEventTypeSchema = z.enum(WorkItemAuditEventTypeValues);
+
+export const WorkItemAuditEventSchema = z.object({
+  id: z.string().min(1),
+  created_at: z.string().datetime(),
+  event_type: WorkItemAuditEventTypeSchema,
+  work_item_id: z.string().min(1).nullable().optional(),
+  actor_ref: z.string().min(1).nullable().optional(),
+  instance_ref: z.string().min(1).nullable().optional(),
+  status_before: WorkItemStatusSchema.nullable().optional(),
+  status_after: WorkItemStatusSchema.nullable().optional(),
+  job_class: JobClassSchema.nullable().optional(),
+  trust_zone: TrustZoneSchema.nullable().optional(),
+  authority_class: z.string().min(1).nullable().optional(),
+  redaction_policy: z.string().min(1).nullable().optional(),
+  sanitized_reason: z.string().min(1).nullable().optional(),
+  artifact_refs: z.array(WorkItemReferenceSchema).default([]),
+  approval_ref: WorkItemReferenceSchema.nullable().optional(),
+  receipt_ref: WorkItemReferenceSchema.nullable().optional(),
+  metadata_hash: z.string().min(1).nullable().optional(),
+  payload_hash: z.string().min(1).nullable().optional(),
+});
+
+export type WorkItemAuditEventType = z.infer<typeof WorkItemAuditEventTypeSchema>;
+export type WorkItemAuditEvent = z.infer<typeof WorkItemAuditEventSchema>;
+
 export type WorkItemStatus = z.infer<typeof WorkItemStatusSchema>;
 export type TrustZone = z.infer<typeof TrustZoneSchema>;
 export type JobClass = z.infer<typeof JobClassSchema>;

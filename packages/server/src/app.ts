@@ -33,6 +33,11 @@ import { createMongoAuthStore, createMongoPlanStore } from "./mongodb-store.js";
 import { createSqlPlanStore } from "./sql-store.js";
 import type { AuthStore, PlanStore } from "./store.js";
 import { createConfiguredWorkItemStore, type WorkItemStore } from "./work-item-store.js";
+import {
+  InMemoryWorkItemAuditStore,
+  RecordingWorkItemStore,
+  type WorkItemAuditStore,
+} from "./work-item-audit-store.js";
 
 export interface AuthContext {
   user: User;
@@ -46,13 +51,20 @@ export interface BuildServerOptions {
   planStore?: PlanStore;
   authStore?: AuthStore;
   workItemStore?: WorkItemStore;
+  workItemAuditStore?: WorkItemAuditStore;
 }
 
 export async function buildServer(options: BuildServerOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: false, trustProxy: options.config.trustProxy });
   const planStore = options.planStore ?? (await createPlanStore(options.config));
   const authStore = options.authStore ?? (await createAuthStore(options.config));
-  const workItemStore = options.workItemStore ?? createConfiguredWorkItemStore(options.config);
+  const baseWorkItemStore = options.workItemStore ?? createConfiguredWorkItemStore(options.config);
+  const workItemAuditStore: WorkItemAuditStore =
+    options.workItemAuditStore ?? new InMemoryWorkItemAuditStore();
+  const workItemStore: WorkItemStore = new RecordingWorkItemStore(
+    baseWorkItemStore,
+    workItemAuditStore,
+  );
 
   if (options.config.bootstrapAdmin) {
     await authStore.ensureBootstrapAdmin(options.config.bootstrapAdmin);

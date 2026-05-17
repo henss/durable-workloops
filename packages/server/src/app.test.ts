@@ -607,7 +607,12 @@ describe("Agent Workloops server", () => {
       cookies: { secure: input.cookieSecure ?? false, sameSite: "lax" },
       session: { ttlMs: input.sessionTtlMs },
       persistence: { kind: "filesystem" },
-      workItems: { store: { kind: "memory" }, allowEphemeral: true },
+      workItems: {
+        store: { kind: "memory" },
+        allowEphemeral: true,
+        allowSingleNodeFile: false,
+        requireCloudGrade: false,
+      },
       bootstrapAdmin: {
         email: "admin@example.com",
         password: "password123",

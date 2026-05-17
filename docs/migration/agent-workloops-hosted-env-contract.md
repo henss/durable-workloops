@@ -21,7 +21,10 @@ Define public-safe hosted-runtime configuration expectations for cloud-private c
 - `AWL_WORK_ITEM_STORE`
 - `AWL_WORK_ITEM_STORE_FILE`
 - `AWL_WORK_ITEM_STORE_DATABASE_URL`
+- `AWL_WORK_ITEM_STORE_DATABASE_KIND`
 - `AWL_ALLOW_EPHEMERAL_WORK_ITEM_STORE`
+- `AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE`
+- `AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE`
 
 ## Hosted Safety Keys
 
@@ -45,7 +48,10 @@ The startup guard currently enforces:
 - `AWL_WORK_ITEM_STORE`
 - `AWL_WORK_ITEM_STORE_FILE`
 - `AWL_WORK_ITEM_STORE_DATABASE_URL`
+- `AWL_WORK_ITEM_STORE_DATABASE_KIND`
 - `AWL_ALLOW_EPHEMERAL_WORK_ITEM_STORE`
+- `AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE`
+- `AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE`
 
 Private deployments may need additional secret-backed configuration. Those names and values should be documented outside this public repository.
 
@@ -65,9 +71,23 @@ Hosted deployments should use a reviewed database-backed persistence mode. Files
 
 Supported work item store selectors:
 
-- `AWL_WORK_ITEM_STORE=memory`: local tests and development only by default.
-- `AWL_WORK_ITEM_STORE=file`: JSON file-backed storage. Requires `AWL_WORK_ITEM_STORE_FILE`.
-- `AWL_WORK_ITEM_STORE=database`: reserved for a future database adapter. Requires `AWL_WORK_ITEM_STORE_DATABASE_URL` once implemented.
+- `AWL_WORK_ITEM_STORE=memory`: local tests and development only.
+- `AWL_WORK_ITEM_STORE=file`: JSON file-backed storage. Requires `AWL_WORK_ITEM_STORE_FILE`. Single-node only.
+- `AWL_WORK_ITEM_STORE=database`: cloud-grade durable storage. Requires `AWL_WORK_ITEM_STORE_DATABASE_URL` and the matching adapter to be wired.
+
+Store profile rules:
+
+- `memory` is non-durable process memory and is acceptable only in non-hosted dev/test, or in hosted mode behind an explicit ephemeral override.
+- `file` is JSON-backed single-node persistence and is NOT cloud-grade multi-node persistence.
+- `database` is the only store profile considered cloud-grade.
+
+`AWL_WORK_ITEM_STORE_DATABASE_KIND` declares the database engine family for the cloud-grade adapter:
+
+- `postgres`
+- `mongodb`
+- `unknown`
+
+Unknown engine families fail closed in hosted mode.
 
 Hosted mode must fail closed when:
 
@@ -75,9 +95,29 @@ Hosted mode must fail closed when:
 - `AWL_WORK_ITEM_STORE` is unknown.
 - memory storage is selected without `AWL_ALLOW_EPHEMERAL_WORK_ITEM_STORE=true`.
 - file storage is selected without `AWL_WORK_ITEM_STORE_FILE`.
+- file storage is selected without `AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE=true`.
 - database storage is selected without `AWL_WORK_ITEM_STORE_DATABASE_URL`.
+- `AWL_WORK_ITEM_STORE_DATABASE_KIND` is provided but not recognized.
+- `AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true` and the selected store is not `database`.
 
-Configuration values must not be logged. Error messages may name missing or invalid config keys, but must not include values.
+`AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true` MUST be set for hosted deployments that need real multi-node durability. The startup guard refuses non-database stores under this flag.
+
+Selecting `database` when no adapter is wired must fail fast with an adapter-not-implemented error. The server must not silently degrade to a non-cloud-grade store.
+
+Configuration values must not be logged. Error messages may name missing or invalid config keys, but must not include values, connection strings, or credential material.
+
+## Audit Stream Config
+
+A `WorkItemAuditStore` interface exists for append-oriented work item audit events. The in-memory implementation is for tests only.
+
+Cloud-grade hosted deployments must wire a cloud-grade audit persistence backing before rollout. The audit stream MUST:
+
+- treat events as immutable;
+- accept create, ready, claim, heartbeat, lease-release, needs-approval, complete, fail, cancel, transition-rejected, auth-rejected, and config-rejected event types;
+- carry status before/after, job class, trust zone, authority class, redaction policy, sanitized reasons, and reference-only artifact metadata;
+- never carry secret values, raw private logs, or full request bodies.
+
+A persistent audit backing is out of scope for this phase. Audit values must not be logged.
 
 ## Auth And Session Config
 

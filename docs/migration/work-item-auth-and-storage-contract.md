@@ -40,11 +40,11 @@ The store must validate records on load and fail closed when persisted state is 
 - Hosted mode must require database configuration for `database` once the adapter is implemented.
 - Hosted mode must enforce local execution disabled, workspace-path execution disabled, raw trace upload disabled, broad personal tokens disabled, and max job class limited to planning-only or sanitized read-only work unless a policy layer is wired.
 
-## Future Database Adapter
+## Cloud-Grade Store Contract
 
-A production-grade hosted adapter should provide:
+A cloud-grade hosted adapter MUST provide:
 
-- durable storage across restarts
+- durable storage across restarts and across nodes
 - active lease conflict protection
 - atomic lifecycle transitions
 - append-oriented audit event support
@@ -52,4 +52,80 @@ A production-grade hosted adapter should provide:
 - operational backup and restore procedures
 - no logging of credential values, payload values, or sensitive request bodies
 
-Database migrations and cloud resource creation are outside this contract.
+Adapter contract requirements:
+
+- create work item with idempotency-key dedup
+- list and get work items by id
+- update work item status only through validated lifecycle transitions
+- claim work item with compare-and-set semantics so only one active lease can win
+- heartbeat lease only by current claimant or lease holder
+- release stale lease only after stale threshold has passed
+- complete, fail, and cancel with lifecycle validation
+- store sanitized outcome references or an explicit no-output reason
+- never store secret values or raw private logs
+- expose enough metadata for audit stream integration
+
+Compare-and-set and lease atomicity requirements:
+
+- the underlying store MUST provide a row-level or document-level compare-and-set primitive (for example, conditional update on a `version` column or document field)
+- the adapter port MUST surface compare-and-set conflicts as a distinct error type so the work-item store can retry against a bounded budget
+- the adapter MUST treat lease ownership checks as part of the same atomic transition; a heartbeat by the wrong lease holder MUST fail without mutating state
+- the adapter MUST treat stale-lease release as an atomic transition that only succeeds when the persisted lease deadline has passed
+
+## Audit Stream Requirements
+
+The work item audit stream is append-oriented. Required event types:
+
+- `work_item_created`
+- `work_item_ready`
+- `work_item_claimed`
+- `work_item_heartbeat`
+- `work_item_lease_released`
+- `work_item_needs_approval`
+- `work_item_completed`
+- `work_item_failed`
+- `work_item_cancelled`
+- `transition_rejected`
+- `auth_rejected`
+- `config_rejected`
+
+Required event fields:
+
+- `id`
+- `created_at`
+- `actor_ref` or `instance_ref`
+- `work_item_id`
+- `event_type`
+- `status_before`
+- `status_after`
+- `job_class`
+- `trust_zone`
+- `authority_class`
+- `redaction_policy`
+- `sanitized_reason`
+- `artifact_refs`
+- `approval_ref`
+- `receipt_ref`
+- `metadata_hash` or `payload_hash` when useful
+
+Safety requirements:
+
+- audit events MUST NOT include secret values
+- audit events MUST NOT include raw private logs or raw payload bodies
+- audit events MUST be append-oriented
+- the audit store may be memory or file-backed for tests, but a cloud-grade audit persistence is required before hosted rollout
+
+## Production Readiness Checklist
+
+Before hosted rollout the following MUST be true:
+
+- a cloud-grade adapter is wired for `AWL_WORK_ITEM_STORE=database` (no skeleton-only adapter)
+- `AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true` is set so non-cloud-grade stores fail closed
+- the adapter has been tested against the contract tests in this repository
+- a cloud-grade audit persistence backing is wired for the work item audit stream
+- backup, restore, retention, and access-control procedures are documented for both stores
+- hosted feature flags continue to refuse local command execution, workspace-path execution, raw private log upload, and broad personal tokens
+- max job class remains limited to planning-only or sanitized read-only unless a policy layer is wired
+- database migrations and cloud resource creation are handled outside this repository and outside this contract
+
+This checklist is a hard gate. Phase 1D explicitly does not deploy anything, does not connect to a live database, and does not run migrations.

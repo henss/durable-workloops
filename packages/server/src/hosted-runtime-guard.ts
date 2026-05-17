@@ -12,6 +12,8 @@ const HostedMaxJobClassSchema = z.enum([
   "forbidden",
 ]);
 
+const KnownDatabaseKindSchema = z.enum(["postgres", "mongodb"]);
+
 export function validateHostedRuntimeSafety(env: Record<string, string | undefined>): HostedRuntimeGuardResult {
   if (env.AWL_HOSTED_MODE !== "true") {
     return { ok: true, errors: [] };
@@ -45,6 +47,9 @@ export function assertHostedRuntimeSafety(env: Record<string, string | undefined
 
 function requireWorkItemStoreConfig(env: Record<string, string | undefined>, errors: string[]): void {
   const storeKind = env.AWL_WORK_ITEM_STORE;
+  const requireCloudGrade = env.AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE === "true";
+  const allowSingleNodeFile = env.AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE === "true";
+
   if (!storeKind) {
     errors.push("AWL_WORK_ITEM_STORE is required in hosted mode");
     return;
@@ -53,17 +58,32 @@ function requireWorkItemStoreConfig(env: Record<string, string | undefined>, err
     if (env.AWL_ALLOW_EPHEMERAL_WORK_ITEM_STORE !== "true") {
       errors.push("AWL_WORK_ITEM_STORE must not be memory in hosted mode without an explicit ephemeral-store override");
     }
+    if (requireCloudGrade) {
+      errors.push("AWL_WORK_ITEM_STORE memory is not cloud-grade when AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true");
+    }
     return;
   }
   if (storeKind === "file") {
     if (!env.AWL_WORK_ITEM_STORE_FILE) {
       errors.push("AWL_WORK_ITEM_STORE_FILE is required when AWL_WORK_ITEM_STORE is file");
     }
+    if (!allowSingleNodeFile) {
+      errors.push(
+        "AWL_WORK_ITEM_STORE file is single-node only and requires AWL_ALLOW_SINGLE_NODE_FILE_WORK_ITEM_STORE=true in hosted mode",
+      );
+    }
+    if (requireCloudGrade) {
+      errors.push("AWL_WORK_ITEM_STORE file is not cloud-grade when AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true");
+    }
     return;
   }
   if (storeKind === "database") {
     if (!env.AWL_WORK_ITEM_STORE_DATABASE_URL) {
       errors.push("AWL_WORK_ITEM_STORE_DATABASE_URL is required when AWL_WORK_ITEM_STORE is database");
+    }
+    const databaseKind = env.AWL_WORK_ITEM_STORE_DATABASE_KIND;
+    if (databaseKind && !KnownDatabaseKindSchema.safeParse(databaseKind).success) {
+      errors.push("AWL_WORK_ITEM_STORE_DATABASE_KIND is not recognized");
     }
     return;
   }

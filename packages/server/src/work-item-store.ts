@@ -17,6 +17,7 @@ import {
   type WorkItem,
 } from "@agent-workloops/api";
 import type { ServerConfig } from "./config.js";
+import { createDatabaseWorkItemStore } from "./database-work-item-store.js";
 
 export interface WorkItemStore {
   create(input: CreateWorkItemRequest): Promise<WorkItem>;
@@ -267,13 +268,27 @@ export class FileWorkItemStore implements WorkItemStore {
 }
 
 export function createConfiguredWorkItemStore(config: ServerConfig): WorkItemStore {
-  if (config.workItems.store.kind === "memory") {
+  const store = config.workItems.store;
+  if (store.kind === "memory") {
+    if (config.workItems.requireCloudGrade) {
+      throw new Error(
+        "AWL_WORK_ITEM_STORE memory is not cloud-grade when AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true",
+      );
+    }
     return new InMemoryWorkItemStore();
   }
-  if (config.workItems.store.kind === "file") {
-    return new FileWorkItemStore(config.workItems.store.filePath);
+  if (store.kind === "file") {
+    if (config.workItems.requireCloudGrade) {
+      throw new Error(
+        "AWL_WORK_ITEM_STORE file is not cloud-grade when AWL_REQUIRE_CLOUD_GRADE_WORK_ITEM_STORE=true",
+      );
+    }
+    return new FileWorkItemStore(store.filePath);
   }
-  throw new Error("database work item store adapter is not implemented");
+  if (store.kind === "database") {
+    return createDatabaseWorkItemStore(config);
+  }
+  throw new Error("AWL_WORK_ITEM_STORE is not recognized");
 }
 
 function assertHostedAcceptableJobClass(jobClass: CreateWorkItemRequest["job_class"]): void {

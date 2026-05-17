@@ -11,6 +11,34 @@ app.log.info(`Agent Workloops server listening on ${config.publicBaseUrl}`);
 
 export { buildServer } from "./app.js";
 export { loadServerConfig } from "./config.js";
+export type { ServerConfig, DatabaseStoreKind } from "./config.js";
 export { FilesystemAuthStore, FilesystemPlanStore } from "./filesystem-store.js";
 export { assertHostedRuntimeSafety, validateHostedRuntimeSafety } from "./hosted-runtime-guard.js";
 export type { AuthStore, PlanStore } from "./store.js";
+export {
+  FileWorkItemStore,
+  InMemoryWorkItemStore,
+  createConfiguredWorkItemStore,
+} from "./work-item-store.js";
+export type { WorkItemStore } from "./work-item-store.js";
+export {
+  DatabaseWorkItemStore,
+  InMemoryWorkItemPersistenceAdapter,
+  WorkItemPersistenceAdapterNotImplementedError,
+  WorkItemPersistenceConflict,
+  WorkItemPersistenceNotFound,
+  createDatabaseWorkItemStore,
+} from "./database-work-item-store.js";
+export type {
+  PersistedWorkItem,
+  WorkItemPersistenceAdapter,
+} from "./database-work-item-store.js";
+export {
+  InMemoryWorkItemAuditStore,
+  RecordingWorkItemStore,
+} from "./work-item-audit-store.js";
+export type {
+  WorkItemAuditEventInput,
+  WorkItemAuditFilter,
+  WorkItemAuditStore,
+} from "./work-item-audit-store.js";

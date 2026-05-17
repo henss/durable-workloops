@@ -17,3 +17,7 @@ Repo-local instructions for agents working in agent-workloops.
 ### `documents`
 
 - `repository:agent-workloops`
+
+### `related-to`
+
+- `document:active-spine-roadmap`

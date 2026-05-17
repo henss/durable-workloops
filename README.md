@@ -2,12 +2,13 @@
 
 # agent-workloops
 
-agent-workloops is a portable durable work-loop schemas plus optional hosted packages for plan approval, leasing, UI review, and Codex execution.
+agent-workloops is an active portfolio-spine project for durable LLM-agent work-slice contracts, approval, leases, recovery, outcome archives, and optional review evidence.
 
 ## Quick Orientation
 
-- Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
-- Optional hosted packages add plan submission, manual approval, client-token execution leases, completion archive, and a review UI.
+- Active build project for durable LLM-agent work slices that should survive beyond a single agent session.
+- Owns public-safe contracts for approval, leases, recovery, prompt/outcome envelopes, outcome archives, and optional AIQL-shaped review evidence.
+- Optional hosted packages add sandboxable plan submission, manual approval, client-token execution leases, completion archive, and a review UI.
 - Host systems keep their own tracker adapters, review engines, notification routing, and private deployment policy.
 - The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
 - Adopted portfolio repos should feed public-safe generic workflow friction back into this core instead of accumulating downstream prompt caveats.
@@ -24,11 +25,20 @@ agent-workloops is a portable durable work-loop schemas plus optional hosted pac
 - Applies controller decisions without depending on a specific tracker or agent runtime.
 - Provides optional server, shared API, CLI, and web UI packages around the public core.
 
+## Near-Term Roadmap
+
+- Hosted sandbox seed for synthetic coordination evidence.
+- Cross-package conformance harness for approval, leases, recovery, completion, review evidence, and archive behavior.
+- Public-core boundary guard that keeps private orchestration and tracker policy downstream.
+- Cloud deployment blueprint without provider secrets, account details, or deployment-specific topology.
+- AIQL review evidence attachment without adding ai-quality-loops as a runtime dependency.
+
 ## Non-Goals
 
 - No Linear, Jira, GitHub, or Slack adapter.
 - No bundled peer-review engine.
 - No private orchestration policy.
+- No generic durable workflow runtime, scheduler, graph engine, or hosted execution platform.
 
 ## Where Things Live
 
@@ -42,11 +52,12 @@ agent-workloops is a portable durable work-loop schemas plus optional hosted pac
 
 - [Agent Atlas](docs/agents/atlas.md)
 - [Operating Model](docs/index.md)
+- [Active Spine Roadmap](docs/strategy/active-spine-roadmap.md)
 - [Contributor Safety](CONTRIBUTING.md)
 
 ## Domains
 
-- `domain:durable-agent-workflows` - Durable Agent Workflows: State contracts and deterministic transitions for multi-step agent work that must not be marked done after one incomplete run.
+- `domain:durable-agent-workflows` - Durable Agent Work Slices: LLM-agent-specific work-slice contracts, approval, leases, recovery, review evidence, and outcome archive behavior that must not become a generic workflow runtime.
 
 ## Key Implementation Surfaces
 

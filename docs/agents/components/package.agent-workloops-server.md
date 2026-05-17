@@ -43,6 +43,8 @@ Package manifest at packages/server/package.json.
 - `interface:route.get.api-v1-plans-planid`
 - `interface:route.get.api-v1-tokens`
 - `interface:route.get.api-v1-users`
+- `interface:route.get.api-v1-work-items`
+- `interface:route.get.api-v1-work-items-workitemid`
 - `interface:route.post.api-v1-auth-bootstrap`
 - `interface:route.post.api-v1-auth-login`
 - `interface:route.post.api-v1-auth-logout`
@@ -57,6 +59,15 @@ Package manifest at packages/server/package.json.
 - `interface:route.post.api-v1-plans-planid-request-review`
 - `interface:route.post.api-v1-tokens`
 - `interface:route.post.api-v1-users`
+- `interface:route.post.api-v1-work-items`
+- `interface:route.post.api-v1-work-items-workitemid-cancel`
+- `interface:route.post.api-v1-work-items-workitemid-claim`
+- `interface:route.post.api-v1-work-items-workitemid-complete`
+- `interface:route.post.api-v1-work-items-workitemid-fail`
+- `interface:route.post.api-v1-work-items-workitemid-heartbeat`
+- `interface:route.post.api-v1-work-items-workitemid-needs-approval`
+- `interface:route.post.api-v1-work-items-workitemid-ready`
+- `interface:route.post.api-v1-work-items-workitemid-release-stale`
 
 ### Components
 
@@ -101,6 +112,8 @@ Package manifest at packages/server/package.json.
 - `interface:route.get.api-v1-plans-planid` _(generated)_
 - `interface:route.get.api-v1-tokens` _(generated)_
 - `interface:route.get.api-v1-users` _(generated)_
+- `interface:route.get.api-v1-work-items` _(generated)_
+- `interface:route.get.api-v1-work-items-workitemid` _(generated)_
 - `interface:route.post.api-v1-auth-bootstrap` _(generated)_
 - `interface:route.post.api-v1-auth-login` _(generated)_
 - `interface:route.post.api-v1-auth-logout` _(generated)_
@@ -115,6 +128,15 @@ Package manifest at packages/server/package.json.
 - `interface:route.post.api-v1-plans-planid-request-review` _(generated)_
 - `interface:route.post.api-v1-tokens` _(generated)_
 - `interface:route.post.api-v1-users` _(generated)_
+- `interface:route.post.api-v1-work-items` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-cancel` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-claim` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-complete` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-fail` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-heartbeat` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-needs-approval` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-ready` _(generated)_
+- `interface:route.post.api-v1-work-items-workitemid-release-stale` _(generated)_
 - `resource:config.packages-server-package` _(generated)_
 - `resource:config.packages-server-tsconfig` _(generated)_
 - `resource:config.packages-server-tsconfig-build` _(generated)_

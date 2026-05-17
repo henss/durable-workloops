@@ -6,7 +6,7 @@ Profile: `public`
 
 ## What this atlas represents
 
-- `domain:durable-agent-workflows` - Durable Agent Workflows: State contracts and deterministic transitions for multi-step agent work that must not be marked done after one incomplete run.
+- `domain:durable-agent-workflows` - Durable Agent Work Slices: LLM-agent-specific work-slice contracts, approval, leases, recovery, review evidence, and outcome archive behavior that must not become a generic workflow runtime.
 
 ## Start here
 
@@ -17,7 +17,7 @@ Profile: `public`
 
 ## Major capabilities
 
-### Durable Agent Workflows
+### Durable Agent Work Slices
 
 - `workflow:adjudicate-workloop-slice` - Adjudicate WorkLoop Slice: Converts outcome and peer-review evidence into continue, repair, blocked, needs-stefan, done, or canceled decisions.
   Components: `component:ai-quality-loops-adapter`, `component:workloop-adjudication`, `component:workloop-schema`
@@ -30,7 +30,7 @@ Profile: `public`
 
 ## Implementation surfaces
 
-### Durable Agent Workflows
+### Durable Agent Work Slices
 
 - `component:ai-quality-loops-adapter` - AI Quality Loops Adapter: Dependency-free adapter shape that maps WorkLoop slice outcome context into an ai-quality-loops review request and returns WorkLoop peer-review evidence.
 - `component:workloop-adjudication` - WorkLoop Adjudication: Pure helpers for converting outcome and peer-review evidence into controller decisions and applying those decisions to loop state.
@@ -68,7 +68,7 @@ Profile: `public`
 - `component:workloop-review` (component) - WorkLoop Review: Provider-agnostic helpers for resolving review policy and evaluating final WorkLoop closeout from latest slice-review evidence.
 - `document:agent-instructions` (document) - Agent Instructions: Repo-local instructions for agents working in agent-workloops.
 - `document:generated.agents` (document) - AGENTS.md: Markdown document at AGENTS.md.
-- `document:generated.codex-portfolio-guidance` (document) - Local Agent Guidance: Markdown document at .codex/portfolio-guidance.md.
+- `document:generated.codex-portfolio-guidance` (document) - Portfolio Guidance: Markdown document at .codex/portfolio-guidance.md.
 - `document:generated.contributing` (document) - Contributing To agent-workloops: Markdown document at CONTRIBUTING.md.
 - `document:generated.docs-index` (document) - Agent Workloops: Markdown document at docs/index.md.
-- `document:generated.examples-readme` (document) - Synthetic Examples For agent-workloops: Markdown document at examples/README.md.
+- `document:generated.docs-migration-agent-workloops-hosted-env-contract` (document) - Agent-Workloops Hosted Environment Contract: Markdown document at docs/migration/agent-workloops-hosted-env-contract.md.

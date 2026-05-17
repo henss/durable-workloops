@@ -1,7 +1,7 @@
 id: domain:durable-agent-workflows
 kind: domain
-title: Durable Agent Workflows
-summary: State contracts and deterministic transitions for multi-step agent work that must not be marked done after one incomplete run.
+title: Durable Agent Work Slices
+summary: LLM-agent-specific work-slice contracts, approval, leases, recovery, review evidence, and outcome archive behavior that must not become a generic workflow runtime.
 visibility: public
 relations:
   - type: contains

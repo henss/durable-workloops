@@ -2,6 +2,12 @@
 
 Agent Workloops provide a reusable core for long-running agent work. The root package keeps the portable pieces small: contracts, deterministic slice selection, deterministic adjudication from outcome plus review evidence, and a generic Codex launch envelope. This repository also includes optional hosted packages around that core for plan submission, approval, leasing, execution, and review.
 
+## Current Strategy
+
+`agent-workloops` is an active build project in the portfolio spine. Its durable value is LLM-agent work slices, approval, leases, recovery, outcome archives, and AIQL-shaped review evidence. It is not a generic durable workflow runtime, tracker adapter, or private orchestration policy layer.
+
+Near-term planning is tracked in [Active Spine Roadmap](strategy/active-spine-roadmap.md).
+
 ## Package Map
 
 - `agent-workloops/schema`: Zod schemas and TypeScript types for loops, slices, policies, and controller decisions.
@@ -86,4 +92,5 @@ Supported `tab` values are `pending`, `claimable`, `locked`, `archive`, `users`,
 - No tracker-specific API client.
 - No public hosted service or package publishing workflow in this repository.
 - No repository-specific automation policy.
+- No generic durable workflow runtime, scheduler, graph engine, or private orchestration layer.
 - No assumption that a peer-review engine is bundled with the core.

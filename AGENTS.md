@@ -46,6 +46,12 @@ This file is the repo-local agent entrypoint. It is generated from the shared po
 
 <!-- [LOCAL_START] -->
 
+## WorkLoops Portfolio Role
+
+`agent-workloops` is an active build project for durable LLM-agent work slices: approval, leases, recovery, prompt/outcome envelopes, outcome archives, and optional AIQL-shaped review evidence.
+
+Do not expand this repo into tracker-specific policy, private orchestration, deployment-specific cloud policy, or generic workflow-engine behavior. If work starts to look like scheduler, worker-runtime, graph-engine, durable-execution, or hosted-platform scope, pause and record a build-vs-buy check before adding local capability.
+
 <!-- [LOCAL_END] -->
 
 Managed by the portfolio guidance sync. Do not edit outside the local block.

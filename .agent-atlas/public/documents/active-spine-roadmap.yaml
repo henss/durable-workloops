@@ -1,0 +1,24 @@
+id: document:active-spine-roadmap
+kind: document
+title: Active Spine Roadmap
+summary: Repo-local strategy note positioning agent-workloops as the active durable LLM-agent work-slice spine, with near-term sandbox, conformance, boundary, cloud blueprint, and AIQL evidence priorities.
+visibility: public
+uris:
+  - docs/strategy/active-spine-roadmap.md
+relations:
+  - type: documents
+    target: repository:agent-workloops
+  - type: documents
+    target: domain:durable-agent-workflows
+  - type: related-to
+    target: component:ai-quality-loops-adapter
+  - type: related-to
+    target: component:hosted-workloops-server
+  - type: related-to
+    target: test-scope:package-check
+agent:
+  load_when:
+    - Planning hosted sandbox, conformance, cloud blueprint, or portfolio-spine work.
+    - Checking whether proposed work belongs in agent-workloops or a downstream adapter.
+    - Evaluating build-vs-buy pressure around durable execution or workflow runtimes.
+  token_budget_hint: 1000

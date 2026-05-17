@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 99
+Generated entities: 115
 
 ## Commander
 
@@ -58,9 +58,9 @@ Generated entities: 99
 
 - `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
 - `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
-- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 2 discovered test files under packages/server.
+- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 8 discovered test files under packages/server.
 - `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 8 discovered test files under apps/web.
-- `test-scope:generated.src` - src tests: 6 discovered test files under src.
+- `test-scope:generated.src` - src tests: 7 discovered test files under src.
 
 ## Agent Skills
 
@@ -69,9 +69,14 @@ Generated entities: 99
 ## Docs
 
 - `document:generated.agents` - AGENTS.md: Markdown document at AGENTS.md.
-- `document:generated.codex-portfolio-guidance` - Local Agent Guidance: Markdown document at .codex/portfolio-guidance.md.
+- `document:generated.codex-portfolio-guidance` - Portfolio Guidance: Markdown document at .codex/portfolio-guidance.md.
 - `document:generated.contributing` - Contributing To agent-workloops: Markdown document at CONTRIBUTING.md.
 - `document:generated.docs-index` - Agent Workloops: Markdown document at docs/index.md.
+- `document:generated.docs-migration-agent-workloops-hosted-env-contract` - Agent-Workloops Hosted Environment Contract: Markdown document at docs/migration/agent-workloops-hosted-env-contract.md.
+- `document:generated.docs-migration-agent-workloops-phase1-runbook` - Agent-Workloops Phase 1 Runbook: Markdown document at docs/migration/agent-workloops-phase1-runbook.md.
+- `document:generated.docs-migration-cloud-private-coordination-contract` - Cloud-Private Coordination Contract: Markdown document at docs/migration/cloud-private-coordination-contract.md.
+- `document:generated.docs-migration-database-work-item-store-contract` - Database Work Item Store Contract: Markdown document at docs/migration/database-work-item-store-contract.md.
+- `document:generated.docs-migration-work-item-auth-and-storage-contract` - Work Item Auth And Storage Contract: Markdown document at docs/migration/work-item-auth-and-storage-contract.md.
 - `document:generated.examples-readme` - Synthetic Examples For agent-workloops: Markdown document at examples/README.md.
 - `document:generated.github-copilot-instructions` - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md.
 - `document:generated.security` - Security Policy For agent-workloops: Markdown document at SECURITY.md.
@@ -111,6 +116,8 @@ Generated entities: 99
 - `interface:route.get.api-v1-plans-planid` - GET /api/v1/plans/:planId: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-tokens` - GET /api/v1/tokens: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-users` - GET /api/v1/users: Discovered GET route in packages/server/src/app.ts.
+- `interface:route.get.api-v1-work-items` - GET /api/v1/work-items: Discovered GET route in packages/server/src/app.ts.
+- `interface:route.get.api-v1-work-items-workitemid` - GET /api/v1/work-items/:workItemId: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-auth-bootstrap` - POST /api/v1/auth/bootstrap: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-auth-login` - POST /api/v1/auth/login: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-auth-logout` - POST /api/v1/auth/logout: Discovered POST route in packages/server/src/app.ts.
@@ -125,6 +132,15 @@ Generated entities: 99
 - `interface:route.post.api-v1-plans-planid-request-review` - POST /api/v1/plans/:planId/request-review: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-tokens` - POST /api/v1/tokens: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-users` - POST /api/v1/users: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items` - POST /api/v1/work-items: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-cancel` - POST /api/v1/work-items/:workItemId/cancel: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-claim` - POST /api/v1/work-items/:workItemId/claim: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-complete` - POST /api/v1/work-items/:workItemId/complete: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-fail` - POST /api/v1/work-items/:workItemId/fail: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-heartbeat` - POST /api/v1/work-items/:workItemId/heartbeat: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-needs-approval` - POST /api/v1/work-items/:workItemId/needs-approval: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-ready` - POST /api/v1/work-items/:workItemId/ready: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-work-items-workitemid-release-stale` - POST /api/v1/work-items/:workItemId/release-stale: Discovered POST route in packages/server/src/app.ts.
 
 ## Dependencies
 

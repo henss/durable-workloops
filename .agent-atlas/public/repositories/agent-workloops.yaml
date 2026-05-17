@@ -1,14 +1,15 @@
 id: repository:agent-workloops
 kind: repository
 title: agent-workloops
-summary: Portable durable work-loop schemas plus optional hosted packages for plan approval, leasing, UI review, and Codex execution.
+summary: Active portfolio-spine project for durable LLM-agent work-slice contracts, approval, leases, recovery, outcome archives, and optional review evidence.
 visibility: public
 uri: github://henss/agent-workloops
 metadata:
   readme:
     overview:
-      - Portable durable work-loop schemas and deterministic state transitions for agent-run work that should survive beyond a single agent session.
-      - Optional hosted packages add plan submission, manual approval, client-token execution leases, completion archive, and a review UI.
+      - Active build project for durable LLM-agent work slices that should survive beyond a single agent session.
+      - Owns public-safe contracts for approval, leases, recovery, prompt/outcome envelopes, outcome archives, and optional AIQL-shaped review evidence.
+      - Optional hosted packages add sandboxable plan submission, manual approval, client-token execution leases, completion archive, and a review UI.
       - Host systems keep their own tracker adapters, review engines, notification routing, and private deployment policy.
       - The public package provides a generic Codex launch envelope for writing bounded slice prompts and outcome contracts.
       - Adopted portfolio repos should feed public-safe generic workflow friction back into this core instead of accumulating downstream prompt caveats.
@@ -20,16 +21,26 @@ metadata:
           - Adjudicates outcome plus peer-review evidence into controller decisions.
           - Applies controller decisions without depending on a specific tracker or agent runtime.
           - Provides optional server, shared API, CLI, and web UI packages around the public core.
+      - title: Near-Term Roadmap
+        items:
+          - Hosted sandbox seed for synthetic coordination evidence.
+          - Cross-package conformance harness for approval, leases, recovery, completion, review evidence, and archive behavior.
+          - Public-core boundary guard that keeps private orchestration and tracker policy downstream.
+          - Cloud deployment blueprint without provider secrets, account details, or deployment-specific topology.
+          - AIQL review evidence attachment without adding ai-quality-loops as a runtime dependency.
       - title: Non-Goals
         items:
           - No Linear, Jira, GitHub, or Slack adapter.
           - No bundled peer-review engine.
           - No private orchestration policy.
+          - No generic durable workflow runtime, scheduler, graph engine, or hosted execution platform.
     key_docs:
       - label: Agent Atlas
         path: docs/agents/atlas.md
       - label: Operating Model
         path: docs/index.md
+      - label: Active Spine Roadmap
+        path: docs/strategy/active-spine-roadmap.md
       - label: Contributor Safety
         path: CONTRIBUTING.md
 relations:

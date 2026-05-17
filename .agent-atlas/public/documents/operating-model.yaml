@@ -10,3 +10,5 @@ relations:
     target: repository:agent-workloops
   - type: documents
     target: domain:durable-agent-workflows
+  - type: related-to
+    target: document:active-spine-roadmap

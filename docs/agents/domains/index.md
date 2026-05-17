@@ -6,4 +6,4 @@ Profile: `public`
 
 Generated index of visible `domain` entities.
 
-- [Durable Agent Workflows](durable-agent-workflows.md) - `domain:durable-agent-workflows`: State contracts and deterministic transitions for multi-step agent work that must not be marked done after one incomplete run.
+- [Durable Agent Work Slices](durable-agent-workflows.md) - `domain:durable-agent-workflows`: LLM-agent-specific work-slice contracts, approval, leases, recovery, review evidence, and outcome archive behavior that must not become a generic workflow runtime.

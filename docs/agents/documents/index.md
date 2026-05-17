@@ -6,11 +6,17 @@ Profile: `public`
 
 Generated index of visible `document` entities.
 
+- [Active Spine Roadmap](active-spine-roadmap.md) - `document:active-spine-roadmap`: Repo-local strategy note positioning agent-workloops as the active durable LLM-agent work-slice spine, with near-term sandbox, conformance, boundary, cloud blueprint, and AIQL evidence priorities.
 - [Agent Instructions](agent-instructions.md) - `document:agent-instructions`: Repo-local instructions for agents working in agent-workloops.
 - [AGENTS.md](generated.agents.md) - `document:generated.agents`: Markdown document at AGENTS.md.
-- [Local Agent Guidance](generated.codex-portfolio-guidance.md) - `document:generated.codex-portfolio-guidance`: Markdown document at .codex/portfolio-guidance.md.
+- [Portfolio Guidance](generated.codex-portfolio-guidance.md) - `document:generated.codex-portfolio-guidance`: Markdown document at .codex/portfolio-guidance.md.
 - [Contributing To agent-workloops](generated.contributing.md) - `document:generated.contributing`: Markdown document at CONTRIBUTING.md.
 - [Agent Workloops](generated.docs-index.md) - `document:generated.docs-index`: Markdown document at docs/index.md.
+- [Agent-Workloops Hosted Environment Contract](generated.docs-migration-agent-workloops-hosted-env-contract.md) - `document:generated.docs-migration-agent-workloops-hosted-env-contract`: Markdown document at docs/migration/agent-workloops-hosted-env-contract.md.
+- [Agent-Workloops Phase 1 Runbook](generated.docs-migration-agent-workloops-phase1-runbook.md) - `document:generated.docs-migration-agent-workloops-phase1-runbook`: Markdown document at docs/migration/agent-workloops-phase1-runbook.md.
+- [Cloud-Private Coordination Contract](generated.docs-migration-cloud-private-coordination-contract.md) - `document:generated.docs-migration-cloud-private-coordination-contract`: Markdown document at docs/migration/cloud-private-coordination-contract.md.
+- [Database Work Item Store Contract](generated.docs-migration-database-work-item-store-contract.md) - `document:generated.docs-migration-database-work-item-store-contract`: Markdown document at docs/migration/database-work-item-store-contract.md.
+- [Work Item Auth And Storage Contract](generated.docs-migration-work-item-auth-and-storage-contract.md) - `document:generated.docs-migration-work-item-auth-and-storage-contract`: Markdown document at docs/migration/work-item-auth-and-storage-contract.md.
 - [Synthetic Examples For agent-workloops](generated.examples-readme.md) - `document:generated.examples-readme`: Markdown document at examples/README.md.
 - [GitHub Copilot Instructions](generated.github-copilot-instructions.md) - `document:generated.github-copilot-instructions`: Markdown document at .github/copilot-instructions.md.
 - [Security Policy For agent-workloops](generated.security.md) - `document:generated.security`: Markdown document at SECURITY.md.

@@ -8,3 +8,5 @@ uris:
 relations:
   - type: documents
     target: repository:agent-workloops
+  - type: related-to
+    target: document:active-spine-roadmap

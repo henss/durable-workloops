@@ -71,17 +71,48 @@ describe("Agent Workloops API schemas", () => {
     expect(
       PlanReviewEvidenceSchema.parse({
         reviewEvidenceId: "review-1",
+        schemaVersion: "1",
+        reviewedTargetType: "workloop_outcome",
+        executionMode: "manual_structured_review",
         planId: "plan-1",
+        workLoopId: "workloop-1",
         source: "aiql",
+        tool: { name: "ai-quality-loops", mode: "manual" },
         status: "soft_fail",
         severityRollup: { medium: 1 },
         summary: "Useful evidence with follow-ups.",
-        findings: [{ id: "schema-gap", severity: "medium", summary: "Schema needs a stable owner." }],
+        findings: [
+          {
+            key: "schema-gap",
+            title: "Schema gap",
+            severity: "medium",
+            summary: "Schema needs a stable owner.",
+            recommendation: "Name the owner.",
+            evidenceLabels: ["Review contract"],
+          },
+        ],
         artifactRefs: [{ path: "examples/review.json", kind: "review-evidence" }],
+        evidenceLabels: [
+          {
+            label: "Review contract",
+            summary: "AIQL review-evidence contract fields are preserved.",
+          },
+        ],
+        recommendation: {
+          action: "accept_with_follow_up",
+          summary: "Attach the artifact and read it back.",
+        },
+        gateResult: { status: "not_run", tool: "manual_structured_review" },
         createdAt: new Date().toISOString(),
       }),
     ).toMatchObject({
       reviewEvidenceId: "review-1",
+      reviewedTargetType: "workloop_outcome",
+      executionMode: "manual_structured_review",
+      tool: { name: "ai-quality-loops", mode: "manual" },
+      evidenceLabels: [{ label: "Review contract" }],
+      recommendation: { action: "accept_with_follow_up" },
+      gateResult: { status: "not_run" },
       severityRollup: { critical: 0, high: 0, medium: 1 },
     });
     expect(

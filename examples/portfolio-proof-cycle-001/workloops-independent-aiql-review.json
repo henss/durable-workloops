@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "1",
+  "reviewEvidenceId": "portfolio-proof-cycle-001-workloops-independent-aiql-review",
+  "reviewedTargetType": "workloop_outcome",
+  "executionMode": "manual_structured_review",
+  "planId": "ppc-001-synthetic-workloop",
+  "completionId": "portfolio-proof-cycle-001-synthetic-completion",
+  "workLoopId": "ppc-001-synthetic-workloop",
+  "sliceId": "slice-seed-approve-claim-complete",
+  "source": "aiql",
+  "tool": {
+    "name": "ai-quality-loops",
+    "version": "1.1.0",
+    "mode": "manual",
+    "model": "codex-manual-structured-review"
+  },
+  "status": "pass",
+  "severityRollup": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 2,
+    "info": 3,
+    "unknown": 0
+  },
+  "summary": "Independent AIQL-style review of the Portfolio Proof Cycle 001 WorkLoops outcome found the synthetic hosted lifecycle evidence usable for first-class WorkLoops review-evidence attachment/readback testing. The review is independent of WorkLoop completion metadata and was produced as a manual structured AIQL artifact with no external service calls.",
+  "findings": [
+    {
+      "key": "independent-aiql-review-artifact-created",
+      "title": "Independent review artifact created",
+      "severity": "info",
+      "summary": "This artifact is authored in AIQL's WorkLoop review evidence shape and is not embedded in the WorkLoop completion metadata fixture.",
+      "recommendation": "Use this JSON as the review-evidence attachment candidate for the WorkLoops mini-reproof.",
+      "evidenceLabels": ["AIQL contract", "Independent artifact"]
+    },
+    {
+      "key": "hosted-lifecycle-evidence-available",
+      "title": "Hosted lifecycle evidence is available",
+      "severity": "info",
+      "summary": "The proof inputs describe submit, approval, claim, heartbeat, completion, archive readback, and review-evidence attachment/list/readback behavior for a synthetic hosted WorkLoop path.",
+      "recommendation": "Attach this review artifact to the same synthetic plan/completion subject and verify list, archive, and audit readback.",
+      "evidenceLabels": ["Conformance fixture", "Proof README"]
+    },
+    {
+      "key": "public-boundary-preserved",
+      "title": "Public-safe boundary preserved",
+      "severity": "info",
+      "summary": "The reviewed evidence uses synthetic identifiers and avoids SMARTSEER, customer, tracker, credential, external deployment, production cloud, and private local path data.",
+      "recommendation": "Keep downstream attachment/readback fixtures synthetic and path-sanitized.",
+      "evidenceLabels": ["Proof README", "Orchestrator receipt"]
+    },
+    {
+      "key": "prior-aiql-shaped-metadata-not-independent",
+      "title": "Prior AIQL-shaped metadata was not independent",
+      "severity": "low",
+      "summary": "The earlier fixture represented AIQL-compatible metadata but explicitly did not invoke an external review engine or independent AIQL gate.",
+      "recommendation": "Use this artifact, not the prior completion metadata fixture, when proving independent review-evidence attachment/readback.",
+      "evidenceLabels": ["Prior AIQL-shaped fixture", "AIQL review finding"]
+    },
+    {
+      "key": "conformance-gap-note-may-be-stale",
+      "title": "Conformance gap note may be stale",
+      "severity": "low",
+      "summary": "One conformance fixture still records the old missing first-class review-evidence surface, while the proof README says the focused server test now exercises attachment, list readback, archive readback, and audit readback.",
+      "recommendation": "During the WorkLoops mini-reproof, prefer live test/readback evidence over the stale gap note or update the fixture if it is confirmed outdated.",
+      "evidenceLabels": ["Conformance fixture", "Proof README"]
+    }
+  ],
+  "artifactRefs": [
+    {
+      "label": "WorkLoops proof README",
+      "kind": "proof-readme",
+      "uri": "repo://agent-workloops/examples/portfolio-proof-cycle-001/README.md"
+    },
+    {
+      "label": "WorkLoops conformance fixture",
+      "kind": "conformance-fixture",
+      "uri": "repo://agent-workloops/examples/portfolio-proof-cycle-001/workloops-active-spine-conformance.json"
+    },
+    {
+      "label": "Prior AIQL-shaped metadata fixture",
+      "kind": "review-evidence-fixture",
+      "uri": "repo://agent-workloops/examples/portfolio-proof-cycle-001/aiql-review-evidence.json"
+    },
+    {
+      "label": "WorkLoops focused server test",
+      "kind": "test",
+      "uri": "repo://agent-workloops/packages/server/src/portfolio-proof-cycle-001.test.ts"
+    },
+    {
+      "label": "Orchestrator proof receipt",
+      "kind": "proof-receipt",
+      "uri": "artifact://portfolio-proof-cycle-001/orchestrator/workloops-spine-proof-receipt"
+    },
+    {
+      "label": "Prior Orchestrator AIQL-style review",
+      "kind": "review",
+      "uri": "artifact://portfolio-proof-cycle-001/orchestrator/workloops-spine-proof-aiql-review"
+    }
+  ],
+  "evidenceLabels": [
+    {
+      "label": "AIQL contract",
+      "summary": "AIQL WorkLoop review evidence contract with schemaVersion 1 and explicit reviewed target/execution mode fields.",
+      "artifactRefs": [
+        {
+          "label": "WorkLoop review evidence schema",
+          "kind": "schema",
+          "uri": "repo://ai-quality-loops/schemas/workloop-review-evidence.schema.json"
+        },
+        {
+          "label": "WorkLoop review evidence docs",
+          "kind": "docs",
+          "uri": "repo://ai-quality-loops/docs/workloop-review-evidence.md"
+        }
+      ]
+    },
+    {
+      "label": "Independent artifact",
+      "summary": "This review is saved as a public-safe fixture, separate from WorkLoops completion metadata.",
+      "artifactRefs": [
+        {
+          "label": "Independent review JSON",
+          "kind": "review-evidence",
+          "path": "examples/portfolio-proof-cycle-001/workloops-independent-aiql-review.json"
+        }
+      ]
+    }
+  ],
+  "recommendation": {
+    "action": "accept_with_follow_up",
+    "summary": "Use this independent AIQL artifact for WorkLoops first-class review-evidence attachment/readback testing, then record the readback result against the same plan or completion subject.",
+    "nextSteps": [
+      "Attach examples/portfolio-proof-cycle-001/workloops-independent-aiql-review.json to the synthetic WorkLoops plan or completion.",
+      "Read it back through WorkLoops list, archive, and audit surfaces.",
+      "Record whether the stale conformance gap note still reflects current WorkLoops behavior."
+    ]
+  },
+  "gateResult": {
+    "status": "not_run",
+    "tool": "manual_structured_review",
+    "command": "manual structured review against docs/workloop-review-evidence.md and schemas/workloop-review-evidence.schema.json",
+    "thresholds": {
+      "externalServicesAllowed": false,
+      "privateLocalPathsAllowed": false
+    },
+    "violations": []
+  },
+  "createdAt": "2026-05-18T08:40:00.000Z"
+}

@@ -186,6 +186,20 @@ export const ReviewEvidenceStatusSchema = z.enum([
   "blocked",
 ]);
 
+export const ReviewEvidenceTargetTypeSchema = z.enum([
+  "workloop_outcome",
+  "workloop_plan",
+  "workloop_slice",
+  "completion_record",
+  "other",
+]);
+
+export const ReviewEvidenceExecutionModeSchema = z.enum([
+  "tool_run",
+  "manual_structured_review",
+  "blocked",
+]);
+
 export const ReviewEvidenceSeveritySchema = z.enum([
   "critical",
   "high",
@@ -225,16 +239,60 @@ export const ReviewEvidenceArtifactRefSchema = z
     message: "artifact ref requires path or uri",
   });
 
+export const ReviewEvidenceToolSchema = z
+  .object({
+    name: z.string().min(1),
+    version: z.string().min(1).optional(),
+    mode: z.string().min(1).optional(),
+    model: z.string().min(1).optional(),
+  })
+  .catchall(JsonValueSchema);
+
+export const ReviewEvidenceLabelSchema = z
+  .object({
+    label: z.string().min(1),
+    summary: z.string().min(1),
+    artifactRefs: z.array(ReviewEvidenceArtifactRefSchema).optional(),
+  })
+  .catchall(JsonValueSchema);
+
+export const ReviewEvidenceRecommendationSchema = z
+  .object({
+    action: z.string().min(1),
+    summary: z.string().min(1),
+    nextSteps: z.array(z.string().min(1)).optional(),
+  })
+  .catchall(JsonValueSchema);
+
+export const ReviewEvidenceGateResultSchema = z
+  .object({
+    status: z.string().min(1),
+    tool: z.string().min(1).optional(),
+    command: z.string().min(1).optional(),
+    thresholds: JsonValueSchema.optional(),
+    violations: z.array(z.string().min(1)).optional(),
+  })
+  .catchall(JsonValueSchema);
+
 const PlanReviewEvidenceBaseSchema = z.object({
+  schemaVersion: z.string().min(1).optional(),
   reviewEvidenceId: z.string().min(1),
+  reviewedTargetType: ReviewEvidenceTargetTypeSchema.optional(),
+  executionMode: ReviewEvidenceExecutionModeSchema.optional(),
   planId: z.string().min(1).optional(),
   completionId: z.string().min(1).optional(),
+  workLoopId: z.string().min(1).optional(),
+  sliceId: z.string().min(1).optional(),
   source: ReviewEvidenceSourceSchema,
+  tool: ReviewEvidenceToolSchema.optional(),
   status: ReviewEvidenceStatusSchema,
   severityRollup: ReviewEvidenceSeverityRollupSchema,
   summary: z.string().min(1),
   findings: z.array(ReviewEvidenceFindingSchema).default([]),
   artifactRefs: z.array(ReviewEvidenceArtifactRefSchema).default([]),
+  evidenceLabels: z.array(ReviewEvidenceLabelSchema).default([]),
+  recommendation: ReviewEvidenceRecommendationSchema.optional(),
+  gateResult: ReviewEvidenceGateResultSchema.optional(),
   createdAt: z.string().min(1),
 });
 
@@ -421,10 +479,16 @@ export type PlanLock = z.infer<typeof PlanLockSchema>;
 export type PlanCompletion = z.infer<typeof PlanCompletionSchema>;
 export type ReviewEvidenceSource = z.infer<typeof ReviewEvidenceSourceSchema>;
 export type ReviewEvidenceStatus = z.infer<typeof ReviewEvidenceStatusSchema>;
+export type ReviewEvidenceTargetType = z.infer<typeof ReviewEvidenceTargetTypeSchema>;
+export type ReviewEvidenceExecutionMode = z.infer<typeof ReviewEvidenceExecutionModeSchema>;
 export type ReviewEvidenceSeverity = z.infer<typeof ReviewEvidenceSeveritySchema>;
 export type ReviewEvidenceSeverityRollup = z.infer<typeof ReviewEvidenceSeverityRollupSchema>;
 export type ReviewEvidenceFinding = z.infer<typeof ReviewEvidenceFindingSchema>;
 export type ReviewEvidenceArtifactRef = z.infer<typeof ReviewEvidenceArtifactRefSchema>;
+export type ReviewEvidenceTool = z.infer<typeof ReviewEvidenceToolSchema>;
+export type ReviewEvidenceLabel = z.infer<typeof ReviewEvidenceLabelSchema>;
+export type ReviewEvidenceRecommendation = z.infer<typeof ReviewEvidenceRecommendationSchema>;
+export type ReviewEvidenceGateResult = z.infer<typeof ReviewEvidenceGateResultSchema>;
 export type PlanReviewEvidence = z.infer<typeof PlanReviewEvidenceSchema>;
 export type AuditEvent = z.infer<typeof AuditEventSchema>;
 export type PlanRecord = z.infer<typeof PlanRecordSchema>;

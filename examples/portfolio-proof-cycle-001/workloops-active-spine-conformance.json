@@ -85,12 +85,22 @@
       "step": "complete",
       "route": "POST /api/v1/plans/:planId/complete",
       "expected_status": "completed",
-      "attached_evidence_path": "examples/portfolio-proof-cycle-001/aiql-review-evidence.json"
+      "attached_evidence_path": "examples/portfolio-proof-cycle-001/workloops-independent-aiql-review.json"
+    },
+    {
+      "step": "attach_review_evidence",
+      "route": "POST /api/v1/plans/:planId/review-evidence",
+      "expected_result": "independent AIQL review evidence is attached after completion"
+    },
+    {
+      "step": "list_review_evidence",
+      "route": "GET /api/v1/plans/:planId/review-evidence",
+      "expected_result": "independent AIQL review evidence is listed with AIQL contract fields preserved"
     },
     {
       "step": "archive_readback",
       "route": "GET /api/v1/plans/archive",
-      "expected_result": "completed plan appears exactly once"
+      "expected_result": "completed plan appears exactly once with review evidence"
     }
   ],
   "synthetic_outcome": {
@@ -102,8 +112,8 @@
     {
       "id": "hosted-review-evidence-attachment",
       "owner": "agent-workloops",
-      "status": "missing_first_class_surface",
-      "summary": "Hosted plan completion can carry review evidence in WorkLoop decision evidence paths and metadata, but there is no separate review-evidence attachment/readback endpoint yet."
+      "status": "cleared_by_mini_reproof",
+      "summary": "Hosted plan completion can attach, list, archive, and audit read back first-class independent review evidence."
     }
   ],
   "validation": {

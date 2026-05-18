@@ -41,7 +41,7 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
       new URL("../../../examples/portfolio-proof-cycle-001/workloops-active-spine-conformance.json", import.meta.url),
     );
     const reviewEvidence = await readJson<PlanReviewEvidence>(
-      new URL("../../../examples/portfolio-proof-cycle-001/aiql-review-evidence.json", import.meta.url),
+      new URL("../../../examples/portfolio-proof-cycle-001/workloops-independent-aiql-review.json", import.meta.url),
     );
     const app = await buildServer({ config: config() });
     const sessionCookie = await loginAsAdmin(app);
@@ -145,17 +145,25 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
       method: "POST",
       url: `/api/v1/plans/${planId}/review-evidence`,
       headers: { authorization: `Bearer ${token}` },
-      payload: { reviewEvidence },
+      payload: { reviewEvidence: { ...reviewEvidence, planId } },
     });
     expect(attachedReview.statusCode).toBe(200);
     expect(
       attachedReview.json<{ reviewEvidence: PlanReviewEvidence[] }>().reviewEvidence,
     ).toEqual([
       expect.objectContaining({
-        reviewEvidenceId: "ppc-001-synthetic-aiql-review",
+        reviewEvidenceId: "portfolio-proof-cycle-001-workloops-independent-aiql-review",
         planId,
-        source: "synthetic",
+        source: "aiql",
+        reviewedTargetType: "workloop_outcome",
+        executionMode: "manual_structured_review",
         status: "pass",
+        tool: expect.objectContaining({ name: "ai-quality-loops" }),
+        evidenceLabels: expect.arrayContaining([
+          expect.objectContaining({ label: "Independent artifact" }),
+        ]),
+        recommendation: expect.objectContaining({ action: "accept_with_follow_up" }),
+        gateResult: expect.objectContaining({ status: "not_run" }),
       }),
     ]);
 
@@ -182,7 +190,9 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
           status: "completed",
           reviewEvidence: [
             expect.objectContaining({
-              reviewEvidenceId: "ppc-001-synthetic-aiql-review",
+              reviewEvidenceId: "portfolio-proof-cycle-001-workloops-independent-aiql-review",
+              reviewedTargetType: "workloop_outcome",
+              executionMode: "manual_structured_review",
               status: "pass",
             }),
           ],
@@ -195,7 +205,10 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
       url: `/api/v1/plans/${planId}`,
       headers: { authorization: `Bearer ${token}` },
     });
-    expect(detail.json<{ audit: Array<{ type: string }> }>().audit.map((event) => event.type)).toEqual(
+    const detailJson = detail.json<{
+      audit: Array<{ type: string; metadata?: { artifactRefs?: Array<{ uri?: string; path?: string }> } }>;
+    }>();
+    expect(detailJson.audit.map((event) => event.type)).toEqual(
       expect.arrayContaining([
         "submit",
         "approve",
@@ -205,6 +218,15 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
         "attach_review_evidence",
       ]),
     );
+    const attachAudit = detailJson.audit.find((event) => event.type === "attach_review_evidence");
+    expect(attachAudit?.metadata?.artifactRefs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          uri: "repo://agent-workloops/examples/portfolio-proof-cycle-001/README.md",
+        }),
+      ]),
+    );
+    expect(JSON.stringify(attachAudit?.metadata)).not.toContain("/Users/");
   });
 
   function config(): ServerConfig {
@@ -238,11 +260,10 @@ async function readJson<T>(url: URL): Promise<T> {
 }
 
 function reviewArtifactPath(evidence: PlanReviewEvidence): string {
-  const ref = evidence.artifactRefs.find((artifact) => artifact.kind === "review-evidence");
-  if (!ref?.path) {
-    throw new Error("review evidence fixture requires a review-evidence artifact path");
-  }
-  return ref.path;
+  const ref = evidence.evidenceLabels
+    .flatMap((label) => label.artifactRefs ?? [])
+    .find((artifact) => artifact.kind === "review-evidence");
+  return ref?.path ?? "examples/portfolio-proof-cycle-001/workloops-independent-aiql-review.json";
 }
 
 async function loginAsAdmin(app: Awaited<ReturnType<typeof buildServer>>): Promise<string> {

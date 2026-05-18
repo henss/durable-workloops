@@ -4,12 +4,18 @@ import type {
   AuditEvent,
   JsonValue,
   PlanRecord,
+  PlanReviewEvidence,
   WorkLoop,
   WorkLoopDecision,
 } from "@agent-workloops/api";
 import { AuditEventSchema, PlanRecordSchema } from "@agent-workloops/api";
 import crypto from "node:crypto";
 import postgres from "postgres";
+import {
+  assertCanAttachReviewEvidence,
+  normalizePlanReviewEvidence,
+  reviewEvidenceAuditMetadata,
+} from "./plan-review-evidence.js";
 
 export async function createSqlPlanStore(config: ServerConfig): Promise<PlanStore> {
   if (config.persistence.kind !== "sql") {
@@ -255,6 +261,39 @@ export class SqlPlanStore implements PlanStore {
         };
       },
     );
+  }
+
+  async attachPlanReviewEvidence(input: {
+    planId: string;
+    actor: { userId?: string; tokenId?: string };
+    evidence: PlanReviewEvidence;
+  }): Promise<PlanRecord> {
+    return this.updatePlan(
+      input.planId,
+      input.actor,
+      "attach_review_evidence",
+      reviewEvidenceAuditMetadata(input.evidence),
+      (plan) => {
+        assertCanAttachReviewEvidence(plan);
+        const evidence = normalizePlanReviewEvidence({
+          plan,
+          evidence: input.evidence,
+        });
+        return {
+          ...plan,
+          reviewEvidence: [...plan.reviewEvidence, evidence],
+          updatedAt: new Date().toISOString(),
+        };
+      },
+    );
+  }
+
+  async listPlanReviewEvidence(planId: string): Promise<PlanReviewEvidence[]> {
+    const plan = await this.getPlan(planId);
+    if (!plan) {
+      throw new Error(`Plan not found: ${planId}`);
+    }
+    return plan.reviewEvidence;
   }
 
   async progressPlan(input: {

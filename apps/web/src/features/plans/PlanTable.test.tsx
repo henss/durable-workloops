@@ -28,6 +28,7 @@ const plan: PlanRecord = {
   approvalRequired: true,
   approvalStatus: "approved",
   status: "queued",
+  reviewEvidence: [],
   createdAt: "2026-05-14T10:00:00.000Z",
   updatedAt: "2026-05-14T10:00:00.000Z",
 };

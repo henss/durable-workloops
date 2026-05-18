@@ -25,6 +25,7 @@ const basePlan: PlanRecord = {
   approvalRequired: false,
   approvalStatus: "not_required",
   status: "queued",
+  reviewEvidence: [],
   createdAt: new Date(0).toISOString(),
   updatedAt: new Date(0).toISOString(),
 };

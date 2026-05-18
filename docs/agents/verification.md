@@ -10,7 +10,7 @@ Profile: `public`
 - `test-scope:ai-quality-loops-adapter-tests` - AI Quality Loops Adapter Tests: Verifies WorkLoop slice review context maps to an injected ai-quality-loops-compatible runner.
 - `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
 - `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
-- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 8 discovered test files under packages/server.
+- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 9 discovered test files under packages/server.
 - `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 8 discovered test files under apps/web.
 - `test-scope:generated.src` - src tests: 7 discovered test files under src.
 - `test-scope:hosted-workloops-tests` - Hosted Workloops Tests: Package tests for hosted API contracts, server approval and lease behavior, CLI parsing, and web queue bucketing.
@@ -63,7 +63,7 @@ ID: `test-scope:generated.package.agent-workloops-cli`
 
 ID: `test-scope:generated.package.agent-workloops-server`
 
-8 discovered test files under packages/server.
+9 discovered test files under packages/server.
 
 - command: `pnpm test`
   purpose: Run repository test suite.

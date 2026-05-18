@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   ClaimPlanRequestSchema,
+  AttachPlanReviewEvidenceRequestSchema,
   CompletePlanRequestSchema,
   CreateClientTokenRequestSchema,
   PlanRecordSchema,
+  PlanReviewEvidenceSchema,
   ProgressPlanRequestSchema,
   RequestReviewPlanRequestSchema,
   ReleasePlanRequestSchema,
@@ -63,6 +65,38 @@ describe("Agent Workloops API schemas", () => {
     expect(RequestReviewPlanRequestSchema.parse({ reason: "Needs another look" })).toEqual({
       reason: "Needs another look",
     });
+  });
+
+  it("parses first-class plan review evidence", () => {
+    expect(
+      PlanReviewEvidenceSchema.parse({
+        reviewEvidenceId: "review-1",
+        planId: "plan-1",
+        source: "aiql",
+        status: "soft_fail",
+        severityRollup: { medium: 1 },
+        summary: "Useful evidence with follow-ups.",
+        findings: [{ id: "schema-gap", severity: "medium", summary: "Schema needs a stable owner." }],
+        artifactRefs: [{ path: "examples/review.json", kind: "review-evidence" }],
+        createdAt: new Date().toISOString(),
+      }),
+    ).toMatchObject({
+      reviewEvidenceId: "review-1",
+      severityRollup: { critical: 0, high: 0, medium: 1 },
+    });
+    expect(
+      AttachPlanReviewEvidenceRequestSchema.parse({
+        reviewEvidence: {
+          reviewEvidenceId: "review-2",
+          source: "manual",
+          status: "pass",
+          severityRollup: {},
+          summary: "Human review passed.",
+          findings: [],
+          artifactRefs: [{ path: "examples/manual-review.json" }],
+        },
+      }),
+    ).toMatchObject({ reviewEvidence: { reviewEvidenceId: "review-2" } });
   });
 
   it("normalizes legacy and explicit review policy shape", () => {

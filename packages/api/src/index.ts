@@ -172,6 +172,77 @@ export const PlanCompletionSchema = z.object({
   metadata: JsonValueSchema,
 });
 
+export const ReviewEvidenceSourceSchema = z.enum([
+  "aiql",
+  "manual",
+  "synthetic",
+  "other",
+]);
+
+export const ReviewEvidenceStatusSchema = z.enum([
+  "pass",
+  "soft_fail",
+  "fail",
+  "blocked",
+]);
+
+export const ReviewEvidenceSeveritySchema = z.enum([
+  "critical",
+  "high",
+  "medium",
+  "low",
+  "info",
+  "unknown",
+]);
+
+export const ReviewEvidenceSeverityRollupSchema = z.object({
+  critical: z.number().int().min(0).default(0),
+  high: z.number().int().min(0).default(0),
+  medium: z.number().int().min(0).default(0),
+  low: z.number().int().min(0).default(0),
+  info: z.number().int().min(0).default(0),
+  unknown: z.number().int().min(0).default(0),
+});
+
+export const ReviewEvidenceFindingSchema = z
+  .object({
+    id: z.string().min(1).optional(),
+    severity: ReviewEvidenceSeveritySchema.optional(),
+    summary: z.string().min(1),
+    status: z.string().min(1).optional(),
+  })
+  .catchall(JsonValueSchema);
+
+export const ReviewEvidenceArtifactRefSchema = z
+  .object({
+    label: z.string().min(1).optional(),
+    path: z.string().min(1).optional(),
+    uri: z.string().min(1).optional(),
+    kind: z.string().min(1).optional(),
+  })
+  .catchall(JsonValueSchema)
+  .refine((ref) => Boolean(ref.path || ref.uri), {
+    message: "artifact ref requires path or uri",
+  });
+
+const PlanReviewEvidenceBaseSchema = z.object({
+  reviewEvidenceId: z.string().min(1),
+  planId: z.string().min(1).optional(),
+  completionId: z.string().min(1).optional(),
+  source: ReviewEvidenceSourceSchema,
+  status: ReviewEvidenceStatusSchema,
+  severityRollup: ReviewEvidenceSeverityRollupSchema,
+  summary: z.string().min(1),
+  findings: z.array(ReviewEvidenceFindingSchema).default([]),
+  artifactRefs: z.array(ReviewEvidenceArtifactRefSchema).default([]),
+  createdAt: z.string().min(1),
+});
+
+export const PlanReviewEvidenceSchema = PlanReviewEvidenceBaseSchema
+  .refine((evidence) => Boolean(evidence.planId || evidence.completionId), {
+    message: "review evidence requires planId or completionId",
+  });
+
 export const AuditEventTypeSchema = z.enum([
   "submit",
   "approve",
@@ -182,6 +253,7 @@ export const AuditEventTypeSchema = z.enum([
   "progress",
   "release",
   "complete",
+  "attach_review_evidence",
   "cancel",
   "token-created",
   "token-revoked",
@@ -207,6 +279,7 @@ export const PlanRecordSchema = z.object({
   status: PlanStatusSchema,
   lock: PlanLockSchema.optional(),
   completion: PlanCompletionSchema.optional(),
+  reviewEvidence: z.array(PlanReviewEvidenceSchema).default([]),
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });
@@ -278,6 +351,17 @@ export const RequestReviewPlanRequestSchema = z.object({
   reason: z.string().min(1).optional(),
 });
 
+export const AttachPlanReviewEvidenceRequestSchema = z.object({
+  reviewEvidence: PlanReviewEvidenceBaseSchema.omit({ planId: true }).extend({
+    planId: z.string().min(1).optional(),
+    createdAt: z.string().min(1).optional(),
+  }),
+});
+
+export const PlanReviewEvidenceListResponseSchema = z.object({
+  reviewEvidence: z.array(PlanReviewEvidenceSchema),
+});
+
 export const CreateClientTokenRequestSchema = z.object({
   name: z.string().min(1),
   scopes: z.array(ClientTokenScopeSchema).min(1),
@@ -335,6 +419,13 @@ export type ClientTokenScope = z.infer<typeof ClientTokenScopeSchema>;
 export type UserRole = z.infer<typeof UserRoleSchema>;
 export type PlanLock = z.infer<typeof PlanLockSchema>;
 export type PlanCompletion = z.infer<typeof PlanCompletionSchema>;
+export type ReviewEvidenceSource = z.infer<typeof ReviewEvidenceSourceSchema>;
+export type ReviewEvidenceStatus = z.infer<typeof ReviewEvidenceStatusSchema>;
+export type ReviewEvidenceSeverity = z.infer<typeof ReviewEvidenceSeveritySchema>;
+export type ReviewEvidenceSeverityRollup = z.infer<typeof ReviewEvidenceSeverityRollupSchema>;
+export type ReviewEvidenceFinding = z.infer<typeof ReviewEvidenceFindingSchema>;
+export type ReviewEvidenceArtifactRef = z.infer<typeof ReviewEvidenceArtifactRefSchema>;
+export type PlanReviewEvidence = z.infer<typeof PlanReviewEvidenceSchema>;
 export type AuditEvent = z.infer<typeof AuditEventSchema>;
 export type PlanRecord = z.infer<typeof PlanRecordSchema>;
 export type WorkLoopDecision = z.infer<typeof WorkLoopDecisionSchema>;
@@ -347,6 +438,7 @@ export type ProgressPlanRequest = z.infer<typeof ProgressPlanRequestSchema>;
 export type ReleasePlanReason = z.infer<typeof ReleasePlanReasonSchema>;
 export type ReleasePlanRequest = z.infer<typeof ReleasePlanRequestSchema>;
 export type CompletePlanRequest = z.infer<typeof CompletePlanRequestSchema>;
+export type AttachPlanReviewEvidenceRequest = z.infer<typeof AttachPlanReviewEvidenceRequestSchema>;
 export type CreatedClientToken = z.infer<typeof CreatedClientTokenSchema>;
 export type PublicClientToken = z.infer<typeof PublicClientTokenSchema>;
 export type User = z.infer<typeof UserSchema>;
@@ -418,6 +510,28 @@ export class AgentWorkloopsApiClient {
       body: JSON.stringify(CompletePlanRequestSchema.parse(input)),
     });
     return PlanRecordSchema.parse(await response.json());
+  }
+
+  async attachPlanReviewEvidence(
+    planId: string,
+    input: AttachPlanReviewEvidenceRequest,
+  ): Promise<PlanRecord> {
+    const response = await this.request(
+      `/api/v1/plans/${encodeURIComponent(planId)}/review-evidence`,
+      {
+        method: "POST",
+        body: JSON.stringify(AttachPlanReviewEvidenceRequestSchema.parse(input)),
+      },
+    );
+    return PlanRecordSchema.parse(await response.json());
+  }
+
+  async listPlanReviewEvidence(planId: string): Promise<PlanReviewEvidence[]> {
+    const response = await this.request(
+      `/api/v1/plans/${encodeURIComponent(planId)}/review-evidence`,
+      { method: "GET" },
+    );
+    return PlanReviewEvidenceListResponseSchema.parse(await response.json()).reviewEvidence;
   }
 
   async listPlans(input: { includeCompleted?: boolean } = {}): Promise<PlanRecord[]> {

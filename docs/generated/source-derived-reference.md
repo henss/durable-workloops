@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 116
+Generated entities: 120
 
 ## Commander
 
@@ -58,7 +58,7 @@ Generated entities: 116
 
 - `test-scope:generated.package.agent-workloops-api` - @agent-workloops/api tests: 1 discovered test file under packages/api.
 - `test-scope:generated.package.agent-workloops-cli` - @agent-workloops/cli tests: 1 discovered test file under packages/cli.
-- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 8 discovered test files under packages/server.
+- `test-scope:generated.package.agent-workloops-server` - @agent-workloops/server tests: 9 discovered test files under packages/server.
 - `test-scope:generated.package.agent-workloops-web` - @agent-workloops/web tests: 8 discovered test files under apps/web.
 - `test-scope:generated.src` - src tests: 7 discovered test files under src.
 
@@ -78,6 +78,8 @@ Generated entities: 116
 - `document:generated.docs-migration-database-work-item-store-contract` - Database Work Item Store Contract: Markdown document at docs/migration/database-work-item-store-contract.md.
 - `document:generated.docs-migration-work-item-auth-and-storage-contract` - Work Item Auth And Storage Contract: Markdown document at docs/migration/work-item-auth-and-storage-contract.md.
 - `document:generated.docs-strategy-active-spine-roadmap` - Agent Workloops Active Spine Roadmap: Markdown document at docs/strategy/active-spine-roadmap.md.
+- `document:generated.examples-portfolio-proof-cycle-001-atlas-context-pack-receipt` - Atlas Context Pack Receipt: Markdown document at examples/portfolio-proof-cycle-001/atlas-context-pack-receipt.md.
+- `document:generated.examples-portfolio-proof-cycle-001-readme` - Portfolio Proof Cycle 001 Active-Spine Proof: Markdown document at examples/portfolio-proof-cycle-001/README.md.
 - `document:generated.examples-readme` - Synthetic Examples For agent-workloops: Markdown document at examples/README.md.
 - `document:generated.github-copilot-instructions` - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md.
 - `document:generated.security` - Security Policy For agent-workloops: Markdown document at SECURITY.md.
@@ -115,6 +117,7 @@ Generated entities: 116
 - `interface:route.get.api-v1-plans` - GET /api/v1/plans: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-plans-archive` - GET /api/v1/plans/archive: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-plans-planid` - GET /api/v1/plans/:planId: Discovered GET route in packages/server/src/app.ts.
+- `interface:route.get.api-v1-plans-planid-review-evidence` - GET /api/v1/plans/:planId/review-evidence: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-tokens` - GET /api/v1/tokens: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-users` - GET /api/v1/users: Discovered GET route in packages/server/src/app.ts.
 - `interface:route.get.api-v1-work-items` - GET /api/v1/work-items: Discovered GET route in packages/server/src/app.ts.
@@ -131,6 +134,7 @@ Generated entities: 116
 - `interface:route.post.api-v1-plans-planid-reject` - POST /api/v1/plans/:planId/reject: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-release` - POST /api/v1/plans/:planId/release: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-plans-planid-request-review` - POST /api/v1/plans/:planId/request-review: Discovered POST route in packages/server/src/app.ts.
+- `interface:route.post.api-v1-plans-planid-review-evidence` - POST /api/v1/plans/:planId/review-evidence: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-tokens` - POST /api/v1/tokens: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-users` - POST /api/v1/users: Discovered POST route in packages/server/src/app.ts.
 - `interface:route.post.api-v1-work-items` - POST /api/v1/work-items: Discovered POST route in packages/server/src/app.ts.

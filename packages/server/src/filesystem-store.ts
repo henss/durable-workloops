@@ -11,6 +11,7 @@ import {
   type ClientTokenScope,
   type JsonValue,
   type PlanRecord,
+  type PlanReviewEvidence,
   type PublicClientToken,
   type User,
   type UserRole,
@@ -25,6 +26,11 @@ import {
   verifySecret,
   type AuthState,
 } from "./auth-utils.js";
+import {
+  assertCanAttachReviewEvidence,
+  normalizePlanReviewEvidence,
+  reviewEvidenceAuditMetadata,
+} from "./plan-review-evidence.js";
 import type { AuthStore, PlanActor, PlanStore } from "./store.js";
 
 type AuthFile = AuthState;
@@ -273,6 +279,40 @@ export class FilesystemPlanStore implements PlanStore {
       });
       return updated;
     });
+  }
+
+  async attachPlanReviewEvidence(input: {
+    planId: string;
+    actor: PlanActor;
+    evidence: PlanReviewEvidence;
+  }): Promise<PlanRecord> {
+    return this.withLock(async () => {
+      const plan = await this.requirePlan(input.planId);
+      assertCanAttachReviewEvidence(plan);
+      const evidence = normalizePlanReviewEvidence({
+        plan,
+        evidence: input.evidence,
+      });
+      const updated = PlanRecordSchema.parse({
+        ...plan,
+        reviewEvidence: [...plan.reviewEvidence, evidence],
+        updatedAt: new Date().toISOString(),
+      });
+      await this.writePlan(updated);
+      await this.appendAuditUnlocked({
+        planId: input.planId,
+        actorUserId: input.actor.userId,
+        actorTokenId: input.actor.tokenId,
+        type: "attach_review_evidence",
+        metadata: reviewEvidenceAuditMetadata(evidence),
+      });
+      return updated;
+    });
+  }
+
+  async listPlanReviewEvidence(planId: string): Promise<PlanReviewEvidence[]> {
+    const plan = await this.requirePlan(planId);
+    return plan.reviewEvidence;
   }
 
   async progressPlan(input: {
@@ -707,4 +747,3 @@ function transitionMetadata(
     decision: decision ? (JSON.parse(JSON.stringify(decision)) as JsonValue) : null,
   };
 }
-

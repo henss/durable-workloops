@@ -41,6 +41,7 @@ Package manifest at packages/server/package.json.
 - `interface:route.get.api-v1-plans`
 - `interface:route.get.api-v1-plans-archive`
 - `interface:route.get.api-v1-plans-planid`
+- `interface:route.get.api-v1-plans-planid-review-evidence`
 - `interface:route.get.api-v1-tokens`
 - `interface:route.get.api-v1-users`
 - `interface:route.get.api-v1-work-items`
@@ -57,6 +58,7 @@ Package manifest at packages/server/package.json.
 - `interface:route.post.api-v1-plans-planid-reject`
 - `interface:route.post.api-v1-plans-planid-release`
 - `interface:route.post.api-v1-plans-planid-request-review`
+- `interface:route.post.api-v1-plans-planid-review-evidence`
 - `interface:route.post.api-v1-tokens`
 - `interface:route.post.api-v1-users`
 - `interface:route.post.api-v1-work-items`
@@ -110,6 +112,7 @@ Package manifest at packages/server/package.json.
 - `interface:route.get.api-v1-plans` _(generated)_
 - `interface:route.get.api-v1-plans-archive` _(generated)_
 - `interface:route.get.api-v1-plans-planid` _(generated)_
+- `interface:route.get.api-v1-plans-planid-review-evidence` _(generated)_
 - `interface:route.get.api-v1-tokens` _(generated)_
 - `interface:route.get.api-v1-users` _(generated)_
 - `interface:route.get.api-v1-work-items` _(generated)_
@@ -126,6 +129,7 @@ Package manifest at packages/server/package.json.
 - `interface:route.post.api-v1-plans-planid-reject` _(generated)_
 - `interface:route.post.api-v1-plans-planid-release` _(generated)_
 - `interface:route.post.api-v1-plans-planid-request-review` _(generated)_
+- `interface:route.post.api-v1-plans-planid-review-evidence` _(generated)_
 - `interface:route.post.api-v1-tokens` _(generated)_
 - `interface:route.post.api-v1-users` _(generated)_
 - `interface:route.post.api-v1-work-items` _(generated)_

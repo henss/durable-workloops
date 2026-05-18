@@ -18,6 +18,8 @@ Generated index of visible `document` entities.
 - [Database Work Item Store Contract](generated.docs-migration-database-work-item-store-contract.md) - `document:generated.docs-migration-database-work-item-store-contract`: Markdown document at docs/migration/database-work-item-store-contract.md.
 - [Work Item Auth And Storage Contract](generated.docs-migration-work-item-auth-and-storage-contract.md) - `document:generated.docs-migration-work-item-auth-and-storage-contract`: Markdown document at docs/migration/work-item-auth-and-storage-contract.md.
 - [Agent Workloops Active Spine Roadmap](generated.docs-strategy-active-spine-roadmap.md) - `document:generated.docs-strategy-active-spine-roadmap`: Markdown document at docs/strategy/active-spine-roadmap.md.
+- [Atlas Context Pack Receipt](generated.examples-portfolio-proof-cycle-001-atlas-context-pack-receipt.md) - `document:generated.examples-portfolio-proof-cycle-001-atlas-context-pack-receipt`: Markdown document at examples/portfolio-proof-cycle-001/atlas-context-pack-receipt.md.
+- [Portfolio Proof Cycle 001 Active-Spine Proof](generated.examples-portfolio-proof-cycle-001-readme.md) - `document:generated.examples-portfolio-proof-cycle-001-readme`: Markdown document at examples/portfolio-proof-cycle-001/README.md.
 - [Synthetic Examples For agent-workloops](generated.examples-readme.md) - `document:generated.examples-readme`: Markdown document at examples/README.md.
 - [GitHub Copilot Instructions](generated.github-copilot-instructions.md) - `document:generated.github-copilot-instructions`: Markdown document at .github/copilot-instructions.md.
 - [Security Policy For agent-workloops](generated.security.md) - `document:generated.security`: Markdown document at SECURITY.md.

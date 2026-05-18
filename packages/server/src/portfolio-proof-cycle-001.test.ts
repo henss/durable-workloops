@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type {
   ClientTokenScope,
   JsonValue,
+  PlanReviewEvidence,
   WorkLoop,
   WorkLoopDecision,
 } from "@agent-workloops/api";
@@ -24,13 +25,6 @@ interface ProofFixture {
   };
 }
 
-interface ReviewEvidence {
-  status: "passed" | "failed" | "process_failed";
-  summary: string;
-  required_repairs: string[];
-  review_artifact_path: string;
-}
-
 describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
   let dataDir: string;
 
@@ -46,7 +40,7 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
     const fixture = await readJson<ProofFixture>(
       new URL("../../../examples/portfolio-proof-cycle-001/workloops-active-spine-conformance.json", import.meta.url),
     );
-    const reviewEvidence = await readJson<ReviewEvidence>(
+    const reviewEvidence = await readJson<PlanReviewEvidence>(
       new URL("../../../examples/portfolio-proof-cycle-001/aiql-review-evidence.json", import.meta.url),
     );
     const app = await buildServer({ config: config() });
@@ -108,12 +102,12 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
 
     const completedWorkLoop = completeWorkLoop(fixture.synthetic_plan_request.workLoop, {
       outcomePath: fixture.synthetic_outcome.artifact_path,
-      reviewPath: reviewEvidence.review_artifact_path,
+      reviewPath: reviewArtifactPath(reviewEvidence),
     });
     const decision: WorkLoopDecision = {
       action: "done",
       reason: reviewEvidence.summary,
-      evidencePaths: [fixture.synthetic_outcome.artifact_path, reviewEvidence.review_artifact_path],
+      evidencePaths: [fixture.synthetic_outcome.artifact_path, reviewArtifactPath(reviewEvidence)],
       nextOwner: "agent",
       workLoopId: completedWorkLoop.id,
       sliceId: completedWorkLoop.slices[0]?.id,
@@ -134,27 +128,46 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
             summary: fixture.synthetic_outcome.summary,
             disposition: fixture.synthetic_outcome.disposition,
           },
-          aiqlReview: {
-            status: reviewEvidence.status,
-            summary: reviewEvidence.summary,
-            required_repairs: reviewEvidence.required_repairs,
-            review_artifact_path: reviewEvidence.review_artifact_path,
-          },
         } satisfies Record<string, JsonValue>,
       },
     });
     expect(completed.statusCode).toBe(200);
-    expect(completed.json<{ status: string; completion: { metadata: { aiqlReview: ReviewEvidence } } }>()).toMatchObject({
+    expect(completed.json<{ status: string; completion: { metadata: { proofId: string } } }>()).toMatchObject({
       status: "completed",
       completion: {
         metadata: {
-          aiqlReview: {
-            status: "passed",
-            review_artifact_path: "examples/portfolio-proof-cycle-001/aiql-review-evidence.json",
-          },
+          proofId: "portfolio-proof-cycle-001-workloops-active-spine",
         },
       },
     });
+
+    const attachedReview = await app.inject({
+      method: "POST",
+      url: `/api/v1/plans/${planId}/review-evidence`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: { reviewEvidence },
+    });
+    expect(attachedReview.statusCode).toBe(200);
+    expect(
+      attachedReview.json<{ reviewEvidence: PlanReviewEvidence[] }>().reviewEvidence,
+    ).toEqual([
+      expect.objectContaining({
+        reviewEvidenceId: "ppc-001-synthetic-aiql-review",
+        planId,
+        source: "synthetic",
+        status: "pass",
+      }),
+    ]);
+
+    const listedReview = await app.inject({
+      method: "GET",
+      url: `/api/v1/plans/${planId}/review-evidence`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(listedReview.statusCode).toBe(200);
+    expect(listedReview.json<{ reviewEvidence: PlanReviewEvidence[] }>().reviewEvidence).toEqual(
+      attachedReview.json<{ reviewEvidence: PlanReviewEvidence[] }>().reviewEvidence,
+    );
 
     const archive = await app.inject({
       method: "GET",
@@ -163,7 +176,18 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
     });
     expect(archive.statusCode).toBe(200);
     expect(archive.json<Array<{ id: string }>>()).toEqual(
-      expect.arrayContaining([expect.objectContaining({ id: planId, status: "completed" })]),
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: planId,
+          status: "completed",
+          reviewEvidence: [
+            expect.objectContaining({
+              reviewEvidenceId: "ppc-001-synthetic-aiql-review",
+              status: "pass",
+            }),
+          ],
+        }),
+      ]),
     );
 
     const detail = await app.inject({
@@ -172,7 +196,14 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
       headers: { authorization: `Bearer ${token}` },
     });
     expect(detail.json<{ audit: Array<{ type: string }> }>().audit.map((event) => event.type)).toEqual(
-      expect.arrayContaining(["submit", "approve", "claim", "heartbeat", "complete"]),
+      expect.arrayContaining([
+        "submit",
+        "approve",
+        "claim",
+        "heartbeat",
+        "complete",
+        "attach_review_evidence",
+      ]),
     );
   });
 
@@ -204,6 +235,14 @@ describe("Portfolio Proof Cycle 001 hosted active-spine conformance", () => {
 
 async function readJson<T>(url: URL): Promise<T> {
   return JSON.parse(await fs.readFile(url, "utf8")) as T;
+}
+
+function reviewArtifactPath(evidence: PlanReviewEvidence): string {
+  const ref = evidence.artifactRefs.find((artifact) => artifact.kind === "review-evidence");
+  if (!ref?.path) {
+    throw new Error("review evidence fixture requires a review-evidence artifact path");
+  }
+  return ref.path;
 }
 
 async function loginAsAdmin(app: Awaited<ReturnType<typeof buildServer>>): Promise<string> {

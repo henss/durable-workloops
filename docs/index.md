@@ -21,7 +21,7 @@ Near-term planning is tracked in [Active Spine Roadmap](strategy/active-spine-ro
 
 ## Integration Shape
 
-Host systems can either embed the root package directly or run the optional server. The hosted server accepts authenticated submissions, enforces optional or forced manual approval, lets client tokens atomically claim approved and unlocked plans, expires leases after a configurable timeout, and records completion metadata for the archive.
+Host systems can either embed the root package directly or run the optional server. The hosted server accepts authenticated submissions, enforces optional or forced manual approval, lets client tokens atomically claim approved and unlocked plans, expires leases after a configurable timeout, records completion metadata for the archive, and lets callers attach first-class review evidence to completed plans.
 
 The filesystem store is the default single-server persistence path. SQL/Supabase and MongoDB are represented as provider seams so downstream deployments can add concrete adapters without changing the API, UI, or CLI contracts.
 
@@ -76,6 +76,25 @@ The package includes `agent-workloops/ai-quality-loops` as an optional adapter s
 - Client token scopes are `plans:submit`, `plans:claim`, and `plans:complete`.
 - Executors claim plans with an auto-lock lease and must heartbeat or complete before expiry.
 - Completed plans remain available from the archive with metadata payloads.
+- Completed plans can carry first-class `reviewEvidence` records attached through `POST /api/v1/plans/:planId/review-evidence` and read through `GET /api/v1/plans/:planId/review-evidence`, plan detail, and archive responses.
+
+## Review Evidence Contract
+
+Hosted WorkLoops stores review evidence as caller-supplied records. It does not run AIQL or import `ai-quality-loops`; callers execute review elsewhere and attach the resulting evidence.
+
+Each review evidence record includes:
+
+- `reviewEvidenceId`
+- `planId` or `completionId`
+- `source`: `aiql`, `manual`, `synthetic`, or `other`
+- `status`: `pass`, `soft_fail`, `fail`, or `blocked`
+- `severityRollup`
+- `summary`
+- `findings`
+- `artifactRefs`
+- `createdAt`
+
+Only completed plans accept review evidence. Executor tokens with `plans:complete` can attach evidence, and authenticated callers can read it back. The audit stream records an `attach_review_evidence` event with only summary fields and artifact references, not raw private logs.
 
 ## Web UI Screenshots
 

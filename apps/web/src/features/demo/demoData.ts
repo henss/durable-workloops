@@ -222,6 +222,7 @@ function createPlan(input: PlanInput): PlanRecord {
     status: input.status,
     lock: input.lock,
     completion: input.completion,
+    reviewEvidence: [],
     submitterUserId: "user-reviewer",
     createdAt: "2026-05-11T09:00:00.000Z",
     updatedAt: input.updatedAt,

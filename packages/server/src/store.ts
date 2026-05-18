@@ -3,6 +3,7 @@ import type {
   ClientTokenScope,
   JsonValue,
   PlanRecord,
+  PlanReviewEvidence,
   PublicClientToken,
   User,
   UserRole,
@@ -66,6 +67,12 @@ export interface PlanStore {
     decision?: WorkLoopDecision;
     metadata: JsonValue;
   }): Promise<PlanRecord>;
+  attachPlanReviewEvidence(input: {
+    planId: string;
+    actor: PlanActor;
+    evidence: PlanReviewEvidence;
+  }): Promise<PlanRecord>;
+  listPlanReviewEvidence(planId: string): Promise<PlanReviewEvidence[]>;
   appendAudit(event: Omit<AuditEvent, "id" | "createdAt">): Promise<AuditEvent>;
   listAudit(planId?: string): Promise<AuditEvent[]>;
 }

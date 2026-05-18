@@ -17,6 +17,7 @@ import {
   RequestReviewPlanRequestSchema,
   ReleasePlanRequestSchema,
   SubmitPlanRequestSchema,
+  AttachPlanReviewEvidenceRequestSchema,
   type ClientTokenScope,
   type User,
   type UserRole,
@@ -371,6 +372,15 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
     };
   });
 
+  app.get("/api/v1/plans/:planId/review-evidence", async (request, reply) => {
+    const auth = await requireAuth(request, reply, authStore);
+    if (!auth) {
+      return;
+    }
+    const params = z.object({ planId: z.string().min(1) }).parse(request.params);
+    return { reviewEvidence: await planStore.listPlanReviewEvidence(params.planId) };
+  });
+
   app.post("/api/v1/plans", async (request, reply) => {
     const auth = await requireAuth(request, reply, authStore);
     if (!auth) {
@@ -392,6 +402,24 @@ export async function buildServer(options: BuildServerOptions): Promise<FastifyI
       submitterTokenId: auth.tokenId,
     });
     return reply.code(201).send({ plan });
+  });
+
+  app.post("/api/v1/plans/:planId/review-evidence", async (request, reply) => {
+    const auth = await requireReviewEvidenceAttachAuth(request, reply, authStore);
+    if (!auth) {
+      return;
+    }
+    const params = z.object({ planId: z.string().min(1) }).parse(request.params);
+    const body = AttachPlanReviewEvidenceRequestSchema.parse(request.body);
+    return planStore.attachPlanReviewEvidence({
+      planId: params.planId,
+      actor: { userId: auth.userId, tokenId: auth.tokenId },
+      evidence: {
+        ...body.reviewEvidence,
+        planId: body.reviewEvidence.planId ?? params.planId,
+        createdAt: body.reviewEvidence.createdAt ?? new Date().toISOString(),
+      },
+    });
   });
 
   app.post("/api/v1/plans/:planId/approve", async (request, reply) => {
@@ -616,6 +644,26 @@ function requireScope(auth: AuthContext, scope: ClientTokenScope, reply: Fastify
   if (!auth.scopes.includes(scope)) {
     reply.code(403).send({ error: `Client token requires ${scope}.` });
   }
+}
+
+async function requireReviewEvidenceAttachAuth(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  authStore: AuthStore,
+): Promise<AuthContext | undefined> {
+  const auth = await requireAuth(request, reply, authStore);
+  if (!auth) {
+    return undefined;
+  }
+  if (auth.tokenId) {
+    requireScope(auth, "plans:complete", reply);
+    return reply.sent ? undefined : auth;
+  }
+  if (!hasRole(auth.user, "admin") && !hasRole(auth.user, "reviewer")) {
+    reply.code(403).send({ error: "Forbidden." });
+    return undefined;
+  }
+  return auth;
 }
 
 function requireScopeForToken(auth: AuthContext, scope: ClientTokenScope, reply: FastifyReply): void {

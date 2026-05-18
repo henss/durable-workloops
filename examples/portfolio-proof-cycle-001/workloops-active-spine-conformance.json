@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "proof_id": "portfolio-proof-cycle-001-workloops-active-spine",
+  "status": "validated_by_focused_server_test",
+  "route": [
+    "Agent Atlas",
+    "Agent WorkLoops",
+    "AIQL-shaped review evidence",
+    "Orchestrator receipt"
+  ],
+  "synthetic_plan_request": {
+    "approvalRequired": false,
+    "workLoop": {
+      "id": "ppc-001-synthetic-workloop",
+      "projectId": "public-safe-demo",
+      "source": "portfolio-proof-cycle-001",
+      "status": "active",
+      "objective": "Prove a public-safe synthetic hosted WorkLoop path.",
+      "successCriteria": [
+        "plan is submitted with synthetic data",
+        "manual approval is represented",
+        "client claim creates a lease",
+        "completion records a sanitized outcome",
+        "archive readback returns the completed plan"
+      ],
+      "slices": [
+        {
+          "id": "slice-seed-approve-claim-complete",
+          "title": "Seed, approve, claim, complete, and read back archive",
+          "status": "ready",
+          "taskPacketPath": "examples/portfolio-proof-cycle-001/workloops-active-spine-conformance.json",
+          "dependsOn": [],
+          "attemptCount": 0
+        }
+      ],
+      "completionPolicy": {
+        "defaultAction": "continue",
+        "stopOnlyFor": [
+          "done",
+          "blocked"
+        ]
+      },
+      "reviewPolicy": {
+        "required": true,
+        "sliceReview": "required",
+        "finalReview": "required",
+        "repairOnReviewFailure": true,
+        "providers": [
+          {
+            "id": "synthetic-aiql-dry-run",
+            "label": "Synthetic AIQL dry-run evidence"
+          }
+        ]
+      },
+      "runawayGuard": {
+        "maxConsecutiveAgentRuns": 1
+      }
+    }
+  },
+  "lifecycle": [
+    {
+      "step": "submit",
+      "route": "POST /api/v1/plans",
+      "expected_status": "queued",
+      "expected_approval_status": "pending",
+      "notes": "The server is configured with forced approval to prove approval even when the submitted packet does not request it."
+    },
+    {
+      "step": "approve",
+      "route": "POST /api/v1/plans/:planId/approve",
+      "expected_approval_status": "approved"
+    },
+    {
+      "step": "claim",
+      "route": "POST /api/v1/plans/claim",
+      "expected_status": "locked",
+      "expected_lease": "present"
+    },
+    {
+      "step": "heartbeat",
+      "route": "POST /api/v1/plans/:planId/heartbeat",
+      "expected_lease": "extended"
+    },
+    {
+      "step": "complete",
+      "route": "POST /api/v1/plans/:planId/complete",
+      "expected_status": "completed",
+      "attached_evidence_path": "examples/portfolio-proof-cycle-001/aiql-review-evidence.json"
+    },
+    {
+      "step": "archive_readback",
+      "route": "GET /api/v1/plans/archive",
+      "expected_result": "completed plan appears exactly once"
+    }
+  ],
+  "synthetic_outcome": {
+    "artifact_path": "examples/portfolio-proof-cycle-001/synthetic-outcome.json",
+    "summary": "The synthetic hosted WorkLoop path completed locally with sanitized metadata.",
+    "disposition": "completed"
+  },
+  "gaps": [
+    {
+      "id": "hosted-review-evidence-attachment",
+      "owner": "agent-workloops",
+      "status": "missing_first_class_surface",
+      "summary": "Hosted plan completion can carry review evidence in WorkLoop decision evidence paths and metadata, but there is no separate review-evidence attachment/readback endpoint yet."
+    }
+  ],
+  "validation": {
+    "focused_test": "pnpm --filter @agent-workloops/server test -- portfolio-proof-cycle-001.test.ts",
+    "full_check": "pnpm check"
+  }
+}

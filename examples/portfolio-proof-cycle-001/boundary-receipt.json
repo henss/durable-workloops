@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "proof_id": "portfolio-proof-cycle-001-workloops-active-spine",
+  "status": "public_safe_local_only",
+  "execution_boundary": {
+    "production_deployment": false,
+    "external_deployment": false,
+    "cloud_write": false,
+    "new_third_party_dependency": false,
+    "external_review_engine_invoked": false
+  },
+  "data_boundary": {
+    "synthetic_data_only": true,
+    "private_tracker_data": false,
+    "customer_or_company_data": false,
+    "credentials_or_hosted_tokens": false,
+    "private_repository_names": false,
+    "product_specific_private_data": false
+  },
+  "public_safety_scan": {
+    "scope": [
+      "examples/portfolio-proof-cycle-001",
+      "packages/server/src/portfolio-proof-cycle-001.test.ts"
+    ],
+    "result": "no forbidden data found",
+    "notes": [
+      "Fixture repository values use example names only.",
+      "Review evidence is stubbed and does not call a provider.",
+      "Server execution uses Fastify injection and temporary local filesystem storage."
+    ]
+  }
+}

@@ -17,6 +17,7 @@ Generated index of visible `document` entities.
 - [Cloud-Private Coordination Contract](generated.docs-migration-cloud-private-coordination-contract.md) - `document:generated.docs-migration-cloud-private-coordination-contract`: Markdown document at docs/migration/cloud-private-coordination-contract.md.
 - [Database Work Item Store Contract](generated.docs-migration-database-work-item-store-contract.md) - `document:generated.docs-migration-database-work-item-store-contract`: Markdown document at docs/migration/database-work-item-store-contract.md.
 - [Work Item Auth And Storage Contract](generated.docs-migration-work-item-auth-and-storage-contract.md) - `document:generated.docs-migration-work-item-auth-and-storage-contract`: Markdown document at docs/migration/work-item-auth-and-storage-contract.md.
+- [Agent Workloops Active Spine Roadmap](generated.docs-strategy-active-spine-roadmap.md) - `document:generated.docs-strategy-active-spine-roadmap`: Markdown document at docs/strategy/active-spine-roadmap.md.
 - [Synthetic Examples For agent-workloops](generated.examples-readme.md) - `document:generated.examples-readme`: Markdown document at examples/README.md.
 - [GitHub Copilot Instructions](generated.github-copilot-instructions.md) - `document:generated.github-copilot-instructions`: Markdown document at .github/copilot-instructions.md.
 - [Security Policy For agent-workloops](generated.security.md) - `document:generated.security`: Markdown document at SECURITY.md.

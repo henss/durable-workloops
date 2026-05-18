@@ -2,7 +2,7 @@
 
 > Generated from repository source surfaces. Edit source files or Atlas overlays, then rerun `atlas maintain fix`.
 
-Generated entities: 115
+Generated entities: 116
 
 ## Commander
 
@@ -77,6 +77,7 @@ Generated entities: 115
 - `document:generated.docs-migration-cloud-private-coordination-contract` - Cloud-Private Coordination Contract: Markdown document at docs/migration/cloud-private-coordination-contract.md.
 - `document:generated.docs-migration-database-work-item-store-contract` - Database Work Item Store Contract: Markdown document at docs/migration/database-work-item-store-contract.md.
 - `document:generated.docs-migration-work-item-auth-and-storage-contract` - Work Item Auth And Storage Contract: Markdown document at docs/migration/work-item-auth-and-storage-contract.md.
+- `document:generated.docs-strategy-active-spine-roadmap` - Agent Workloops Active Spine Roadmap: Markdown document at docs/strategy/active-spine-roadmap.md.
 - `document:generated.examples-readme` - Synthetic Examples For agent-workloops: Markdown document at examples/README.md.
 - `document:generated.github-copilot-instructions` - GitHub Copilot Instructions: Markdown document at .github/copilot-instructions.md.
 - `document:generated.security` - Security Policy For agent-workloops: Markdown document at SECURITY.md.

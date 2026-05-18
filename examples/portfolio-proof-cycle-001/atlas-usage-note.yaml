@@ -1,0 +1,17 @@
+version: 1
+recorded_at: 2026-05-18T05:47:11.319Z
+task: Portfolio Proof Cycle 001 synthetic hosted WorkLoop active-spine proof
+command: 'pnpm atlas:context-pack "Portfolio Proof Cycle 001 synthetic hosted WorkLoop active-spine proof: seed plan or work item, approval, claim with lease/client path, complete with outcome, archive/readback, AIQL-style review evidence or waiver" --budget 5000'
+profile: public
+selected_entities:
+  - component:ai-quality-loops-adapter
+  - component:hosted-workloops-server
+  - repository:agent-workloops
+selected_files:
+  - examples/portfolio-proof-cycle-001/workloops-active-spine-conformance.json
+  - packages/server/src/portfolio-proof-cycle-001.test.ts
+selected_tests:
+  - pnpm --filter @agent-workloops/server test -- portfolio-proof-cycle-001.test.ts
+broad_search_fallback: false
+missing_cards: []
+misleading_cards: []

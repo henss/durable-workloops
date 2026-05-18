@@ -1,0 +1,50 @@
+{
+  "schema": "aiql.workloop.review.evidence.v1",
+  "proof_id": "portfolio-proof-cycle-001-workloops-active-spine",
+  "provider": {
+    "id": "synthetic-aiql-dry-run",
+    "mode": "stubbed",
+    "external_process_started": false
+  },
+  "subject": {
+    "kind": "workloop-slice",
+    "workloop_id": "ppc-001-synthetic-workloop",
+    "slice_id": "slice-seed-approve-claim-complete",
+    "objective": "Prove a public-safe synthetic hosted WorkLoop path.",
+    "success_criteria": [
+      "plan is submitted with synthetic data",
+      "manual approval is represented",
+      "client claim creates a lease",
+      "completion records a sanitized outcome",
+      "archive readback returns the completed plan"
+    ],
+    "outcome_path": "examples/portfolio-proof-cycle-001/synthetic-outcome.json",
+    "changed_paths": [
+      "examples/portfolio-proof-cycle-001/workloops-active-spine-conformance.json",
+      "examples/portfolio-proof-cycle-001/aiql-review-evidence.json",
+      "examples/portfolio-proof-cycle-001/boundary-receipt.json",
+      "packages/server/src/portfolio-proof-cycle-001.test.ts"
+    ]
+  },
+  "status": "passed",
+  "summary": "Synthetic review evidence is structurally attached to the WorkLoop decision and completion metadata; no external review engine was invoked.",
+  "required_repairs": [],
+  "review_artifact_path": "examples/portfolio-proof-cycle-001/aiql-review-evidence.json",
+  "checks": [
+    {
+      "id": "public-safe-synthetic-data",
+      "status": "passed",
+      "summary": "The fixture uses only synthetic IDs, examples, and local test execution."
+    },
+    {
+      "id": "hosted-lifecycle-readback",
+      "status": "passed",
+      "summary": "The server conformance test reads the completed plan through the archive endpoint."
+    },
+    {
+      "id": "review-attachment-gap",
+      "status": "warning",
+      "summary": "No first-class hosted review-evidence attachment endpoint exists yet; evidence is carried in existing decision and metadata fields."
+    }
+  ]
+}
